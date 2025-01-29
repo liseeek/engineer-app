@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+       http://www.liquibase.org/xml/ns/dbchangelog
+       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+    <changeSet author="lissz" id="10" >
+
+        <sql>
+            INSERT INTO locations (location_name, address, city, country)
+            VALUES ('City Health Clinic', 'Main Street 123', 'Warsaw', 'Poland'),
+                   ('Suburban Medical Center', 'Green Avenue 10', 'Krakow', 'Poland'),
+                   ('Lakeside Hospital', 'Lake Road 45', 'Gdansk', 'Poland'),
+                   ('Mountain Medical Facility', 'Peak Street 77', 'Zakopane', 'Poland');
+        </sql>
+
+
+        <sql>
+            INSERT INTO doctors (name, surname, specialization_id)
+            VALUES ('John',
+                    'Doe',
+                    (SELECT specialization_id
+                     FROM specializations
+                     WHERE specialization_name = 'Cardiology')),
+                   ('Anna',
+                    'Smith',
+                    (SELECT specialization_id
+                     FROM specializations
+                     WHERE specialization_name = 'Dermatology and Venereology')),
+                   ('Michael',
+                    'Brown',
+                    (SELECT specialization_id
+                     FROM specializations
+                     WHERE specialization_name = 'Orthopedics and Traumatology')),
+                   ('Sarah',
+                    'Johnson',
+                    (SELECT specialization_id
+                     FROM specializations
+                     WHERE specialization_name = 'Pediatrics')),
+                   ('Robert',
+                    'Wilson',
+                    (SELECT specialization_id
+                     FROM specializations
+                     WHERE specialization_name = 'Psychiatry'));
+        </sql>
+
+        <sql>
+            INSERT INTO doctor_locations (doctor_id, location_id)
+            VALUES ((SELECT doctor_id
+                     FROM doctors
+                     WHERE name = 'John'
+                       AND surname = 'Doe'),
+                    (SELECT location_id
+                     FROM locations
+                     WHERE location_name = 'City Health Clinic')),
+                   ((SELECT doctor_id
+                     FROM doctors
+                     WHERE name = 'John'
+                       AND surname = 'Doe'),
+                    (SELECT location_id
+                     FROM locations
+                     WHERE location_name = 'Suburban Medical Center')),
+                   ((SELECT doctor_id
+                     FROM doctors
+                     WHERE name = 'Anna'
+                       AND surname = 'Smith'),
+                    (SELECT location_id
+                     FROM locations
+                     WHERE location_name = 'City Health Clinic')),
+                   ((SELECT doctor_id
+                     FROM doctors
+                     WHERE name = 'Michael'
+                       AND surname = 'Brown'),
+                    (SELECT location_id
+                     FROM locations
+                     WHERE location_name = 'Suburban Medical Center')),
+                   ((SELECT doctor_id
+                     FROM doctors
+                     WHERE name = 'Michael'
+                       AND surname = 'Brown'),
+                    (SELECT location_id
+                     FROM locations
+                     WHERE location_name = 'Lakeside Hospital')),
+                   ((SELECT doctor_id
+                     FROM doctors
+                     WHERE name = 'Sarah'
+                       AND surname = 'Johnson'),
+                    (SELECT location_id
+                     FROM locations
+                     WHERE location_name = 'Lakeside Hospital')),
+                   ((SELECT doctor_id
+                     FROM doctors
+                     WHERE name = 'Robert'
+                       AND surname = 'Wilson'),
+                    (SELECT location_id
+                     FROM locations
+                     WHERE location_name = 'Mountain Medical Facility'));
+        </sql>
+
+        <rollback>
+            DELETE FROM doctor_locations
+            WHERE doctor_id = (
+            SELECT doctor_id FROM doctors
+            WHERE name='John' AND surname='Doe'
+            )
+            AND location_id = (
+            SELECT location_id FROM locations
+            WHERE location_name='City Health Clinic'
+            );
+
+            DELETE FROM doctor_locations
+            WHERE doctor_id = (
+            SELECT doctor_id FROM doctors
+            WHERE name='John' AND surname='Doe'
+            )
+            AND location_id = (
+            SELECT location_id FROM locations
+            WHERE location_name='Suburban Medical Center'
+            );
+
+            DELETE FROM doctor_locations
+            WHERE doctor_id = (
+            SELECT doctor_id FROM doctors
+            WHERE name='Anna' AND surname='Smith'
+            )
+            AND location_id = (
+            SELECT location_id FROM locations
+            WHERE location_name='City Health Clinic'
+            );
+
+            DELETE FROM doctor_locations
+            WHERE doctor_id = (
+            SELECT doctor_id FROM doctors
+            WHERE name='Michael' AND surname='Brown'
+            )
+            AND location_id = (
+            SELECT location_id FROM locations
+            WHERE location_name='Suburban Medical Center'
+            );
+
+            DELETE FROM doctor_locations
+            WHERE doctor_id = (
+            SELECT doctor_id FROM doctors
+            WHERE name='Michael' AND surname='Brown'
+            )
+            AND location_id = (
+            SELECT location_id FROM locations
+            WHERE location_name='Lakeside Hospital'
+            );
+
+            DELETE FROM doctor_locations
+            WHERE doctor_id = (
+            SELECT doctor_id FROM doctors
+            WHERE name='Sarah' AND surname='Johnson'
+            )
+            AND location_id = (
+            SELECT location_id FROM locations
+            WHERE location_name='Lakeside Hospital'
+            );
+
+            DELETE FROM doctor_locations
+            WHERE doctor_id = (
+            SELECT doctor_id FROM doctors
+            WHERE name='Robert' AND surname='Wilson'
+            )
+            AND location_id = (
+            SELECT location_id FROM locations
+            WHERE location_name='Mountain Medical Facility'
+            );
+
+        </rollback>
+
+    </changeSet>
+
+</databaseChangeLog>

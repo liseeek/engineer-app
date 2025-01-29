@@ -1,0 +1,128 @@
+.sidebarContainer {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #fff;
+    overflow-x: hidden;
+    transition: 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.sidebarContainer.open {
+    width: 250px;
+}
+
+.sidebarCloseBtn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 2rem;
+    color: #000;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.sidebarList {
+    list-style-type: none;
+    padding: 0;
+    margin: 60px 0 0;
+}
+
+.sidebarItem {
+    margin: 15px 0;
+}
+
+.sidebarLink,
+.sidebarActiveLink {
+    color: #000;
+    text-decoration: none;
+    font-size: 1.5rem;
+    padding: 10px 20px;
+    display: block;
+    transition: color 0.3s ease;
+}
+
+.sidebarActiveLink {
+    background-color: #bebbbb;
+}
+
+.sidebarLink:hover,
+.sidebarActiveLink:hover {
+    color: #6bcbb8;
+}
+
+.sidebarIcon {
+    font-size: 1.5rem;
+    color: #6bcbb8;
+    margin-right: 10px;
+}
+
+.sidebarButton {
+    background: transparent;
+    border: none;
+    color: #000;
+    font-size: 1.5rem;
+    display: block;
+    text-align: left;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.sidebarButton:hover {
+    color: #6bcbb8;
+}
+
+.sidebarOpenBtn {
+    font-size: 20px;
+    background-color: #6bcbb8;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px 15px;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    border-radius: 5px;
+}
+
+.sidebarOpenBtn:hover {
+    background-color: #4aa98b;
+}
+
+@media (max-width: 768px) {
+    .sidebarLink,
+    .sidebarActiveLink,
+    .sidebarButton {
+        font-size: 1.25rem;
+    }
+
+    .sidebarIcon {
+        font-size: 1.25rem;
+    }
+
+    .sidebarOpenBtn {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebarLink,
+    .sidebarActiveLink,
+    .sidebarButton {
+        font-size: 1rem;
+    }
+
+    .sidebarIcon {
+        font-size: 1rem;
+    }
+
+    .sidebarOpenBtn {
+        font-size: 1.2rem;
+        padding: 8px 12px;
+    }
+}
