@@ -52,7 +52,7 @@ docker-compose up -d
 
 #### MedHub is built using a variety of technologies and frameworks:
 
-- **Backend:** Java 17, Spring Boot 3, Spring Framework 6, Gradle
+- **Backend:** Java 17, Spring Boot 3, Gradle
 - **Database:** PostgreSQL, Liquibase
 - **Infrastructure:** Docker
 - **Frontend:** React.js, HTML, CSS
