@@ -86,6 +86,10 @@ docker-compose up -d
 ![alt text](doc/role_view.png)
 
 ## 📜 Swagger API Endpoints
+- Explore MedHub's API with Swagger:
+```
+http://localhost:8080/swagger-ui/index.html
+```
 ![alt text](doc/swagger_view.png)
 ## 📩 Contact
 Created by Szymon Lis - contact me!
