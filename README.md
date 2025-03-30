@@ -1,8 +1,8 @@
-# Med-Hub
+# MedHub
 
 ## 🏥 Introduction
 
-Med-Hub is a web application designed for registering and managing medical visits. Med-Hub allows users to create accounts, book appointments, manage medical staff and services, and oversee visit schedules all in one intuitive platform.
+MedHub is a web application designed for registering and managing medical visits. MedHub allows users to create accounts, book appointments, manage medical staff and services, and oversee visit schedules all in one intuitive platform.
 
 ## 📌 Table of Contents
 
