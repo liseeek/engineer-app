@@ -91,4 +91,3 @@ docker-compose up -d
 Created by Szymon Lis - contact me!
 - Email: lisszymon.contact@gmail.com
 - Linkedin: https://www.linkedin.com/in/lis-szymon/
-
