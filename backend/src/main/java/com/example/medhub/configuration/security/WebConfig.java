@@ -1,5 +1,6 @@
 package com.example.medhub.configuration.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -7,12 +8,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    @Value("${cors.allowed-origins:http://localhost:3000}")
+    private String allowedOrigins;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        System.out.println("CORS configuration applied.");
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000")
-                .allowedMethods("GET", "POST", "DELETE", "PATCH")
+                .allowedOrigins(allowedOrigins.split(","))
+                .allowedMethods("GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }

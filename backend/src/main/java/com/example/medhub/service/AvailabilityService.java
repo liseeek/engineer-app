@@ -23,7 +23,9 @@ public class AvailabilityService {
 
     @Transactional
     public List<AppointmentsDto> getAvailability(String locationId, String doctorId, AppointmentType appointmentType) {
-        return appointmentsRepository.findAppointmentsByFilters(locationId, doctorId, appointmentType).stream()
+        Long locId = Long.parseLong(locationId);
+        Long docId = Long.parseLong(doctorId);
+        return appointmentsRepository.findAppointmentsByFilters(locId, docId, appointmentType).stream()
                 .filter(appointment -> appointment.getUser() == null)
                 .map(AppointmentsDto::from).toList();
     }

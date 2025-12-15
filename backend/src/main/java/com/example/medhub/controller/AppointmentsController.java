@@ -23,14 +23,8 @@ public class AppointmentsController {
             @ApiResponse(responseCode = "400", description = "Bad request.")
     })
     public ResponseEntity<?> addAppointment(@PathVariable Long id) {
-        HttpStatus httpStatus = HttpStatus.CREATED;
-        try {
-            appointmentsService.addAppointmentToUser(id);
-            return new ResponseEntity<>(httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.BAD_REQUEST;
-        }
-        return new ResponseEntity<>(httpStatus);
+        appointmentsService.addAppointmentToUser(id);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}/cancel")
@@ -41,12 +35,8 @@ public class AppointmentsController {
             @ApiResponse(responseCode = "404", description = "Appointment not found.")
     })
     public ResponseEntity<?> cancelAppointment(@PathVariable Long id) {
-        try {
-            appointmentsService.cancelAppointment(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (UsernameNotFoundException ex) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        appointmentsService.cancelAppointment(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PatchMapping("/{id}/complete")
@@ -57,12 +47,8 @@ public class AppointmentsController {
             @ApiResponse(responseCode = "404", description = "Appointment not found.")
     })
     public ResponseEntity<?> completeAppointment(@PathVariable Long id) {
-        try {
-            appointmentsService.completeAppointment(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (UsernameNotFoundException ex) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        appointmentsService.completeAppointment(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 

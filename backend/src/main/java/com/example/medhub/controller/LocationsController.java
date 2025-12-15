@@ -26,14 +26,8 @@ public class LocationsController {
             @ApiResponse(responseCode = "400", description = "Bad request.")
     })
     public ResponseEntity<?> addLocation(@RequestBody LocationCreateRequestDto locationCreateRequestDto) {
-        HttpStatus httpStatus = HttpStatus.CREATED;
-        try {
-            locationsService.saveLocation(locationCreateRequestDto);
-            return new ResponseEntity<>(httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.BAD_REQUEST;
-        }
-        return new ResponseEntity<>(httpStatus);
+        locationsService.saveLocation(locationCreateRequestDto);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -43,13 +37,7 @@ public class LocationsController {
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
     public ResponseEntity<List<LocationDto>> getLocations() {
-        HttpStatus httpStatus = HttpStatus.OK;
-        try {
-            return new ResponseEntity<>(locationsService.getLocations(), httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.NOT_FOUND;
-        }
-        return new ResponseEntity<>(httpStatus);
+        return ResponseEntity.ok(locationsService.getLocations());
     }
 
     @GetMapping("/cities/distinct")
@@ -59,13 +47,7 @@ public class LocationsController {
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
     public ResponseEntity<List<String>> getDistinctLocations() {
-        HttpStatus httpStatus = HttpStatus.OK;
-        try {
-            return new ResponseEntity<>(locationsService.getDistinctLocations(), httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.NOT_FOUND;
-        }
-        return new ResponseEntity<>(httpStatus);
+        return ResponseEntity.ok(locationsService.getDistinctLocations());
     }
 
     @DeleteMapping("/{id}")
@@ -75,13 +57,7 @@ public class LocationsController {
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
     public ResponseEntity<?> deleteLocation(@PathVariable Long id) {
-        HttpStatus httpStatus = HttpStatus.NO_CONTENT;
-        try {
-            locationsService.deleteById(id);
-            return new ResponseEntity<>(httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.NOT_FOUND;
-        }
-        return new ResponseEntity<>(httpStatus);
+        locationsService.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -27,12 +27,6 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "401", description = "Bad credentials.")
     })
     public ResponseEntity<AuthenticationResponse> authenticateUser(@RequestBody AuthenticationRequest authenticationRequest) {
-        HttpStatus httpStatus = HttpStatus.OK;
-        try {
-            return new ResponseEntity<>(signInService.signIn(authenticationRequest), httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.BAD_REQUEST;
-        }
-        return new ResponseEntity<>(httpStatus);
+        return ResponseEntity.ok(signInService.signIn(authenticationRequest));
     }
 }

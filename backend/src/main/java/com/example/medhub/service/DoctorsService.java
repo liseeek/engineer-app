@@ -95,11 +95,9 @@ public class DoctorsService {
     }
 
     public List<DoctorDto> getDoctorsByCityAndSpecialization(String city, Long specializationId) {
-        List<DoctorEntity> doctors = doctorRepository.findAll();
+        List<DoctorEntity> doctors = doctorRepository.findByCityAndSpecialization(city, specializationId);
 
         return doctors.stream()
-                .filter(doctor -> doctor.getSpecialization().getSpecializationId().equals(specializationId))
-                .filter(doctor -> doctor.getLocations().stream().map(LocationEntity::getCity).collect(Collectors.toSet()).contains(city))
                 .map(doctor -> {
                     List<LocationDto> locationDtos = doctor.getLocations().stream().map(LocationDto::from).toList();
                     return new DoctorDto(
@@ -122,7 +120,7 @@ public class DoctorsService {
             doctor.getLocations().add(location);
             doctorRepository.save(doctor);
         } else {
-            throw new MedHubServiceException("!!!!!!!!!!!!!!!!!!");
+            throw new MedHubServiceException("Doctor or Location not found");
         }
     }
 
@@ -135,7 +133,7 @@ public class DoctorsService {
             doctor.getLocations().removeIf(location::equals);
             doctorRepository.save(doctor);
         } else {
-            throw new MedHubServiceException("!!!!!!!!!!!!!!!!!!");
+            throw new MedHubServiceException("Doctor or Location not found");
         }
     }
 }

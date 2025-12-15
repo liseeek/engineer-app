@@ -1,18 +1,19 @@
 package com.example.medhub.entity;
 
-import com.example.medhub.dto.request.DoctorCreateRequestDto;
-import com.example.medhub.mapper.DoctorMapper;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Table(name = "doctors")
 public class DoctorEntity {
     @Id
@@ -41,7 +42,16 @@ public class DoctorEntity {
     @JoinColumn(name = "specialization_id", nullable = false)
     private SpecializationEntity specialization;
 
-    public static DoctorEntity from(DoctorCreateRequestDto newDoctor) {
-        return DoctorMapper.DOCTOR_MAPPER.toDoctor(newDoctor);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DoctorEntity that = (DoctorEntity) o;
+        return doctorId == that.doctorId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(doctorId);
     }
 }

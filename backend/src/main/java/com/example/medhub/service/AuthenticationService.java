@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.webjars.NotFoundException;
 
 import java.util.Optional;
 
@@ -35,6 +34,6 @@ public class AuthenticationService implements UserDetailsService {
         if (worker.isPresent()) {
             return worker.get();
         }
-        throw new NotFoundException("User with email=%s not found".formatted(email));
+        throw new UsernameNotFoundException("User with email=%s not found".formatted(email));
     }
 }

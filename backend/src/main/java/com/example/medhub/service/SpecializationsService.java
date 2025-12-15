@@ -25,7 +25,7 @@ public class SpecializationsService {
         if (specializationRepository.findSpecializationEntityBySpecializationName(specializationCreateRequestDto.getSpecializationName()).isPresent()) {
             throw new MedHubServiceException("Already Exist");
         }
-        specializationRepository.save(SpecializationEntity.from(specializationCreateRequestDto));
+        specializationRepository.save(SpecializationMapper.SPECIALIZATION_MAPPER.toEntity(specializationCreateRequestDto));
     }
 
     public List<SpecializationDto> getSpecializations() {

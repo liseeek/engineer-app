@@ -2,16 +2,19 @@ package com.example.medhub.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Table(name = "appointments")
 public class AppointmentsEntity {
     @Id
@@ -43,5 +46,18 @@ public class AppointmentsEntity {
     @Column
     @Enumerated(EnumType.STRING)
     private AppointmentType appointmentType;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AppointmentsEntity that = (AppointmentsEntity) o;
+        return Objects.equals(appointmentId, that.appointmentId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(appointmentId);
+    }
 }
 

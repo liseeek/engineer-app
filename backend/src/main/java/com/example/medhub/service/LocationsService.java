@@ -4,6 +4,7 @@ import com.example.medhub.dto.LocationDto;
 import com.example.medhub.dto.request.LocationCreateRequestDto;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
+import com.example.medhub.mapper.LocationMapper;
 import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.LocationRepository;
 import jakarta.transaction.Transactional;
@@ -24,7 +25,7 @@ public class LocationsService {
         if (locationRepository.findLocationByLocationName(locationCreateRequestDto.getLocationName()).isPresent()){
             throw new MedHubServiceException("Already Exist");
         }
-        locationRepository.save(LocationEntity.from(locationCreateRequestDto));
+        locationRepository.save(LocationMapper.LOCATION_MAPPER.toLocationEntity(locationCreateRequestDto));
     }
 
     @Transactional

@@ -18,6 +18,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.medhub.mapper.UserMapper;
+
+// ... imports
+
 @Service
 @RequiredArgsConstructor
 public class UsersService {
@@ -27,7 +31,7 @@ public class UsersService {
 
     public void saveUser(UserCreateRequestDto newUser) {
         var encryptedPassword = passwordEncoder.encode(newUser.getPassword());
-        UserEntity userEntity = UserEntity.from(newUser, encryptedPassword);
+        UserEntity userEntity = UserMapper.USER_MAPPER.toUser(newUser, encryptedPassword);
         userEntity.setAuthority(Authority.ROLE_USER);
         userRepository.save(userEntity);
     }

@@ -1,15 +1,17 @@
 package com.example.medhub.entity;
 
-import com.example.medhub.dto.request.SpecializationCreateRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "specializations")
@@ -25,9 +27,16 @@ public class SpecializationEntity {
     @OneToMany(mappedBy = "specialization", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DoctorEntity> doctors;
 
-    public static SpecializationEntity from(SpecializationCreateRequestDto specializationCreateRequestDto) {
-        SpecializationEntity specializationEntity = new SpecializationEntity();
-        specializationEntity.setSpecializationName(specializationCreateRequestDto.getSpecializationName());
-        return specializationEntity;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SpecializationEntity that = (SpecializationEntity) o;
+        return Objects.equals(specializationId, that.specializationId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(specializationId);
     }
 }

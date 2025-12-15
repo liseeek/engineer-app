@@ -1,16 +1,17 @@
 package com.example.medhub.entity;
 
-import com.example.medhub.dto.request.LocationCreateRequestDto;
-import com.example.medhub.mapper.LocationMapper;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "locations")
@@ -38,7 +39,16 @@ public class LocationEntity {
     @ManyToMany(mappedBy = "locations")
     private List<DoctorEntity> doctors;
 
-    public static LocationEntity from(LocationCreateRequestDto locationCreateRequestDto) {
-        return LocationMapper.LOCATION_MAPPER.toLocationEntity(locationCreateRequestDto);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LocationEntity that = (LocationEntity) o;
+        return Objects.equals(locationId, that.locationId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(locationId);
     }
 }

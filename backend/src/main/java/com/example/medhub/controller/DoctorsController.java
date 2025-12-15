@@ -30,14 +30,8 @@ public class DoctorsController {
             @ApiResponse(responseCode = "400", description = "Bad request.")
     })
     public ResponseEntity<?> addDoctor(@RequestBody DoctorCreateRequestDto newDoctor) {
-        HttpStatus httpStatus = HttpStatus.CREATED;
-        try {
-            doctorsService.saveDoctor(newDoctor);
-            return new ResponseEntity<>(httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.BAD_REQUEST;
-        }
-        return new ResponseEntity<>(httpStatus);
+        doctorsService.saveDoctor(newDoctor);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -47,13 +41,7 @@ public class DoctorsController {
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
     public ResponseEntity<List<DoctorDto>> getDoctors() {
-        HttpStatus httpStatus = HttpStatus.OK;
-        try {
-            return new ResponseEntity<>(doctorsService.getAllDoctors(), httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.NOT_FOUND;
-        }
-        return new ResponseEntity<>(httpStatus);
+        return ResponseEntity.ok(doctorsService.getAllDoctors());
     }
 
     @GetMapping("{id}/locations")
@@ -63,13 +51,7 @@ public class DoctorsController {
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
     public ResponseEntity<List<LocationDto>> getLocationsByDoctorId(@PathVariable Long id) {
-        HttpStatus httpStatus = HttpStatus.OK;
-        try {
-            return new ResponseEntity<>(doctorsService.getLocationsByDoctorId(id), httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.NOT_FOUND;
-        }
-        return new ResponseEntity<>(httpStatus);
+        return ResponseEntity.ok(doctorsService.getLocationsByDoctorId(id));
     }
 
     @GetMapping("/by-specialization")
@@ -103,17 +85,13 @@ public class DoctorsController {
     })
     public ResponseEntity<?> updateDoctorLocation(@PathVariable Long id,
                                                   @RequestBody UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {
-        try {
-            if (updateDoctorLocationRequestDto.getOperationType().equals(OperationType.ADD)) {
-                doctorsService.addLocation(id, updateDoctorLocationRequestDto);
-            }
-            if (updateDoctorLocationRequestDto.getOperationType().equals(OperationType.REMOVE)) {
-                doctorsService.removeLocation(id, updateDoctorLocationRequestDto);
-            }
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (UsernameNotFoundException ex) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (updateDoctorLocationRequestDto.getOperationType().equals(OperationType.ADD)) {
+            doctorsService.addLocation(id, updateDoctorLocationRequestDto);
         }
+        if (updateDoctorLocationRequestDto.getOperationType().equals(OperationType.REMOVE)) {
+            doctorsService.removeLocation(id, updateDoctorLocationRequestDto);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -123,14 +101,8 @@ public class DoctorsController {
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
     public ResponseEntity<?> deleteDoctor(@PathVariable Long id) {
-        HttpStatus httpStatus = HttpStatus.NO_CONTENT;
-        try {
-            doctorsService.deleteById(id);
-            return new ResponseEntity<>(httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.NOT_FOUND;
-        }
-        return new ResponseEntity<>(httpStatus);
+        doctorsService.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
 

@@ -26,14 +26,8 @@ public class SpecializationsController {
             @ApiResponse(responseCode = "400", description = "Bad request.")
     })
     public ResponseEntity<?> addLocation(@RequestBody SpecializationCreateRequestDto specializationCreateRequestDto) {
-        HttpStatus httpStatus = HttpStatus.CREATED;
-        try {
-            specializationsService.saveLocation(specializationCreateRequestDto);
-            return new ResponseEntity<>(httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.BAD_REQUEST;
-        }
-        return new ResponseEntity<>(httpStatus);
+        specializationsService.saveLocation(specializationCreateRequestDto);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping

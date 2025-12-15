@@ -28,13 +28,8 @@ public class WorkersController {
             @ApiResponse(responseCode = "400", description = "Worker already exists.")
     })
     public ResponseEntity<?> addWorker(@RequestBody WorkerCreateRequestDTO workerCreateRequestDTO) {
-        HttpStatus httpStatus = HttpStatus.CREATED;
-        try {
-            workersService.saveWorker(workerCreateRequestDTO);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.BAD_REQUEST;
-        }
-        return new ResponseEntity<>(httpStatus);
+        workersService.saveWorker(workerCreateRequestDTO);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/currentWorker/appointments")
@@ -44,13 +39,7 @@ public class WorkersController {
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
     public ResponseEntity<List<AppointmentsDto>> getAppointmentsForCurrentWorker() {
-        HttpStatus httpStatus = HttpStatus.OK;
-        try {
-            return new ResponseEntity<>(workersService.getAppointmentsForCurrentWorker(), httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.NOT_FOUND;
-        }
-        return new ResponseEntity<>(httpStatus);
+        return ResponseEntity.ok(workersService.getAppointmentsForCurrentWorker());
     }
 
     @GetMapping("/currentWorker/doctors")
@@ -60,13 +49,7 @@ public class WorkersController {
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
     public ResponseEntity<List<DoctorDto>> getDoctorsFromWorkerLocation() {
-        HttpStatus httpStatus = HttpStatus.OK;
-        try {
-            return new ResponseEntity<>(workersService.getDoctorsFromWorkerLocation(), httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.NOT_FOUND;
-        }
-        return new ResponseEntity<>(httpStatus);
+        return ResponseEntity.ok(workersService.getDoctorsFromWorkerLocation());
     }
 
     @GetMapping("/currentWorker/location")
@@ -76,12 +59,6 @@ public class WorkersController {
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
     public ResponseEntity<LocationDto> getWorkerLocation() {
-        HttpStatus httpStatus = HttpStatus.OK;
-        try {
-            return new ResponseEntity<>(workersService.getWorkerLocation(), httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.NOT_FOUND;
-        }
-        return new ResponseEntity<>(httpStatus);
+        return ResponseEntity.ok(workersService.getWorkerLocation());
     }
 }

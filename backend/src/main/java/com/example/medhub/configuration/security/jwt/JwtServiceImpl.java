@@ -64,12 +64,6 @@ public class JwtServiceImpl implements JwtService {
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
-//    public Long getUserIdFromToken(String token) {
-//        Claims claims = extractAllClaims(token);
-//        return claims.get("userId", Long.class);
-//    }
-
-
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }

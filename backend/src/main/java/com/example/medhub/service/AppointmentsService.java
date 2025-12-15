@@ -22,7 +22,7 @@ public class AppointmentsService {
     public void addAppointmentToUser(Long appointmentId) {
         Object authenticatedUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (authenticatedUser instanceof UserEntity user) {
-            AppointmentsEntity appointment = appointmentsRepository.findById(appointmentId)
+            AppointmentsEntity appointment = appointmentsRepository.findWithLockingById(appointmentId)
                     .orElseThrow(() -> new MedHubServiceException("Not found"));
             if (appointment.getUser() != null) {
                 throw new MedHubServiceException("Availability already assigned");
@@ -34,6 +34,7 @@ public class AppointmentsService {
         }
     }
 
+    @Transactional
     public void completeAppointment(Long appointmentId) {
         Optional<AppointmentsEntity> appointment = appointmentsRepository.findById(appointmentId);
         if (appointment.isPresent()) {
@@ -45,6 +46,7 @@ public class AppointmentsService {
         }
     }
 
+    @Transactional
     public void cancelAppointment(Long appointmentId) {
         Optional<AppointmentsEntity> appointment = appointmentsRepository.findById(appointmentId);
         if (appointment.isPresent()) {

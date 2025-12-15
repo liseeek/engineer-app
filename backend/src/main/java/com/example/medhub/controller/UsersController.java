@@ -27,13 +27,8 @@ public class UsersController {
             @ApiResponse(responseCode = "400", description = "User already exists.")
     })
     public ResponseEntity<?> addUser(@RequestBody UserCreateRequestDto newUser) {
-        HttpStatus httpStatus = HttpStatus.CREATED;
-        try {
-            usersService.saveUser(newUser);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.BAD_REQUEST;
-        }
-        return new ResponseEntity<>(httpStatus);
+        usersService.saveUser(newUser);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/currentUser/appointments")
@@ -43,12 +38,6 @@ public class UsersController {
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
     public ResponseEntity<List<AppointmentsDto>> getAppointmentsForCurrentUser() {
-        HttpStatus httpStatus = HttpStatus.OK;
-        try {
-            return new ResponseEntity<>(usersService.getAppointmentsForCurrentUser(), httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.NOT_FOUND;
-        }
-        return new ResponseEntity<>(httpStatus);
+        return ResponseEntity.ok(usersService.getAppointmentsForCurrentUser());
     }
 }

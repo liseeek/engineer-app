@@ -27,14 +27,8 @@ public class AvailabilityController {
             @ApiResponse(responseCode = "400", description = "Bad request.")
     })
     public ResponseEntity<?> addAvailability(@RequestBody AvailabilityCreateRequestDto availabilityCreateRequestDto) {
-        HttpStatus httpStatus = HttpStatus.CREATED;
-        try {
-            availabilityService.createAvailability(availabilityCreateRequestDto);
-            return new ResponseEntity<>(httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.BAD_REQUEST;
-        }
-        return new ResponseEntity<>(httpStatus);
+        availabilityService.createAvailability(availabilityCreateRequestDto);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -46,13 +40,7 @@ public class AvailabilityController {
     public ResponseEntity<List<AppointmentsDto>> getAvailability(@RequestParam String doctorId,
                                                                  @RequestParam String locationId,
                                                                  @RequestParam AppointmentType appointmentType) {
-        HttpStatus httpStatus = HttpStatus.OK;
-        try {
-            return new ResponseEntity<>(availabilityService.getAvailability(locationId, doctorId, appointmentType), httpStatus);
-        } catch (Exception exception) {
-            httpStatus = HttpStatus.NOT_FOUND;
-        }
-        return new ResponseEntity<>(httpStatus);
+        return ResponseEntity.ok(availabilityService.getAvailability(locationId, doctorId, appointmentType));
     }
 
 }
