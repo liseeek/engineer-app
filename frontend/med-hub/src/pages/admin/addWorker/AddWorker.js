@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import {Helmet} from "react-helmet";
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Helmet } from "react-helmet";
+
 import logo from '../../../img/logo.svg';
 import NavRespo from "../../../components/NavRespo";
 import styles from '../../../components/Adding.module.css';
-import {Autocomplete, Box, TextField} from '@mui/material';
-import {toast, ToastContainer} from 'react-toastify';
+import { Autocomplete, Box, TextField } from '@mui/material';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getAuthToken} from "../../../helpers/axiosHelper";
+import { getAuthToken, request } from "../../../helpers/axiosHelper";
 
 const AddWorker = () => {
     const [user, setUser] = useState({
@@ -24,19 +24,14 @@ const AddWorker = () => {
 
     useEffect(() => {
         const fetchLocations = async () => {
-            const token = getAuthToken();
-            if (!token) {
-                console.error('No token found');
-                toast.error('You are not authenticated. Please log in.');
-                return null;
-            }
             try {
-                const response = await axios.get('/v1/locations', {
-                    headers: {Authorization: `Bearer ${token}`},
-                });
+                const response = await request('get', '/v1/locations');
                 setLocation(response.data);
             } catch (error) {
                 console.error('Failed to fetch locations', error);
+                if (error.response && error.response.status === 401) {
+                    toast.error('You are not authenticated. Please log in.');
+                }
             }
         };
 
@@ -44,14 +39,14 @@ const AddWorker = () => {
     }, []);
 
     const handleChange = (e) => {
-        setUser({...user, [e.target.name]: e.target.value});
+        setUser({ ...user, [e.target.name]: e.target.value });
     };
 
     const handleLocationChange = (event, newValue) => {
         if (newValue) {
-            setUser({...user, locationName: newValue.locationName});
+            setUser({ ...user, locationName: newValue.locationName });
         } else {
-            setUser({...user, locationName: ''});
+            setUser({ ...user, locationName: '' });
         }
     };
 
@@ -62,16 +57,8 @@ const AddWorker = () => {
             toast.error('Passwords do not match');
             return;
         }
-        const token = getAuthToken();
-        if (!token) {
-            console.error('No token found');
-            toast.error('You are not authenticated. Please log in.');
-            return null;
-        }
         try {
-            const response = await axios.post('http://localhost:8080/v1/workers/signup', user, {
-                headers: {Authorization: `Bearer ${token}`},
-            });
+            const response = await request('post', '/v1/workers/signup', user);
             if (response.status === 201) {
                 toast.success('Worker registered successfully');
             }
@@ -83,13 +70,13 @@ const AddWorker = () => {
     return (
         <div className={styles.addingBaseContainer}>
             <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Helmet>
             <header className={styles.addingHeader}>
                 <div className={styles.addingLogo}>
-                    <img src={logo} alt="Logo"/>
+                    <img src={logo} alt="Logo" />
                 </div>
-                <NavRespo/>
+                <NavRespo />
             </header>
             <main className={styles.addingMain}>
                 <div className={styles.addingContainer}>
@@ -195,7 +182,7 @@ const AddWorker = () => {
                                 Register
                             </button>
                         </form>
-                        <ToastContainer position={"top-center"} autoClose={4000}/>
+                        <ToastContainer position={"top-center"} autoClose={4000} />
                     </Box>
                 </div>
             </main>

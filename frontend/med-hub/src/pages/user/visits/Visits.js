@@ -1,30 +1,21 @@
-import React, {useEffect, useState} from 'react';
-import {Helmet} from "react-helmet";
+import React, { useEffect, useState } from 'react';
+import { Helmet } from "react-helmet";
 import styles from '../../../components/Adding.module.css';
 import NavRespo from '../../../components/NavRespo';
 import logo from '../../../img/logo.svg';
-import axios from "axios";
-import {getAuthToken} from "../../../helpers/axiosHelper";
+
+import { request } from "../../../helpers/axiosHelper";
 import Box from '@mui/material/Box';
 import CancelIcon from '@mui/icons-material/Close';
-import {DataGrid, GridActionsCellItem,} from '@mui/x-data-grid';
-import {toast, ToastContainer} from "react-toastify";
+import { DataGrid, GridActionsCellItem, } from '@mui/x-data-grid';
+import { toast, ToastContainer } from "react-toastify";
 
 const Visits = () => {
     const [rows, setRows] = useState([]);
 
     const fetchAppointments = async () => {
-        const token = getAuthToken();
-        if (!token) {
-            console.error("No token found");
-            toast.error("You are not authenticated. Please log in.");
-            return;
-        }
-
         try {
-            const response = await axios.get("/v1/users/currentUser/appointments", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await request('get', "/v1/users/currentUser/appointments");
 
             const transformedData = response.data.map((appointment) => {
                 const visitDateTime = new Date(`${appointment.date}T${appointment.time}`);
@@ -54,17 +45,8 @@ const Visits = () => {
     };
 
     const cancelAppointment = async (id) => {
-        const token = getAuthToken();
-        if (!token) {
-            console.error("No token found");
-            toast.error("You are not authenticated. Please log in.");
-            return null;
-        }
-
         try {
-            const response = await axios.patch(`/v1/appointments/${id}/cancel`, null, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await request('patch', `/v1/appointments/${id}/cancel`);
             toast.success("Appointment canceled successfully!");
             return response.status;
         } catch (error) {

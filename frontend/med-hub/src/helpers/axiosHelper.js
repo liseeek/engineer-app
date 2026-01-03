@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 export const getAuthToken = () => {
     return window.localStorage.getItem('auth_token');
@@ -31,12 +31,12 @@ export const getUserRole = () => {
     return window.localStorage.getItem("user_role");
 };
 
-axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 export const request = (method, url, data) => {
     const token = getAuthToken();
-    const headers = token ? {Authorization: `Bearer ${token}`} : {};
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
     return axios({
         method: method,

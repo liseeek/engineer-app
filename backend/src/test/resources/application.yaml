@@ -1,3 +1,21 @@
 spring:
   profiles:
     active: test
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+database:
+  admin:
+    name: "Admin"
+    surname: "User"
+    email: "admin@example.com"
+    phoneNumber: "123456789"
+    password: "admin"
+
+jwt:
+  secret:
+    key: "4d65644875625365637265744b657947656e657261746564466f72546573747321"
+

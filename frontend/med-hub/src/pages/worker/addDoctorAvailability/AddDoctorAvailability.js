@@ -1,14 +1,14 @@
-import React, {useEffect, useState} from 'react';
-import {Helmet} from "react-helmet";
+import React, { useEffect, useState } from 'react';
+import { Helmet } from "react-helmet";
 import styles from '../../../components/Adding.module.css';
 import NavRespo from '../../../components/NavRespo';
 import logo from '../../../img/logo.svg';
-import axios from "axios";
-import {Autocomplete, Box, MenuItem, TextField} from "@mui/material";
-import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFnsV3";
-import {toast, ToastContainer} from "react-toastify";
-import {getAuthToken} from "../../../helpers/axiosHelper";
+
+import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import { toast, ToastContainer } from "react-toastify";
+import { request } from "../../../helpers/axiosHelper";
 
 const AddDoctorAvailability = () => {
     const [availability, setAvailability] = useState({
@@ -25,16 +25,8 @@ const AddDoctorAvailability = () => {
 
     useEffect(() => {
         const fetchDoctors = async () => {
-            const token = getAuthToken();
-            if (!token) {
-                toast.error("You are not authenticated. Please log in.");
-                return;
-            }
-
             try {
-                const response = await axios.get('/v1/workers/currentWorker/doctors', {
-                    headers: {Authorization: `Bearer ${token}`},
-                });
+                const response = await request('get', '/v1/workers/currentWorker/doctors');
 
                 if (response.status === 200) {
                     const data = response.data.map((doc) => ({
@@ -68,18 +60,12 @@ const AddDoctorAvailability = () => {
     };
 
     const handleAvailabilityChange = (e) => {
-        const {name, value} = e.target;
-        setAvailability({...availability, [name]: value});
+        const { name, value } = e.target;
+        setAvailability({ ...availability, [name]: value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const token = getAuthToken();
-        if (!token) {
-            toast.error("You are not authenticated. Please log in.");
-            return;
-        }
 
         if (!availability.doctorId) {
             toast.error("Please select a doctor.");
@@ -99,14 +85,7 @@ const AddDoctorAvailability = () => {
         }
 
         try {
-            const response = await axios.post('/v1/availability', availability,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
+            const response = await request('post', '/v1/availability', availability);
 
             if (response.status === 201) {
                 toast.success("Availability created successfully.");
@@ -133,14 +112,14 @@ const AddDoctorAvailability = () => {
     return (
         <div>
             <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Helmet>
             <div className={styles.addingBaseContainer}>
                 <header className={styles.addingHeader}>
                     <div className={styles.addingLogo}>
-                        <img src={logo} alt="Logo"/>
+                        <img src={logo} alt="Logo" />
                     </div>
-                    <NavRespo/>
+                    <NavRespo />
                 </header>
             </div>
             <main className={styles.addingMain}>
@@ -178,7 +157,7 @@ const AddDoctorAvailability = () => {
                                     label="Select Date"
                                     value={startDate}
                                     onChange={handleDateChange}
-                                    sx={{width: '100%'}}
+                                    sx={{ width: '100%' }}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
@@ -237,7 +216,7 @@ const AddDoctorAvailability = () => {
                                 Create Availability
                             </button>
                         </form>
-                        <ToastContainer position="top-center" autoClose={4000}/>
+                        <ToastContainer position="top-center" autoClose={4000} />
                     </Box>
                 </div>
             </main>

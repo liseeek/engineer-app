@@ -1,30 +1,22 @@
-import React, {useEffect, useState} from 'react';
-import {Helmet} from "react-helmet";
+import React, { useEffect, useState } from 'react';
+import { Helmet } from "react-helmet";
 import styles from '../../../components/Adding.module.css';
 import NavRespo from '../../../components/NavRespo';
 import logo from '../../../img/logo.svg';
-import axios from "axios";
-import {getAuthToken} from "../../../helpers/axiosHelper";
+
+import { request } from "../../../helpers/axiosHelper";
 import Box from '@mui/material/Box';
 import CancelIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
-import {DataGrid, GridActionsCellItem,} from '@mui/x-data-grid';
-import {toast, ToastContainer} from "react-toastify";
+import { DataGrid, GridActionsCellItem, } from '@mui/x-data-grid';
+import { toast, ToastContainer } from "react-toastify";
 
 const ManageVisits = () => {
     const [rows, setRows] = useState([]);
 
     const fetchAppointments = async () => {
-        const token = getAuthToken();
-        if (!token) {
-            toast.error("You are not authenticated. Please log in.");
-            return;
-        }
-
         try {
-            const response = await axios.get("/v1/workers/currentWorker/appointments", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await request('get', "/v1/workers/currentWorker/appointments");
 
             const transformedData = response.data.map((appointment) => {
                 const visitDateTime = new Date(`${appointment.date}T${appointment.time}`);
@@ -54,16 +46,8 @@ const ManageVisits = () => {
     };
 
     const cancelAppointment = async (id) => {
-        const token = getAuthToken();
-        if (!token) {
-            toast.error("You are not authenticated. Please log in.");
-            return null;
-        }
-
         try {
-            await axios.patch(`/v1/appointments/${id}/cancel`, null, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            await request('patch', `/v1/appointments/${id}/cancel`);
             toast.success("Appointment canceled successfully!");
             return 200;
         } catch (error) {
@@ -83,16 +67,8 @@ const ManageVisits = () => {
     };
 
     const completeAppointment = async (id) => {
-        const token = getAuthToken();
-        if (!token) {
-            toast.error("You are not authenticated. Please log in.");
-            return null;
-        }
-
         try {
-            await axios.patch(`/v1/appointments/${id}/complete`, null, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            await request('patch', `/v1/appointments/${id}/complete`);
             toast.success("Appointment completed successfully!");
             return 200;
         } catch (error) {

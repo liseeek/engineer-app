@@ -16,40 +16,41 @@ import UpdateDoctorLocation from "./pages/worker/updateDoctorLocation/UpdateDoct
 import AddDoctorAvailability from "./pages/worker/addDoctorAvailability/AddDoctorAvailability";
 import './global.css'
 import Unauthorized from "./helpers/unauthorized";
+import { ROLES } from './helpers/roles';
 
 
 function App() {
   return (
-  <Router>
-    <div className="App">
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/mainpage" element={<MainPage />} />
-          <Route element={<ProtectedRoute requiredRoles={['ROLE_ADMIN']} />}>
-            <Route path="/addWorker" element={<AddWorker />} />
-            <Route path="/addLocation" element={<AddLocation />} />
-            <Route path="/deleteLocation" element={<DeleteLocation />} />
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/mainpage" element={<MainPage />} />
+            <Route element={<ProtectedRoute requiredRoles={[ROLES.ADMIN]} />}>
+              <Route path="/addWorker" element={<AddWorker />} />
+              <Route path="/addLocation" element={<AddLocation />} />
+              <Route path="/deleteLocation" element={<DeleteLocation />} />
+            </Route>
+            <Route element={<ProtectedRoute requiredRoles={[ROLES.WORKER]} />}>
+              <Route path="/addDoctor" element={<AddDoctor />} />
+              <Route path="/deleteDoctor" element={<DeleteDoctor />} />
+              <Route path="/updateDoctorLocation" element={<UpdateDoctorLocation />} />
+              <Route path="/addDoctorAvailability" element={<AddDoctorAvailability />} />
+              <Route path="/manageVisits" element={<ManageVisits />} />
+            </Route>
+            <Route element={<ProtectedRoute requiredRoles={[ROLES.USER]} />}>
+              <Route path="/visits" element={<Visits />} />
+              <Route path="/booking" element={<Booking />} />
+            </Route>
           </Route>
-          <Route element={<ProtectedRoute requiredRoles={['ROLE_WORKER']} />}>
-            <Route path="/addDoctor" element={<AddDoctor />} />
-            <Route path="/deleteDoctor" element={<DeleteDoctor />} />
-            <Route path="/updateDoctorLocation" element={<UpdateDoctorLocation />} />
-            <Route path="/addDoctorAvailability" element={<AddDoctorAvailability />} />
-            <Route path="/manageVisits" element={<ManageVisits />} />
-          </Route>
-          <Route element={<ProtectedRoute requiredRoles={['ROLE_USER']} />}>
-            <Route path="/visits" element={<Visits />} />
-            <Route path="/booking" element={<Booking />} />
-          </Route>
-        </Route>
-      </Routes>
+        </Routes>
 
-    </div>
-  </Router>
-    
+      </div>
+    </Router>
+
   );
 }
 

@@ -1,12 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {Helmet} from "react-helmet";
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Helmet } from "react-helmet";
+
 import styles from '../../../components/Adding.module.css';
 import NavRespo from '../../../components/NavRespo';
 import logo from '../../../img/logo.svg';
-import {Autocomplete, Box, TextField} from "@mui/material";
-import {toast, ToastContainer} from "react-toastify";
-import {getAuthToken} from "../../../helpers/axiosHelper";
+import { Autocomplete, Box, TextField } from "@mui/material";
+import { toast, ToastContainer } from "react-toastify";
+import { request } from "../../../helpers/axiosHelper";
 
 const AddDoctor = () => {
     const [doctor, setDoctor] = useState({
@@ -20,21 +20,11 @@ const AddDoctor = () => {
 
     useEffect(() => {
         const fetchWorkerLocation = async () => {
-            const token = getAuthToken();
-            if (!token) {
-                console.error('No token found');
-                toast.error('You are not authenticated. Please log in.');
-                return;
-            }
-
             try {
-                const response = await axios.get('/v1/workers/currentWorker/location', {
-                    headers: {Authorization: `Bearer ${token}`},
-                });
+                const response = await request('get', '/v1/workers/currentWorker/location');
                 if (response.status === 200) {
                     const data = response.data
                     setWorkerLocation(data);
-                    console.log('Locations fetched successfully!');
                 }
 
             } catch (error) {
@@ -47,20 +37,11 @@ const AddDoctor = () => {
 
     useEffect(() => {
         const fetchSpecializations = async () => {
-            const token = getAuthToken();
-            if (!token) {
-                console.error('No token found');
-                toast.error('You are not authenticated. Please log in.');
-                return null;
-            }
             try {
-                const response = await axios.get('/v1/specializations', {
-                    headers: {Authorization: `Bearer ${token}`},
-                });
+                const response = await request('get', '/v1/specializations');
                 if (response.status === 200) {
                     const data = response.data
                     setSpecializations(data);
-                    console.log('Locations fetched successfully!');
                 }
             } catch (error) {
                 console.error('Failed to fetch specializations!', error);
@@ -72,14 +53,14 @@ const AddDoctor = () => {
 
     const handleSpecializationChange = (event, newValue) => {
         if (newValue) {
-            setDoctor({...doctor, specializationId: newValue.specializationId});
+            setDoctor({ ...doctor, specializationId: newValue.specializationId });
         } else {
-            setDoctor({...doctor, specializationId: ''});
+            setDoctor({ ...doctor, specializationId: '' });
         }
     };
 
     const handleChange = (e) => {
-        setDoctor({...doctor, [e.target.name]: e.target.value});
+        setDoctor({ ...doctor, [e.target.name]: e.target.value });
     };
 
     const doctorData = {
@@ -88,16 +69,8 @@ const AddDoctor = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = getAuthToken();
-        if (!token) {
-            console.error('No token found');
-            toast.error('You are not authenticated. Please log in.');
-            return null;
-        }
         try {
-            const response = await axios.post('/v1/doctors', doctorData, {
-                headers: {Authorization: `Bearer ${token}`},
-            });
+            const response = await request('post', '/v1/doctors', doctorData);
             if (response.status === 201) {
                 toast.success('Doctor added successfully!');
             }
@@ -109,14 +82,14 @@ const AddDoctor = () => {
     return (
         <div>
             <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Helmet>
             <div className={styles.addingBaseContainer}>
                 <header className={styles.addingHeader}>
                     <div className={styles.addingLogo}>
-                        <img src={logo} alt="Logo"/>
+                        <img src={logo} alt="Logo" />
                     </div>
-                    <NavRespo/>
+                    <NavRespo />
                 </header>
             </div>
             <main className={styles.addingMain}>
@@ -179,7 +152,7 @@ const AddDoctor = () => {
                             </button>
                         </form>
 
-                        <ToastContainer position={"top-center"} autoClose={4000}/>
+                        <ToastContainer position={"top-center"} autoClose={4000} />
                     </Box>
                 </div>
             </main>

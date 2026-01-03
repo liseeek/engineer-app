@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {Helmet} from "react-helmet";
-import axios from 'axios';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Helmet } from "react-helmet";
+import { request } from '../../../helpers/axiosHelper';
 import logo from '../../../img/logo.svg';
 import styles from './Register.module.css';
-import {Box, TextField} from "@mui/material";
-import {toast, ToastContainer} from "react-toastify";
+import { Box, TextField } from "@mui/material";
+import { toast, ToastContainer } from "react-toastify";
 
 const Register = () => {
     const [user, setUser] = useState({
@@ -13,7 +13,7 @@ const Register = () => {
         surname: '',
         email: '',
         password: '',
-        confirmedPassword: '',
+        passwordConfirmation: '',
         phoneNumber: ''
     });
     const navigate = useNavigate();
@@ -21,13 +21,13 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (user.password !== user.confirmedPassword) {
+        if (user.password !== user.passwordConfirmation) {
             toast.error('Passwords do not match');
             return;
         }
 
         try {
-            const response = await axios.post('http://localhost:8080/v1/users/signup', user);
+            const response = await request('post', '/v1/users/signup', user);
             if (response.status === 200 || response.status === 201) {
                 toast.success('User registered successfully');
                 navigate('/');
@@ -44,18 +44,18 @@ const Register = () => {
     };
 
     const handleChange = (e) => {
-        const {name, value} = e.target;
-        setUser({...user, [name]: value});
+        const { name, value } = e.target;
+        setUser({ ...user, [name]: value });
     };
 
     return (
         <div>
             <Helmet>
-                <meta name="viewport" content=""/>
+                <meta name="viewport" content="" />
             </Helmet>
             <div className={styles.registerContainer}>
                 <div className={styles.registerLogo}>
-                    <img src={logo} alt="Logo"/>
+                    <img src={logo} alt="Logo" />
                 </div>
                 <div className={styles.registerContent}>
                     <Box
@@ -113,11 +113,11 @@ const Register = () => {
                             />
                             <TextField
                                 label="Confirm Password"
-                                name="confirmedPassword"
+                                name="passwordConfirmation"
                                 type="password"
                                 fullWidth
                                 margin="normal"
-                                value={user.confirmedPassword}
+                                value={user.passwordConfirmation}
                                 onChange={handleChange}
                                 required
                             />
@@ -134,7 +134,7 @@ const Register = () => {
                             <button className={styles.registerButton} type="submit">REGISTER</button>
                         </form>
 
-                        <ToastContainer position="top-center" autoClose={4000}/>
+                        <ToastContainer position="top-center" autoClose={4000} />
                     </Box>
                 </div>
             </div>

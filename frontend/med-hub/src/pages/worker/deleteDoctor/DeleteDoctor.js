@@ -1,12 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {Helmet} from "react-helmet";
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Helmet } from "react-helmet";
+
 import styles from '../../../components/Adding.module.css';
 import NavRespo from '../../../components/NavRespo';
 import logo from '../../../img/logo.svg';
-import {Autocomplete, Box, TextField} from "@mui/material";
-import {toast, ToastContainer} from "react-toastify";
-import {getAuthToken} from "../../../helpers/axiosHelper";
+import { Autocomplete, Box, TextField } from "@mui/material";
+import { toast, ToastContainer } from "react-toastify";
+import { request } from "../../../helpers/axiosHelper";
 
 const DeleteDoctor = () => {
 
@@ -14,24 +14,14 @@ const DeleteDoctor = () => {
     const [selectDoctors, setSelectDoctors] = useState(null);
 
     const fetchDoctorsFromWorkerLocation = async () => {
-        const token = getAuthToken();
-        if (!token) {
-            console.error('No token found');
-            toast.error('You are not authenticated. Please log in.');
-            return;
-        }
-
         try {
-            const response = await axios.get('/v1/workers/currentWorker/doctors', {
-                headers: {Authorization: `Bearer ${token}`},
-            });
+            const response = await request('get', '/v1/workers/currentWorker/doctors');
             if (response.status === 200) {
                 const data = response.data.map((doc) => ({
                     doctorId: doc.doctorId,
                     fullName: `${doc.name} ${doc.surname}`,
                 }));
                 setDoctorFromWorkerLocation(data);
-                console.log('Locations fetched successfully!');
             }
         } catch (error) {
             console.error('Failed to fetch locations!', error);
@@ -46,16 +36,8 @@ const DeleteDoctor = () => {
     };
 
     const handleDelete = async (doctorId) => {
-        const token = getAuthToken();
-        if (!token) {
-            console.error('No token found');
-            toast.error('You are not authenticated. Please log in.');
-            return null;
-        }
         try {
-            await axios.delete(`/v1/doctors/${doctorId}`, {
-                headers: {Authorization: `Bearer ${token}`},
-            });
+            await request('delete', `/v1/doctors/${doctorId}`);
             toast.success("Doctor deleted successfully.");
 
             await fetchDoctorsFromWorkerLocation();
@@ -67,14 +49,14 @@ const DeleteDoctor = () => {
     return (
         <div>
             <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Helmet>
             <div className={styles.addingBaseContainer}>
                 <header className={styles.addingHeader}>
                     <div className={styles.addingLogo}>
-                        <img src={logo} alt="Logo"/>
+                        <img src={logo} alt="Logo" />
                     </div>
-                    <NavRespo/>
+                    <NavRespo />
                 </header>
             </div>
             <main className={styles.addingMain}>
@@ -110,11 +92,11 @@ const DeleteDoctor = () => {
                             />
 
                             <button onClick={() => handleDelete(selectDoctors.doctorId)}
-                                    className={styles.deleteButton}>SUBMIT
+                                className={styles.deleteButton}>SUBMIT
                             </button>
                         </form>
 
-                        <ToastContainer position={"top-center"} autoClose={4000}/>
+                        <ToastContainer position={"top-center"} autoClose={4000} />
                     </Box>
                 </div>
             </main>

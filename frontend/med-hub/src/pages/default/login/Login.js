@@ -1,11 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {decodeToken, getAuthToken, getUserRole, request, setAuthHeader} from '../../../helpers/axiosHelper';
-import {Helmet} from "react-helmet";
+
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { decodeToken, getAuthToken, getUserRole, request, setAuthHeader } from '../../../helpers/axiosHelper';
+import { ROLES } from '../../../helpers/roles';
+import { Helmet } from "react-helmet";
 import logo from '../../../img/logo.svg';
 import styles from './Login.module.css';
-import {Box, TextField} from "@mui/material";
-import {toast, ToastContainer} from "react-toastify";
+import { Box, TextField } from "@mui/material";
+import { toast, ToastContainer } from "react-toastify";
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -24,16 +26,15 @@ const Login = () => {
                 localStorage.removeItem('user_role');
             } else {
                 const userRole = getUserRole();
-                console.log("User already logged in, role:", userRole);
 
                 switch (userRole) {
-                    case 'ADMIN':
+                    case ROLES.ADMIN:
                         navigate('/addWorker');
                         break;
-                    case 'USER':
+                    case ROLES.USER:
                         navigate('/mainpage');
                         break;
-                    case 'WORKER':
+                    case ROLES.WORKER:
                         navigate('/addDoctor');
                         break;
                     default:
@@ -47,24 +48,21 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await request('post', '/v1/signin', {email, password});
-            console.log("Response data:", response.data);
+            const response = await request('post', '/v1/signin', { email, password });
 
             if (response.data.jwtToken && response.data.authority) {
                 setAuthHeader(response.data);
 
                 const userRole = response.data.authority;
 
-                console.log("Login successful, role:", userRole);
-
                 switch (userRole) {
-                    case 'ROLE_ADMIN':
+                    case ROLES.ADMIN:
                         navigate('/addWorker');
                         break;
-                    case 'ROLE_USER':
+                    case ROLES.USER:
                         navigate('/mainpage');
                         break;
-                    case 'ROLE_WORKER':
+                    case ROLES.WORKER:
                         navigate('/addDoctor');
                         break;
                     default:
@@ -81,7 +79,7 @@ const Login = () => {
     };
 
     const handleChange = (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
         if (name === "email") {
             setEmail(value);
         } else if (name === "password") {
@@ -92,11 +90,11 @@ const Login = () => {
     return (
         <div>
             <Helmet>
-                <meta name="viewport" content=""/>
+                <meta name="viewport" content="" />
             </Helmet>
             <div className={styles.loginContainer}>
                 <div className={styles.loginLogo}>
-                    <img src={logo} alt="Logo"/>
+                    <img src={logo} alt="Logo" />
                 </div>
                 <div className={styles.loginInnerContainer}>
                     <Box
@@ -137,7 +135,7 @@ const Login = () => {
                                 up</a>
                         </form>
 
-                        <ToastContainer position={"top-center"} autoClose={4000}/>
+                        <ToastContainer position={"top-center"} autoClose={4000} />
                     </Box>
                 </div>
             </div>

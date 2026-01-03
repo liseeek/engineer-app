@@ -1,13 +1,13 @@
-import React, {useState} from 'react';
-import {Helmet} from "react-helmet";
+import React, { useState } from 'react';
+import { Helmet } from "react-helmet";
 import logo from '../../../img/logo.svg';
 import NavRespo from "../../../components/NavRespo";
 import styles from '../../../components/Adding.module.css';
-import {Box, TextField} from '@mui/material';
-import axios from "axios";
-import {toast, ToastContainer} from 'react-toastify';
+import { Box, TextField } from '@mui/material';
+
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getAuthToken} from "../../../helpers/axiosHelper";
+import { request } from "../../../helpers/axiosHelper";
 
 const AddLocation = () => {
     const [location, setLocation] = useState({
@@ -19,21 +19,13 @@ const AddLocation = () => {
 
 
     const handleChange = (e) => {
-        setLocation({...location, [e.target.name]: e.target.value});
+        setLocation({ ...location, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = getAuthToken();
-        if (!token) {
-            console.error('No token found');
-            toast.error('You are not authenticated. Please log in.');
-            return null;
-        }
         try {
-            const response = await axios.post('http://localhost:8080/v1/locations', location, {
-                headers: {Authorization: `Bearer ${token}`},
-            });
+            const response = await request('post', '/v1/locations', location);
             if (response.status === 201) {
                 toast.success('Location added successfully!');
             }
@@ -45,13 +37,13 @@ const AddLocation = () => {
     return (
         <div className={styles.addingBaseContainer}>
             <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Helmet>
             <header className={styles.addingHeader}>
                 <div className={styles.addingLogo}>
-                    <img src={logo} alt="Logo"/>
+                    <img src={logo} alt="Logo" />
                 </div>
-                <NavRespo/>
+                <NavRespo />
             </header>
             <main className={styles.addingMain}>
                 <div className={styles.addingContainer}>
@@ -113,7 +105,7 @@ const AddLocation = () => {
                             </button>
                         </form>
 
-                        <ToastContainer position={"top-center"} autoClose={4000}/>
+                        <ToastContainer position={"top-center"} autoClose={4000} />
                     </Box>
                 </div>
             </main>

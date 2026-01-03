@@ -1,12 +1,12 @@
-import React, {useEffect, useState} from "react";
-import {Helmet} from "react-helmet";
+import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import styles from "../../../components/Adding.module.css";
 import NavRespo from "../../../components/NavRespo";
 import logo from "../../../img/logo.svg";
-import axios from "axios";
-import {Autocomplete, Box, MenuItem, TextField} from "@mui/material";
-import {toast, ToastContainer} from "react-toastify";
-import {getAuthToken} from "../../../helpers/axiosHelper";
+
+import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
+import { toast, ToastContainer } from "react-toastify";
+import { request } from "../../../helpers/axiosHelper";
 
 const Booking = () => {
     const [booking, setBooking] = useState({
@@ -29,15 +29,8 @@ const Booking = () => {
 
     useEffect(() => {
         const fetchCities = async () => {
-            const token = getAuthToken();
-            if (!token) {
-                toast.error("You are not authenticated. Please log in.");
-                return;
-            }
             try {
-                const response = await axios.get(`/v1/locations/cities/distinct`, {
-                    headers: {Authorization: `Bearer ${token}`},
-                });
+                const response = await request('get', `/v1/locations/cities/distinct`);
                 setCities(response.data);
             } catch (error) {
                 toast.error("Failed to fetch cities.");
@@ -47,24 +40,14 @@ const Booking = () => {
     }, []);
 
     const handleCityChange = (event, newValue) => {
-        setBooking({...booking, city: newValue});
+        setBooking({ ...booking, city: newValue });
     };
 
     useEffect(() => {
         const fetchSpecializations = async () => {
             if (booking.city) {
-                const token = getAuthToken();
-                if (!token) {
-                    toast.error("You are not authenticated. Please log in.");
-                    return;
-                }
                 try {
-                    const response = await axios.get(`/v1/specializations/by-city`, {
-                        params: {
-                            city: booking.city,
-                        },
-                        headers: {Authorization: `Bearer ${token}`},
-                    });
+                    const response = await request('get', `/v1/specializations/by-city?city=${booking.city}`);
                     setSpecializations(response.data);
                 } catch (error) {
                     toast.error("Failed to fetch specializations.");
@@ -75,25 +58,14 @@ const Booking = () => {
     }, [booking.city]);
 
     const handleSpecializationChange = (event, newValue) => {
-        setBooking({...booking, specializationId: newValue?.specializationId || ""});
+        setBooking({ ...booking, specializationId: newValue?.specializationId || "" });
     };
 
     useEffect(() => {
         const fetchDoctors = async () => {
             if (booking.city && booking.specializationId) {
-                const token = getAuthToken();
-                if (!token) {
-                    toast.error("You are not authenticated. Please log in.");
-                    return;
-                }
                 try {
-                    const response = await axios.get(`/v1/doctors/by-city-and-specialization`, {
-                        params: {
-                            city: booking.city,
-                            specializationId: booking.specializationId,
-                        },
-                        headers: {Authorization: `Bearer ${token}`},
-                    });
+                    const response = await request('get', `/v1/doctors/by-city-and-specialization?city=${booking.city}&specializationId=${booking.specializationId}`);
                     const data = response.data.map((doc) => ({
                         doctorId: doc.doctorId,
                         fullName: `${doc.name} ${doc.surname}`,
@@ -108,21 +80,14 @@ const Booking = () => {
     }, [booking.city, booking.specializationId]);
 
     const handleDoctorChange = (event, newValue) => {
-        setBooking({...booking, doctorId: newValue?.doctorId || ""});
+        setBooking({ ...booking, doctorId: newValue?.doctorId || "" });
     };
 
     useEffect(() => {
         const fetchLocations = async () => {
             if (booking.doctorId) {
-                const token = getAuthToken();
-                if (!token) {
-                    toast.error("You are not authenticated. Please log in.");
-                    return;
-                }
                 try {
-                    const response = await axios.get(`/v1/doctors/${booking.doctorId}/locations`, {
-                        headers: {Authorization: `Bearer ${token}`},
-                    });
+                    const response = await request('get', `/v1/doctors/${booking.doctorId}/locations`);
 
                     if (response.status === 200) {
                         const filteredLocations = response.data.filter(
@@ -141,30 +106,18 @@ const Booking = () => {
     }, [booking.doctorId, booking.city]);
 
     const handleLocationChange = (event, newValue) => {
-        setBooking({...booking, locationId: newValue?.locationId || ""});
+        setBooking({ ...booking, locationId: newValue?.locationId || "" });
     };
 
     const handleAppointmentTypeChange = (event) => {
-        setBooking({...booking, appointmentType: event.target.value});
+        setBooking({ ...booking, appointmentType: event.target.value });
     };
 
     useEffect(() => {
         const fetchAppointments = async () => {
             if (booking.locationId && booking.doctorId && booking.appointmentType) {
-                const token = getAuthToken();
-                if (!token) {
-                    toast.error("You are not authenticated. Please log in.");
-                    return;
-                }
                 try {
-                    const response = await axios.get(`/v1/availability`, {
-                        params: {
-                            locationId: booking.locationId,
-                            doctorId: booking.doctorId,
-                            appointmentType: booking.appointmentType,
-                        },
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
+                    const response = await request('get', `/v1/availability?locationId=${booking.locationId}&doctorId=${booking.doctorId}&appointmentType=${booking.appointmentType}`);
                     setAppointments(response.data);
 
                     const grouped = response.data.reduce((acc, appointment) => {
@@ -192,15 +145,8 @@ const Booking = () => {
     };
 
     const handleAppointmentSelect = async (appointmentId) => {
-        const token = getAuthToken();
-        if (!token) {
-            toast.error("You are not authenticated. Please log in.");
-            return;
-        }
         try {
-            await axios.patch(`/v1/appointments/${appointmentId}`, null, {
-                headers: {Authorization: `Bearer ${token}`},
-            });
+            await request('patch', `/v1/appointments/${appointmentId}`);
             toast.success("Appointment booked successfully.");
         } catch (error) {
             toast.error("Failed to book appointment.");
@@ -219,14 +165,14 @@ const Booking = () => {
     return (
         <div>
             <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Helmet>
             <div className={styles.addingBaseContainer}>
                 <header className={styles.addingHeader}>
                     <div className={styles.addingLogo}>
-                        <img src={logo} alt="Logo"/>
+                        <img src={logo} alt="Logo" />
                     </div>
-                    <NavRespo/>
+                    <NavRespo />
                 </header>
             </div>
             <main className={styles.addingMain}>
@@ -372,7 +318,7 @@ const Booking = () => {
                                 </button>
                             )}
                         </form>
-                        <ToastContainer position="top-center" autoClose={4000}/>
+                        <ToastContainer position="top-center" autoClose={4000} />
                     </Box>
                 </div>
             </main>

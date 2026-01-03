@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import {Helmet} from "react-helmet";
+import React, { useEffect, useState } from 'react';
+import { Helmet } from "react-helmet";
 import logo from '../../../img/logo.svg';
 import NavRespo from "../../../components/NavRespo";
 import styles from '../../../components/Adding.module.css';
-import {Autocomplete, Box, MenuItem, TextField} from '@mui/material';
-import axios from "axios";
-import {toast, ToastContainer} from 'react-toastify';
+import { Autocomplete, Box, MenuItem, TextField } from '@mui/material';
+
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getAuthToken} from "../../../helpers/axiosHelper";
+import { request } from "../../../helpers/axiosHelper";
 
 const UpdateDoctorLocation = () => {
 
@@ -18,21 +18,11 @@ const UpdateDoctorLocation = () => {
 
     useEffect(() => {
         const fetchWorkerLocation = async () => {
-            const token = getAuthToken();
-            if (!token) {
-                console.error('No token found');
-                toast.error('You are not authenticated. Please log in.');
-                return;
-            }
-
             try {
-                const response = await axios.get('/v1/workers/currentWorker/location', {
-                    headers: {Authorization: `Bearer ${token}`},
-                });
+                const response = await request('get', '/v1/workers/currentWorker/location');
                 if (response.status === 200) {
                     const data = response.data
                     setWorkerLocation(data);
-                    console.log('Location fetched successfully!');
                 }
 
             } catch (error) {
@@ -44,24 +34,14 @@ const UpdateDoctorLocation = () => {
     }, []);
 
     const fetchDoctors = async () => {
-        const token = getAuthToken();
-        if (!token) {
-            console.error('No token found');
-            toast.error('You are not authenticated. Please log in.');
-            return;
-        }
-
         try {
-            const response = await axios.get('/v1/doctors', {
-                headers: {Authorization: `Bearer ${token}`},
-            });
+            const response = await request('get', '/v1/doctors');
             if (response.status === 200) {
                 const data = response.data.map((doc) => ({
                     doctorId: doc.doctorId,
                     fullName: `${doc.name} ${doc.surname}`,
                 }));
                 setDoctors(data);
-                console.log('Locations fetched successfully!');
             }
         } catch (error) {
             console.error('Failed to fetch locations!', error);
@@ -73,7 +53,6 @@ const UpdateDoctorLocation = () => {
 
     const handleDoctorFromWorkerChange = (event, newValue) => {
         setSelectDoctors(newValue);
-        console.log(newValue);
     };
 
     const handleChange = (event) => {
@@ -81,22 +60,13 @@ const UpdateDoctorLocation = () => {
     };
 
     const handleUpdate = async () => {
-        const token = getAuthToken();
-        if (!token) {
-            console.error('No token found');
-            toast.error('You are not authenticated. Please log in.');
-            return null;
-        }
-
         const payload = {
             operationType,
             locationId: workerLocation.locationId,
         };
 
         try {
-            await axios.patch(`/v1/doctors/${selectDoctors.doctorId}`, payload, {
-                headers: {Authorization: `Bearer ${token}`},
-            });
+            await request('patch', `/v1/doctors/${selectDoctors.doctorId}`, payload);
             toast.success("Doctor location updated successfully.");
 
         } catch (error) {
@@ -107,13 +77,13 @@ const UpdateDoctorLocation = () => {
     return (
         <div className={styles.addingBaseContainer}>
             <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Helmet>
             <header className={styles.addingHeader}>
                 <div className={styles.addingLogo}>
-                    <img src={logo} alt="Logo"/>
+                    <img src={logo} alt="Logo" />
                 </div>
-                <NavRespo/>
+                <NavRespo />
             </header>
             <main className={styles.addingMain}>
                 <div className={styles.addingContainer}>
@@ -169,7 +139,7 @@ const UpdateDoctorLocation = () => {
                             </button>
                         </form>
 
-                        <ToastContainer position={"top-center"} autoClose={4000}/>
+                        <ToastContainer position={"top-center"} autoClose={4000} />
                     </Box>
                 </div>
             </main>

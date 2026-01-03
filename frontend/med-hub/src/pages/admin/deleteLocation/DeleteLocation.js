@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import {Helmet} from "react-helmet";
+import React, { useEffect, useState } from 'react';
+import { Helmet } from "react-helmet";
 import logo from '../../../img/logo.svg';
 import NavRespo from "../../../components/NavRespo";
 import styles from '../../../components/Adding.module.css';
-import {Autocomplete, Box, TextField} from '@mui/material';
-import axios from "axios";
-import {toast, ToastContainer} from 'react-toastify';
+import { Autocomplete, Box, TextField } from '@mui/material';
+
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getAuthToken} from "../../../helpers/axiosHelper";
+import { request } from "../../../helpers/axiosHelper";
 
 const DeleteLocation = () => {
 
@@ -16,20 +16,11 @@ const DeleteLocation = () => {
 
 
     const fetchLocations = async () => {
-        const token = getAuthToken();
-        if (!token) {
-            console.error('No token found');
-            toast.error('You are not authenticated. Please log in.');
-            return null;
-        }
         try {
-            const response = await axios.get('http://localhost:8080/v1/locations', {
-                headers: {Authorization: `Bearer ${token}`},
-            });
+            const response = await request('get', '/v1/locations');
             if (response.status === 200) {
                 const data = response.data;
                 setLocations(data);
-                console.log('Locations fetched successfully!');
             }
         } catch (error) {
             console.error('Failed to fetch locations!');
@@ -45,16 +36,8 @@ const DeleteLocation = () => {
     };
 
     const handleDelete = async (locationId) => {
-        const token = getAuthToken();
-        if (!token) {
-            console.error('No token found');
-            toast.error('You are not authenticated. Please log in.');
-            return null;
-        }
         try {
-            await axios.delete(`/v1/locations/${locationId}`, {
-                headers: {Authorization: `Bearer ${token}`},
-            });
+            await request('delete', `/v1/locations/${locationId}`);
             toast.success("Location deleted successfully.");
 
             await fetchLocations();
@@ -66,13 +49,13 @@ const DeleteLocation = () => {
     return (
         <div className={styles.addingBaseContainer}>
             <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Helmet>
             <header className={styles.addingHeader}>
                 <div className={styles.addingLogo}>
-                    <img src={logo} alt="Logo"/>
+                    <img src={logo} alt="Logo" />
                 </div>
-                <NavRespo/>
+                <NavRespo />
             </header>
             <main className={styles.addingMain}>
                 <div className={styles.addingContainer}>
@@ -106,11 +89,11 @@ const DeleteLocation = () => {
                             />
 
                             <button onClick={() => handleDelete(selectLocations.locationId)}
-                                    className={styles.deleteButton}>Delete Location
+                                className={styles.deleteButton}>Delete Location
                             </button>
                         </form>
 
-                        <ToastContainer position={"top-center"} autoClose={4000}/>
+                        <ToastContainer position={"top-center"} autoClose={4000} />
                     </Box>
                 </div>
             </main>
