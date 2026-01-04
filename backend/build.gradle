@@ -5,6 +5,10 @@ plugins {
     id 'jacoco'
 }
 
+ext {
+    set('testcontainers.version', '1.20.4')
+}
+
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
@@ -32,6 +36,7 @@ dependencies {
             'org.springframework.boot:spring-boot-starter-actuator',
             'org.springframework.boot:spring-boot-starter-data-jpa',
             'org.springframework.boot:spring-boot-starter-web',
+            'org.springframework.boot:spring-boot-starter-validation',
             'org.springframework.boot:spring-boot-starter-security',
             'org.mapstruct:mapstruct:1.5.5.Final',
             'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2',
@@ -46,7 +51,10 @@ dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'com.h2database:h2'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
 }
 
 
@@ -57,6 +65,10 @@ tasks.named('test') {
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
+    testLogging {
+        showStandardStreams = true
+        exceptionFormat = 'full'
+    }
 }
 
 jacocoTestReport {

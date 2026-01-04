@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -102,13 +103,11 @@ class WorkersServicePerformanceTest extends AbstractIntegrationTest {
             appt.setAppointmentType(AppointmentType.NFZ);
             appointmentsRepository.save(appt);
         }
-
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("worker@test.com", "pass", List.of(Authority.ROLE_WORKER)));
     }
 
     @Test
     @Transactional
+    @WithMockUser(username = "worker@test.com", roles = {"WORKER"})
     void getAppointmentsForCurrentWorker_ShouldBeEfficient() {
         entityManager.flush();
         entityManager.clear();
