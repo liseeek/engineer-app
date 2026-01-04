@@ -23,16 +23,37 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler({EntityNotFoundException.class, UsernameNotFoundException.class})
+    @ExceptionHandler({ EntityNotFoundException.class, UsernameNotFoundException.class })
     public ResponseEntity<Object> handleNotFoundException(Exception ex) {
         log.warn("Entity not found or user not found: {}", ex.getMessage());
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    public ResponseEntity<Object> handleBadCredentialsException(
+            org.springframework.security.authentication.BadCredentialsException ex) {
+        log.warn("Authentication failed: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+    }
+
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleValidationExceptions(
+            org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        log.warn("Validation failed: {}", ex.getMessage());
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((org.springframework.validation.FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGlobalException(Exception ex) {
         log.error("An unexpected internal server error occurred", ex);
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred. Please try again later.");
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+                "An unexpected error occurred. Please try again later.");
     }
 
     private ResponseEntity<Object> buildErrorResponse(HttpStatus status, String message) {

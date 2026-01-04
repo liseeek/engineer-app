@@ -9,6 +9,7 @@ import com.example.medhub.service.DoctorsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class DoctorsController {
             @ApiResponse(responseCode = "201", description = "New doctor created successfully."),
             @ApiResponse(responseCode = "400", description = "Bad request.")
     })
-    public ResponseEntity<?> addDoctor(@RequestBody DoctorCreateRequestDto newDoctor) {
+    public ResponseEntity<?> addDoctor(@Valid @RequestBody DoctorCreateRequestDto newDoctor) {
         doctorsService.saveDoctor(newDoctor);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
