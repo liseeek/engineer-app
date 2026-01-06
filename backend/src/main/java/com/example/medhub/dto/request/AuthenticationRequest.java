@@ -1,11 +1,11 @@
 package com.example.medhub.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
+@Setter
+@AllArgsConstructor
 @NoArgsConstructor
 @ToString
 public class AuthenticationRequest {

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class UsersController {
             @ApiResponse(responseCode = "201", description = "New user created successfully."),
             @ApiResponse(responseCode = "400", description = "User already exists.")
     })
-    public ResponseEntity<?> addUser(@RequestBody UserCreateRequestDto newUser) {
+    public ResponseEntity<?> addUser(@RequestBody @Valid UserCreateRequestDto newUser) {
         usersService.saveUser(newUser);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

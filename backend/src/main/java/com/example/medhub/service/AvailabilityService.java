@@ -2,7 +2,12 @@ package com.example.medhub.service;
 
 import com.example.medhub.dto.AppointmentsDto;
 import com.example.medhub.dto.request.AvailabilityCreateRequestDto;
-import com.example.medhub.entity.*;
+import com.example.medhub.entity.AppointmentStatus;
+import com.example.medhub.entity.AppointmentType;
+import com.example.medhub.entity.AppointmentsEntity;
+import com.example.medhub.entity.DoctorEntity;
+import com.example.medhub.entity.LocationEntity;
+import com.example.medhub.entity.WorkerEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.DoctorRepository;
@@ -33,16 +38,18 @@ public class AvailabilityService {
     @Transactional
     public void createAvailability(AvailabilityCreateRequestDto availabilityCreateRequestDto) {
         Object authenticatedUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(authenticatedUser instanceof WorkerEntity worker){
+        if (authenticatedUser instanceof WorkerEntity worker) {
             LocationEntity location = worker.getLocation();
             DoctorEntity doctor = doctorRepository.findById(availabilityCreateRequestDto.getDoctorId())
-                    .orElseThrow(() -> new RuntimeException("Doctor not found with ID: " + availabilityCreateRequestDto.getDoctorId()));
+                    .orElseThrow(() -> new MedHubServiceException(
+                            "Doctor not found with ID: " + availabilityCreateRequestDto.getDoctorId()));
 
             LocalTime toTime = availabilityCreateRequestDto.getToTime();
             Long visitTime = availabilityCreateRequestDto.getVisitTime();
 
             List<AppointmentsEntity> appointmentsEntities = new ArrayList<>();
-            for (LocalTime fromTime = availabilityCreateRequestDto.getFromTime(); fromTime.isBefore(toTime); fromTime = fromTime.plusMinutes(visitTime)){
+            for (LocalTime fromTime = availabilityCreateRequestDto.getFromTime(); fromTime
+                    .isBefore(toTime); fromTime = fromTime.plusMinutes(visitTime)) {
                 AppointmentsEntity appointment = new AppointmentsEntity();
                 appointment.setDoctor(doctor);
                 appointment.setDate(availabilityCreateRequestDto.getDate());
@@ -53,7 +60,7 @@ public class AvailabilityService {
                 appointmentsEntities.add(appointment);
             }
             appointmentsRepository.saveAll(appointmentsEntities);
-        }else {
+        } else {
             throw new MedHubServiceException("Not found");
         }
     }

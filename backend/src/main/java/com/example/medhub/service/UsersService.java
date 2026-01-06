@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 
 import com.example.medhub.mapper.UserMapper;
 
-// ... imports
-
 @Service
 @RequiredArgsConstructor
 public class UsersService {

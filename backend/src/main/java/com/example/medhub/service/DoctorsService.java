@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 @Service
 @RequiredArgsConstructor
 public class DoctorsService {
@@ -30,12 +29,14 @@ public class DoctorsService {
 
     @Transactional
     public DoctorDto saveDoctor(DoctorCreateRequestDto newDoctorDto) {
-        Optional<LocationEntity> location = locationRepository.findLocationByLocationName(newDoctorDto.getLocationName());
+        Optional<LocationEntity> location = locationRepository
+                .findLocationByLocationName(newDoctorDto.getLocationName());
         if (location.isEmpty()) {
             throw new MedHubServiceException("Location not found");
         } else {
-            SpecializationEntity specializationEntity = specializationRepository.findById(newDoctorDto.getSpecializationId())
-                    .orElseThrow(() -> new RuntimeException("Specialization not found"));
+            SpecializationEntity specializationEntity = specializationRepository
+                    .findById(newDoctorDto.getSpecializationId())
+                    .orElseThrow(() -> new MedHubServiceException("Specialization not found"));
 
             DoctorEntity doctorEntity = new DoctorEntity();
             doctorEntity.setName(newDoctorDto.getName());
@@ -47,8 +48,7 @@ public class DoctorsService {
 
             SpecializationDto specializationDto = new SpecializationDto(
                     specializationEntity.getSpecializationId(),
-                    specializationEntity.getSpecializationName()
-            );
+                    specializationEntity.getSpecializationName());
             return DoctorDto.from(savedDoctorEntity, specializationDto);
         }
     }
@@ -79,8 +79,7 @@ public class DoctorsService {
                             doctor.getName(),
                             doctor.getSurname(),
                             locationDtos,
-                            SpecializationDto.from(doctor.getSpecialization())
-                    );
+                            SpecializationDto.from(doctor.getSpecialization()));
                 })
                 .collect(Collectors.toList());
     }
@@ -105,15 +104,15 @@ public class DoctorsService {
                             doctor.getName(),
                             doctor.getSurname(),
                             locationDtos,
-                            SpecializationDto.from(doctor.getSpecialization())
-                    );
+                            SpecializationDto.from(doctor.getSpecialization()));
                 })
                 .collect(Collectors.toList());
     }
 
     public void addLocation(Long id, UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {
         Optional<DoctorEntity> optionalDoctor = doctorRepository.findById(id);
-        Optional<LocationEntity> optionalLocation = locationRepository.findById(updateDoctorLocationRequestDto.getLocationId());
+        Optional<LocationEntity> optionalLocation = locationRepository
+                .findById(updateDoctorLocationRequestDto.getLocationId());
         if (optionalDoctor.isPresent() && optionalLocation.isPresent()) {
             DoctorEntity doctor = optionalDoctor.get();
             LocationEntity location = optionalLocation.get();
@@ -126,7 +125,8 @@ public class DoctorsService {
 
     public void removeLocation(Long id, UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {
         Optional<DoctorEntity> optionalDoctor = doctorRepository.findById(id);
-        Optional<LocationEntity> optionalLocation = locationRepository.findById(updateDoctorLocationRequestDto.getLocationId());
+        Optional<LocationEntity> optionalLocation = locationRepository
+                .findById(updateDoctorLocationRequestDto.getLocationId());
         if (optionalDoctor.isPresent() && optionalLocation.isPresent()) {
             DoctorEntity doctor = optionalDoctor.get();
             LocationEntity location = optionalLocation.get();

@@ -77,8 +77,8 @@ class DoctorsServiceTest {
         DoctorDto result = doctorsService.saveDoctor(request);
 
         assertNotNull(result);
-        assertEquals(10L, result.getDoctorId());
-        assertEquals("Jan", result.getName());
+        assertEquals(10L, result.doctorId());
+        assertEquals("Jan", result.name());
     }
 
     @Test
@@ -110,7 +110,7 @@ class DoctorsServiceTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("House", result.get(0).getSurname());
+        assertEquals("House", result.get(0).surname());
         verify(doctorRepository, times(1)).findAll();
     }
 }

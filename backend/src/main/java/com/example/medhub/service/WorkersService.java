@@ -34,10 +34,11 @@ public class WorkersService {
     private final PasswordEncoder passwordEncoder;
 
     public void saveWorker(WorkerCreateRequestDTO workerCreateRequestDTO) {
-        Optional<LocationEntity> location = locationRepository.findLocationByLocationName(workerCreateRequestDTO.getLocationName());
-        if (location.isEmpty()){
+        Optional<LocationEntity> location = locationRepository
+                .findLocationByLocationName(workerCreateRequestDTO.getLocationName());
+        if (location.isEmpty()) {
             throw new MedHubServiceException("Location not found");
-        }else {
+        } else {
             var encryptedPassword = passwordEncoder.encode(workerCreateRequestDTO.getPassword());
             WorkerEntity workerEntity = WorkerMapper.WORKER_MAPPER.toWorker(workerCreateRequestDTO, encryptedPassword);
             workerEntity.setAuthority(Authority.ROLE_WORKER);
@@ -48,7 +49,7 @@ public class WorkersService {
 
     public LocationDto getWorkerLocation() {
         Object authenticatedUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(authenticatedUser instanceof WorkerEntity worker){
+        if (authenticatedUser instanceof WorkerEntity worker) {
             return LocationDto.from(worker.getLocation());
         } else {
             throw new MedHubServiceException("Not found");
@@ -59,9 +60,9 @@ public class WorkersService {
     public List<DoctorDto> getDoctorsFromWorkerLocation() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<WorkerEntity> worker = workerRepository.findWorkerEntitiesByEmail(email);
-        if(worker.isPresent()){
+        if (worker.isPresent()) {
             return worker.get().getLocation().getDoctors().stream().map(DoctorDto::from).toList();
-        }else {
+        } else {
             throw new MedHubServiceException("Not found");
         }
     }
@@ -71,9 +72,8 @@ public class WorkersService {
         String email = authentication.getName();
         WorkerEntity worker = workerRepository.findWorkerEntitiesByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Worker not found with email: " + email));
-        
-        return appointmentsRepository.findByLocation(worker.getLocation()).stream()
-                .filter(appointment -> appointment.getUser() != null)
+
+        return appointmentsRepository.findAllScheduledByLocation(worker.getLocation()).stream()
                 .map(AppointmentsMapper.APPOINTMENTS_MAPPER::toAppointmentDto)
                 .toList();
     }
