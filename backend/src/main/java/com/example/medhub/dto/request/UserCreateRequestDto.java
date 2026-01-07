@@ -45,6 +45,6 @@ public class UserCreateRequestDto {
 
     @NotBlank
     @Size(max = 48)
-    @Schema(example = "514098754")
+    @Schema(example = "123456789")
     private String phoneNumber;
 }
