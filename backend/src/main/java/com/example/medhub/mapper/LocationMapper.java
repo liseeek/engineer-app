@@ -7,14 +7,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
-public abstract class LocationMapper {
-    public static final LocationMapper LOCATION_MAPPER = Mappers.getMapper(LocationMapper.class);
+@Mapper(componentModel = "spring")
+public interface LocationMapper {
 
-    public abstract LocationDto toLocationDto(LocationEntity locationEntity);
+    LocationDto toLocationDto(LocationEntity locationEntity);
 
     @Mapping(target = "locationId", ignore = true)
     @Mapping(target = "workers", ignore = true)
     @Mapping(target = "doctors", ignore = true)
-    public abstract LocationEntity toLocationEntity(LocationCreateRequestDto locationCreateRequestDto);
+    LocationEntity toLocationEntity(LocationCreateRequestDto locationCreateRequestDto);
 }

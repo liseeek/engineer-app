@@ -20,12 +20,13 @@ import java.util.Optional;
 public class LocationsService {
     private final LocationRepository locationRepository;
     private final DoctorRepository doctorRepository;
+    private final LocationMapper locationMapper;
 
     public void saveLocation(LocationCreateRequestDto locationCreateRequestDto) {
         if (locationRepository.findLocationByLocationName(locationCreateRequestDto.getLocationName()).isPresent()){
             throw new MedHubServiceException("Already Exist");
         }
-        locationRepository.save(LocationMapper.LOCATION_MAPPER.toLocationEntity(locationCreateRequestDto));
+        locationRepository.save(locationMapper.toLocationEntity(locationCreateRequestDto));
     }
 
     @Transactional
@@ -44,7 +45,7 @@ public class LocationsService {
 
     public List<LocationDto> getLocations() {
         return locationRepository.findAll().stream()
-                .map(LocationDto::from)
+                .map(locationMapper::toLocationDto)
                 .toList();
     }
 

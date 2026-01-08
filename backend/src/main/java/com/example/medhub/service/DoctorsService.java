@@ -9,6 +9,8 @@ import com.example.medhub.entity.DoctorEntity;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.SpecializationEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
+import com.example.medhub.mapper.DoctorMapper;
+import com.example.medhub.mapper.LocationMapper;
 import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.SpecializationRepository;
@@ -26,6 +28,8 @@ public class DoctorsService {
     private final DoctorRepository doctorRepository;
     private final LocationRepository locationRepository;
     private final SpecializationRepository specializationRepository;
+    private final DoctorMapper doctorMapper;
+    private final LocationMapper locationMapper;
 
     @Transactional
     public DoctorDto saveDoctor(DoctorCreateRequestDto newDoctorDto) {
@@ -49,7 +53,7 @@ public class DoctorsService {
             SpecializationDto specializationDto = new SpecializationDto(
                     specializationEntity.getSpecializationId(),
                     specializationEntity.getSpecializationName());
-            return DoctorDto.from(savedDoctorEntity, specializationDto);
+            return doctorMapper.toDoctorDto(savedDoctorEntity, specializationDto);
         }
     }
 
@@ -64,7 +68,7 @@ public class DoctorsService {
     public List<DoctorDto> getAllDoctors() {
         List<DoctorEntity> allDoctorEntities = doctorRepository.findAll();
         return allDoctorEntities.stream()
-                .map(DoctorDto::from)
+                .map(doctorMapper::toDoctorDto)
                 .collect(Collectors.toList());
     }
 
@@ -73,7 +77,7 @@ public class DoctorsService {
 
         return doctorEntities.stream()
                 .map(doctor -> {
-                    List<LocationDto> locationDtos = doctor.getLocations().stream().map(LocationDto::from).toList();
+                    List<LocationDto> locationDtos = doctor.getLocations().stream().map(locationMapper::toLocationDto).toList();
                     return new DoctorDto(
                             doctor.getDoctorId(),
                             doctor.getName(),
@@ -87,7 +91,7 @@ public class DoctorsService {
     public List<LocationDto> getLocationsByDoctorId(Long id) {
         Optional<DoctorEntity> doctor = doctorRepository.findById(id);
         if (doctor.isPresent()) {
-            return doctor.get().getLocations().stream().map(LocationDto::from).toList();
+            return doctor.get().getLocations().stream().map(locationMapper::toLocationDto).toList();
         } else {
             throw new MedHubServiceException("Not found");
         }
@@ -98,7 +102,7 @@ public class DoctorsService {
 
         return doctors.stream()
                 .map(doctor -> {
-                    List<LocationDto> locationDtos = doctor.getLocations().stream().map(LocationDto::from).toList();
+                    List<LocationDto> locationDtos = doctor.getLocations().stream().map(locationMapper::toLocationDto).toList();
                     return new DoctorDto(
                             doctor.getDoctorId(),
                             doctor.getName(),

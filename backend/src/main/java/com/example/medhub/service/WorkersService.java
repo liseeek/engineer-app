@@ -10,6 +10,8 @@ import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.WorkerEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.mapper.AppointmentsMapper;
+import com.example.medhub.mapper.DoctorMapper;
+import com.example.medhub.mapper.LocationMapper;
 import com.example.medhub.mapper.WorkerMapper;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.LocationRepository;
@@ -34,6 +36,10 @@ public class WorkersService {
     private final LocationRepository locationRepository;
     private final AppointmentsRepository appointmentsRepository;
     private final PasswordEncoder passwordEncoder;
+    private final DoctorMapper doctorMapper;
+    private final AppointmentsMapper appointmentsMapper;
+    private final WorkerMapper workerMapper;
+    private final LocationMapper locationMapper;
 
     public void saveWorker(WorkerCreateRequestDTO workerCreateRequestDTO) {
         if (userRepository.existsByEmail(workerCreateRequestDTO.getEmail())) {
@@ -47,7 +53,7 @@ public class WorkersService {
             throw new MedHubServiceException("Location not found");
         } else {
             var encryptedPassword = passwordEncoder.encode(workerCreateRequestDTO.getPassword());
-            WorkerEntity workerEntity = WorkerMapper.WORKER_MAPPER.toWorker(workerCreateRequestDTO, encryptedPassword);
+            WorkerEntity workerEntity = workerMapper.toWorker(workerCreateRequestDTO, encryptedPassword);
             workerEntity.setAuthority(Authority.ROLE_WORKER);
             workerEntity.setLocation(location.get());
             workerRepository.save(workerEntity);
@@ -57,7 +63,7 @@ public class WorkersService {
     public LocationDto getWorkerLocation() {
         Object authenticatedUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (authenticatedUser instanceof WorkerEntity worker) {
-            return LocationDto.from(worker.getLocation());
+            return locationMapper.toLocationDto(worker.getLocation());
         } else {
             throw new MedHubServiceException("Not found");
         }
@@ -68,7 +74,7 @@ public class WorkersService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<WorkerEntity> worker = workerRepository.findWorkerEntitiesByEmail(email);
         if (worker.isPresent()) {
-            return worker.get().getLocation().getDoctors().stream().map(DoctorDto::from).toList();
+            return worker.get().getLocation().getDoctors().stream().map(doctorMapper::toDoctorDto).toList();
         } else {
             throw new MedHubServiceException("Not found");
         }
@@ -81,7 +87,7 @@ public class WorkersService {
                 .orElseThrow(() -> new UsernameNotFoundException("Worker not found with email: " + email));
 
         return appointmentsRepository.findAllScheduledByLocation(worker.getLocation()).stream()
-                .map(AppointmentsMapper.APPOINTMENTS_MAPPER::toAppointmentDto)
+                .map(appointmentsMapper::toAppointmentDto)
                 .toList();
     }
 }

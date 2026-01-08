@@ -1,11 +1,13 @@
 package com.example.medhub.service;
 
 import com.example.medhub.dto.DoctorDto;
+import com.example.medhub.dto.SpecializationDto;
 import com.example.medhub.dto.request.DoctorCreateRequestDto;
 import com.example.medhub.entity.DoctorEntity;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.SpecializationEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
+import com.example.medhub.mapper.DoctorMapper;
 import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.SpecializationRepository;
@@ -31,6 +33,8 @@ class DoctorsServiceTest {
     private LocationRepository locationRepository;
     @Mock
     private SpecializationRepository specializationRepository;
+    @Mock
+    private DoctorMapper doctorMapper;
 
     @InjectMocks
     private DoctorsService doctorsService;
@@ -69,10 +73,14 @@ class DoctorsServiceTest {
         savedDoctor.setSurname("Kowalski");
         savedDoctor.setSpecialization(specialization);
         savedDoctor.setLocations(List.of(location));
+        
+        DoctorDto doctorDto = new DoctorDto(10L, "Jan", "Kowalski", null, null);
 
         when(locationRepository.findLocationByLocationName(any())).thenReturn(Optional.of(location));
         when(specializationRepository.findById(1L)).thenReturn(Optional.of(specialization));
         when(doctorRepository.save(any())).thenReturn(savedDoctor);
+        when(doctorMapper.toDoctorDto(any(DoctorEntity.class), any(SpecializationDto.class))).thenReturn(doctorDto);
+
 
         DoctorDto result = doctorsService.saveDoctor(request);
 
@@ -104,7 +112,10 @@ class DoctorsServiceTest {
         DoctorEntity doctor = new DoctorEntity();
         doctor.setSurname("House");
         
+        DoctorDto doctorDto = new DoctorDto(1L, "Gregory", "House", null, null);
+        
         when(doctorRepository.findAll()).thenReturn(List.of(doctor));
+        when(doctorMapper.toDoctorDto(doctor)).thenReturn(doctorDto);
 
         List<DoctorDto> result = doctorsService.getAllDoctors();
 

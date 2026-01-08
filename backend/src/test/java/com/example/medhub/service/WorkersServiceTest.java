@@ -4,6 +4,9 @@ import com.example.medhub.dto.request.WorkerCreateRequestDTO;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.WorkerEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
+import com.example.medhub.mapper.AppointmentsMapper;
+import com.example.medhub.mapper.DoctorMapper;
+import com.example.medhub.mapper.WorkerMapper;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.WorkerRepository;
@@ -35,6 +38,12 @@ class WorkersServiceTest {
     private AppointmentsRepository appointmentsRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private DoctorMapper doctorMapper;
+    @Mock
+    private AppointmentsMapper appointmentsMapper;
+    @Mock
+    private WorkerMapper workerMapper;
 
     @InjectMocks
     private WorkersService workersService;
@@ -54,9 +63,11 @@ class WorkersServiceTest {
         LocationEntity location = new LocationEntity();
         location.setLocationName(locationName);
 
+        WorkerEntity workerEntity = new WorkerEntity();
+
         when(locationRepository.findLocationByLocationName(locationName)).thenReturn(Optional.of(location));
         when(passwordEncoder.encode("tajneHaslo")).thenReturn("hashed_secret");
-
+        when(workerMapper.toWorker(any(), any())).thenReturn(workerEntity);
 
         workersService.saveWorker(request);
 

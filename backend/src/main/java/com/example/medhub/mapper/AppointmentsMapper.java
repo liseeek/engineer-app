@@ -6,10 +6,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
-public abstract class AppointmentsMapper {
-    public static final AppointmentsMapper APPOINTMENTS_MAPPER = Mappers.getMapper(AppointmentsMapper.class);
+@Mapper(componentModel = "spring")
+public interface AppointmentsMapper {
 
     @Mapping(target = "doctor.specialization", source = "doctor.specialization")
-    public abstract AppointmentsDto toAppointmentDto(AppointmentsEntity appointment);
+    AppointmentsDto toAppointmentDto(AppointmentsEntity appointment);
 }

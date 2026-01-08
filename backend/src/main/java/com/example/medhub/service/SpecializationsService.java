@@ -17,24 +17,25 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SpecializationsService {
     private final SpecializationRepository specializationRepository;
+    private final SpecializationMapper specializationMapper;
 
     public void saveLocation(SpecializationCreateRequestDto specializationCreateRequestDto) {
         if (specializationRepository.findSpecializationEntityBySpecializationName(specializationCreateRequestDto.getSpecializationName()).isPresent()) {
             throw new MedHubServiceException("Already Exist");
         }
-        specializationRepository.save(SpecializationMapper.SPECIALIZATION_MAPPER.toEntity(specializationCreateRequestDto));
+        specializationRepository.save(specializationMapper.toEntity(specializationCreateRequestDto));
     }
 
     public List<SpecializationDto> getSpecializations() {
         return specializationRepository.findAll().stream()
-                .map(SpecializationMapper.SPECIALIZATION_MAPPER::entityToDto)
+                .map(specializationMapper::entityToDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public List<SpecializationDto> getSpecializationsByCity(String city) {
         return specializationRepository.findDistinctByDoctors_Locations_City(city).stream()
-                .map(SpecializationMapper.SPECIALIZATION_MAPPER::entityToDto)
+                .map(specializationMapper::entityToDto)
                 .collect(Collectors.toList());
     }
 

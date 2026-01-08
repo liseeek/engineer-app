@@ -6,6 +6,7 @@ import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.entity.DoctorEntity;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.WorkerEntity;
+import com.example.medhub.mapper.AppointmentsMapper;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.DoctorRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -43,6 +44,9 @@ class AvailabilityServiceTest {
 
     @Mock
     private Authentication authentication;
+
+    @Mock
+    private AppointmentsMapper appointmentsMapper;
 
     @InjectMocks
     private AvailabilityService availabilityService;

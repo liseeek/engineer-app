@@ -26,10 +26,12 @@ public class UsersService {
     private final UserRepository userRepository;
     private final AppointmentsRepository appointmentsRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
+    private final AppointmentsMapper appointmentsMapper;
 
     public void saveUser(UserCreateRequestDto newUser) {
         var encryptedPassword = passwordEncoder.encode(newUser.getPassword());
-        UserEntity userEntity = UserMapper.USER_MAPPER.toUser(newUser, encryptedPassword);
+        UserEntity userEntity = userMapper.toUser(newUser, encryptedPassword);
         userEntity.setAuthority(Authority.ROLE_USER);
         userRepository.save(userEntity);
     }
@@ -42,7 +44,7 @@ public class UsersService {
         Long userId = user.getUserId();
         List<AppointmentsEntity> appointments = appointmentsRepository.findByUserUserId(userId);
         return appointments.stream()
-                .map(AppointmentsMapper.APPOINTMENTS_MAPPER::toAppointmentDto)
+                .map(appointmentsMapper::toAppointmentDto)
                 .collect(Collectors.toList());
     }
 }

@@ -9,6 +9,7 @@ import com.example.medhub.entity.DoctorEntity;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.WorkerEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
+import com.example.medhub.mapper.AppointmentsMapper;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import java.util.List;
 public class AvailabilityService {
     private final AppointmentsRepository appointmentsRepository;
     private final DoctorRepository doctorRepository;
+    private final AppointmentsMapper appointmentsMapper;
 
     @Transactional
     public List<AppointmentsDto> getAvailability(String locationId, String doctorId, AppointmentType appointmentType) {
@@ -32,7 +34,7 @@ public class AvailabilityService {
         Long docId = Long.parseLong(doctorId);
         return appointmentsRepository.findAppointmentsByFilters(locId, docId, appointmentType).stream()
                 .filter(appointment -> appointment.getUser() == null)
-                .map(AppointmentsDto::from).toList();
+                .map(appointmentsMapper::toAppointmentDto).toList();
     }
 
     @Transactional

@@ -6,14 +6,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
-public abstract class WorkerMapper {
-    public static final WorkerMapper WORKER_MAPPER = Mappers.getMapper(WorkerMapper.class);
+@Mapper(componentModel = "spring")
+public interface WorkerMapper {
 
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "password", source = "encryptedPassword")
     @Mapping(target = "authority", ignore = true)
     @Mapping(target = "location", ignore = true)
     @Mapping(target = "authorities", ignore = true)
-    public abstract WorkerEntity toWorker(WorkerCreateRequestDTO workerCreateRequestDTO, String encryptedPassword);
+    WorkerEntity toWorker(WorkerCreateRequestDTO workerCreateRequestDTO, String encryptedPassword);
 }
