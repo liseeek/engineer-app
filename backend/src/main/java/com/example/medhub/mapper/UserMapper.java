@@ -12,6 +12,9 @@ public abstract class UserMapper {
     public static final UserMapper USER_MAPPER = Mappers.getMapper(UserMapper.class);
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "password", source = "encryptedPassword")
+    @Mapping(target = "authority", ignore = true)
+    @Mapping(target = "appointments", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
     public abstract UserEntity toUser(UserCreateRequestDto createRequestDto, String encryptedPassword);
 
     public abstract UserDto toUserDto(UserEntity savedUser);

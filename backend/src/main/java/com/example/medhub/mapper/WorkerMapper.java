@@ -12,5 +12,8 @@ public abstract class WorkerMapper {
 
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "password", source = "encryptedPassword")
+    @Mapping(target = "authority", ignore = true)
+    @Mapping(target = "location", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
     public abstract WorkerEntity toWorker(WorkerCreateRequestDTO workerCreateRequestDTO, String encryptedPassword);
 }

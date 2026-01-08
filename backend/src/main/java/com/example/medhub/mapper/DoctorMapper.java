@@ -13,6 +13,9 @@ public abstract class DoctorMapper {
     public static final DoctorMapper DOCTOR_MAPPER = Mappers.getMapper(DoctorMapper.class);
 
     @Mapping(target = "doctorId", ignore = true)
+    @Mapping(target = "appointments", ignore = true)
+    @Mapping(target = "locations", ignore = true)
+    @Mapping(target = "specialization", ignore = true)
     public abstract DoctorEntity toDoctor(DoctorCreateRequestDto createRequestDto);
 
     public abstract DoctorDto toDoctorDto(DoctorEntity doctorEntity);
