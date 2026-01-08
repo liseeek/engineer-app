@@ -1,6 +1,6 @@
 package com.example.medhub.dto.request;
 
-import com.example.medhub.entity.AppointmentType;
+import com.example.medhub.enums.AppointmentType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package com.example.medhub.dto.request;
 
-import com.example.medhub.entity.Authority;
+import com.example.medhub.enums.Authority;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

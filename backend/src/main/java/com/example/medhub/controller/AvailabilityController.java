@@ -2,7 +2,7 @@ package com.example.medhub.controller;
 
 import com.example.medhub.dto.AppointmentsDto;
 import com.example.medhub.dto.request.AvailabilityCreateRequestDto;
-import com.example.medhub.entity.AppointmentType;
+import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.service.AvailabilityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

@@ -1,7 +1,7 @@
 package com.example.medhub.dto;
 
-import com.example.medhub.entity.AppointmentStatus;
-import com.example.medhub.entity.AppointmentType;
+import com.example.medhub.enums.AppointmentStatus;
+import com.example.medhub.enums.AppointmentType;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

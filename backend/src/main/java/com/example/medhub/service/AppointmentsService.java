@@ -1,6 +1,6 @@
 package com.example.medhub.service;
 
-import com.example.medhub.entity.AppointmentStatus;
+import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.entity.UserEntity;
 import com.example.medhub.exceptions.MedHubServiceException;

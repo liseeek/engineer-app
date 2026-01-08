@@ -1,4 +1,4 @@
-package com.example.medhub.entity;
+package com.example.medhub.enums;
 
 import org.springframework.security.core.GrantedAuthority;
 

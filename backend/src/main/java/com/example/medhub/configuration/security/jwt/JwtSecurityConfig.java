@@ -1,6 +1,6 @@
 package com.example.medhub.configuration.security.jwt;
 
-import com.example.medhub.entity.Authority;
+import com.example.medhub.enums.Authority;
 import com.example.medhub.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

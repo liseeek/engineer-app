@@ -1,7 +1,7 @@
 package com.example.medhub.service;
 
 import com.example.medhub.dto.request.AvailabilityCreateRequestDto;
-import com.example.medhub.entity.AppointmentType;
+import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.entity.DoctorEntity;
 import com.example.medhub.entity.LocationEntity;

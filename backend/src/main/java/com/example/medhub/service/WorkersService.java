@@ -5,7 +5,7 @@ import com.example.medhub.dto.DoctorDto;
 import com.example.medhub.dto.LocationDto;
 import com.example.medhub.dto.request.WorkerCreateRequestDTO;
 import com.example.medhub.entity.AppointmentsEntity;
-import com.example.medhub.entity.Authority;
+import com.example.medhub.enums.Authority;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.WorkerEntity;
 import com.example.medhub.exceptions.MedHubServiceException;

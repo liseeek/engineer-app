@@ -1,6 +1,6 @@
 package com.example.medhub.repository;
 
-import com.example.medhub.entity.AppointmentType;
+import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.entity.LocationEntity;
 import jakarta.persistence.LockModeType;

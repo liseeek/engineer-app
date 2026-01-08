@@ -1,5 +1,7 @@
 package com.example.medhub.entity;
 
+import com.example.medhub.enums.AppointmentStatus;
+import com.example.medhub.enums.AppointmentType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

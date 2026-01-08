@@ -1,6 +1,6 @@
 package com.example.medhub;
 
-import com.example.medhub.entity.Authority;
+import com.example.medhub.enums.Authority;
 import com.example.medhub.entity.UserEntity;
 import com.example.medhub.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
