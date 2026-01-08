@@ -7,6 +7,7 @@ import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.WorkerRepository;
+import com.example.medhub.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,6 +33,8 @@ class WorkersServiceTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private AppointmentsRepository appointmentsRepository;
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private WorkersService workersService;
@@ -41,8 +44,8 @@ class WorkersServiceTest {
         String locationName = "Gdańsk";
         WorkerCreateRequestDTO request = new WorkerCreateRequestDTO();
         request.setLocationName(locationName);
-        request.setPassword("secretPassword");
-        request.setPasswordConfirmation("secretPassword");
+        request.setPassword("tajneHaslo");
+        request.setPasswordConfirmation("tajneHaslo");
         request.setName("Jan");
         request.setSurname("Kowalski");
         request.setEmail("jan@medhub.pl");
@@ -52,12 +55,13 @@ class WorkersServiceTest {
         location.setLocationName(locationName);
 
         when(locationRepository.findLocationByLocationName(locationName)).thenReturn(Optional.of(location));
-        when(passwordEncoder.encode("secretPassword")).thenReturn("hashed_secret");
+        when(passwordEncoder.encode("tajneHaslo")).thenReturn("hashed_secret");
+
 
         workersService.saveWorker(request);
 
         verify(workerRepository, times(1)).save(any(WorkerEntity.class));
-        verify(passwordEncoder, times(1)).encode("secretPassword");
+        verify(passwordEncoder, times(1)).encode("tajneHaslo");
     }
 
     @Test
@@ -73,5 +77,21 @@ class WorkersServiceTest {
                 .hasMessage("Location not found");
 
         verify(workerRepository, never()).save(any(WorkerEntity.class));
+    }
+
+    @Test
+    void saveWorker_ShouldThrowException_WhenEmailAlreadyExistsInUsers() {
+        String existingEmail = "patient@medhub.pl";
+        WorkerCreateRequestDTO request = new WorkerCreateRequestDTO();
+        request.setEmail(existingEmail);
+        request.setLocationName("Gdańsk");
+
+        when(userRepository.existsByEmail(existingEmail)).thenReturn(true);
+
+        assertThatThrownBy(() -> workersService.saveWorker(request))
+                .isInstanceOf(MedHubServiceException.class)
+                .hasMessage("Email already exists");
+
+        verify(workerRepository, never()).save(any());
     }
 }

@@ -13,6 +13,7 @@ import com.example.medhub.mapper.AppointmentsMapper;
 import com.example.medhub.mapper.WorkerMapper;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.LocationRepository;
+import com.example.medhub.repository.UserRepository;
 import com.example.medhub.repository.WorkerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -28,14 +29,20 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class WorkersService {
+    private final UserRepository userRepository;
     private final WorkerRepository workerRepository;
     private final LocationRepository locationRepository;
     private final AppointmentsRepository appointmentsRepository;
     private final PasswordEncoder passwordEncoder;
 
     public void saveWorker(WorkerCreateRequestDTO workerCreateRequestDTO) {
+        if (userRepository.existsByEmail(workerCreateRequestDTO.getEmail())) {
+            throw new MedHubServiceException("Email already exists");
+        }
+
         Optional<LocationEntity> location = locationRepository
                 .findLocationByLocationName(workerCreateRequestDTO.getLocationName());
+
         if (location.isEmpty()) {
             throw new MedHubServiceException("Location not found");
         } else {
