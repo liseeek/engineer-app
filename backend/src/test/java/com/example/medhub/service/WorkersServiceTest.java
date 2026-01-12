@@ -6,6 +6,7 @@ import com.example.medhub.entity.WorkerEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.mapper.AppointmentsMapper;
 import com.example.medhub.mapper.DoctorMapper;
+import com.example.medhub.mapper.LocationMapper;
 import com.example.medhub.mapper.WorkerMapper;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.LocationRepository;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -44,6 +46,10 @@ class WorkersServiceTest {
     private AppointmentsMapper appointmentsMapper;
     @Mock
     private WorkerMapper workerMapper;
+    @Mock
+    private LocationMapper locationMapper;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private WorkersService workersService;
@@ -51,28 +57,32 @@ class WorkersServiceTest {
     @Test
     void saveWorker_ShouldSaveWorker_WhenLocationExists() {
         String locationName = "Gdańsk";
-        WorkerCreateRequestDTO request = new WorkerCreateRequestDTO();
-        request.setLocationName(locationName);
-        request.setPassword("tajneHaslo");
-        request.setPasswordConfirmation("tajneHaslo");
-        request.setName("Jan");
-        request.setSurname("Kowalski");
-        request.setEmail("jan@medhub.pl");
-        request.setPhoneNumber("123456789");
+        WorkerCreateRequestDTO worker = new WorkerCreateRequestDTO();
+        worker.setLocationName(locationName);
+        worker.setPassword("secretPassword");
+        worker.setPasswordConfirmation("secretPassword");
+        worker.setName("Jan");
+        worker.setSurname("Kowalski");
+        worker.setEmail("jan@medhub.pl");
+        worker.setPhoneNumber("123456789");
 
         LocationEntity location = new LocationEntity();
         location.setLocationName(locationName);
 
         WorkerEntity workerEntity = new WorkerEntity();
+        workerEntity.setUserId(1L);
+        workerEntity.setEmail(worker.getEmail());
+        workerEntity.setLocation(location);
 
         when(locationRepository.findLocationByLocationName(locationName)).thenReturn(Optional.of(location));
-        when(passwordEncoder.encode("tajneHaslo")).thenReturn("hashed_secret");
+        when(passwordEncoder.encode("secretPassword")).thenReturn("hashed_secret");
         when(workerMapper.toWorker(any(), any())).thenReturn(workerEntity);
+        when(workerRepository.save(any(WorkerEntity.class))).thenReturn(workerEntity);
 
-        workersService.saveWorker(request);
+        workersService.saveWorker(worker);
 
         verify(workerRepository, times(1)).save(any(WorkerEntity.class));
-        verify(passwordEncoder, times(1)).encode("tajneHaslo");
+        verify(passwordEncoder, times(1)).encode("secretPassword");
     }
 
     @Test

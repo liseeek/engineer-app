@@ -2,7 +2,15 @@ package com.example.medhub.service;
 
 import com.example.medhub.AbstractIntegrationTest;
 import com.example.medhub.dto.AppointmentsDto;
-import com.example.medhub.entity.*;
+import com.example.medhub.enums.AppointmentStatus;
+import com.example.medhub.enums.AppointmentType;
+import com.example.medhub.enums.Authority;
+import com.example.medhub.entity.AppointmentsEntity;
+import com.example.medhub.entity.DoctorEntity;
+import com.example.medhub.entity.LocationEntity;
+import com.example.medhub.entity.SpecializationEntity;
+import com.example.medhub.entity.UserEntity;
+import com.example.medhub.entity.WorkerEntity;
 import com.example.medhub.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

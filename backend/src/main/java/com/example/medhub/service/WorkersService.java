@@ -9,6 +9,7 @@ import com.example.medhub.enums.Authority;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.WorkerEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
+import com.example.medhub.event.WorkerRegisteredEvent;
 import com.example.medhub.mapper.AppointmentsMapper;
 import com.example.medhub.mapper.DoctorMapper;
 import com.example.medhub.mapper.LocationMapper;
@@ -18,6 +19,7 @@ import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.UserRepository;
 import com.example.medhub.repository.WorkerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -40,7 +42,9 @@ public class WorkersService {
     private final AppointmentsMapper appointmentsMapper;
     private final WorkerMapper workerMapper;
     private final LocationMapper locationMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
+    @Transactional
     public void saveWorker(WorkerCreateRequestDTO workerCreateRequestDTO) {
         if (userRepository.existsByEmail(workerCreateRequestDTO.getEmail())) {
             throw new MedHubServiceException("Email already exists");
@@ -56,7 +60,18 @@ public class WorkersService {
             WorkerEntity workerEntity = workerMapper.toWorker(workerCreateRequestDTO, encryptedPassword);
             workerEntity.setAuthority(Authority.ROLE_WORKER);
             workerEntity.setLocation(location.get());
-            workerRepository.save(workerEntity);
+            WorkerEntity savedWorker = workerRepository.save(workerEntity);
+
+            String currentUserEmail = SecurityContextHolder.getContext().getAuthentication() != null 
+                    ? SecurityContextHolder.getContext().getAuthentication().getName() 
+                    : "UNKNOWN";
+
+            eventPublisher.publishEvent(new WorkerRegisteredEvent(
+                    currentUserEmail,
+                    savedWorker.getUserId(),
+                    savedWorker.getEmail(),
+                    savedWorker.getLocation().getLocationId()
+            ));
         }
     }
 

@@ -1,7 +1,9 @@
 package com.example.medhub.entity;
 
+import com.example.medhub.enums.AuditAction;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -21,13 +23,15 @@ public class AuditLogEntity {
     @Column(name = "user_email", nullable = false)
     private String userEmail;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "action", nullable = false)
-    private String action;
+    private AuditAction action;
 
     @Column(name = "resource_id")
     private Long resourceId;
 
-    @Column(name = "timestamp", nullable = false)
+    @CreationTimestamp
+    @Column(name = "timestamp", nullable = false, updatable = false)
     private LocalDateTime timestamp;
 
     @Column(name = "details", columnDefinition = "TEXT")
