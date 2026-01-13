@@ -7,20 +7,23 @@
 
     <changeSet id="11" author="lisek">
         <createTable tableName="audit_logs">
-            <column name="id" type="BIGINT" autoIncrement="true">
+            <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="user_email" type="VARCHAR(255)">
+            <column name="timestamp" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="actor_email" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="action" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="resource_id" type="BIGINT"/>
-            <column name="timestamp" type="TIMESTAMP">
+            <column name="resource_id" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="details" type="TEXT"/>
+            <column name="request_id" type="VARCHAR(64)"/>
+            <column name="metadata" type="TEXT"/>
         </createTable>
     </changeSet>
 

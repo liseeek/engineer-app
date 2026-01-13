@@ -1,17 +1,14 @@
 package com.example.medhub.listener;
 
 import com.example.medhub.entity.AuditLogEntity;
-import com.example.medhub.enums.AuditAction;
 import com.example.medhub.event.WorkerRegisteredEvent;
 import com.example.medhub.repository.AuditLogRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
@@ -19,25 +16,25 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class AuditEventListener {
 
     private final AuditLogRepository auditLogRepository;
-    private final ObjectMapper objectMapper;
 
     @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @EventListener
     public void handleWorkerRegistered(WorkerRegisteredEvent event) {
-        try {
-            String detailsJson = objectMapper.writeValueAsString(event);
-            
-            AuditLogEntity logEntry = AuditLogEntity.builder()
-                    .userEmail(event.performedBy() != null ? event.performedBy() : "SYSTEM")
-                    .action(AuditAction.WORKER_REGISTERED)
-                    .resourceId(event.workerId())
-                    .details(detailsJson)
-                    .build();
+        log.debug("Processing audit event for worker registration: {}", event.getWorkerEmail());
 
-            auditLogRepository.save(logEntry);
-            
-        } catch (JsonProcessingException e) {
-            log.error("Failed to serialize event details", e);
-        }
+        String requestId = MDC.get("requestId");
+
+        AuditLogEntity auditLog = AuditLogEntity.builder()
+                .timestamp(event.getEventTime())
+                .actorEmail(event.getActorEmail())
+                .action(event.getAction())
+                .resourceId(event.getResourceId())
+                .requestId(requestId != null ? requestId : "ASYNC_NO_ID")
+                .metadata("Worker registered: " + event.getWorkerEmail())
+                .build();
+
+        auditLogRepository.save(auditLog);
+        log.info("Audit log saved: [Action: {}, Resource: {}, RequestId: {}]",
+                auditLog.getAction(), auditLog.getResourceId(), requestId);
     }
 }

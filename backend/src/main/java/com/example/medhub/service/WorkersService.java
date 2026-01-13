@@ -62,16 +62,15 @@ public class WorkersService {
             workerEntity.setLocation(location.get());
             WorkerEntity savedWorker = workerRepository.save(workerEntity);
 
-            String currentUserEmail = SecurityContextHolder.getContext().getAuthentication() != null 
-                    ? SecurityContextHolder.getContext().getAuthentication().getName() 
-                    : "UNKNOWN";
+            String currentUserEmail = SecurityContextHolder.getContext().getAuthentication() != null
+                    ? SecurityContextHolder.getContext().getAuthentication().getName()
+                    : "SYSTEM";
 
             eventPublisher.publishEvent(new WorkerRegisteredEvent(
+                    this,
                     currentUserEmail,
-                    savedWorker.getUserId(),
                     savedWorker.getEmail(),
-                    savedWorker.getLocation().getLocationId()
-            ));
+                    savedWorker.getUserId().toString()));
         }
     }
 

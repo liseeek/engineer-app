@@ -2,7 +2,9 @@ package com.example.medhub.enums;
 
 public enum AuditAction {
     WORKER_REGISTERED,
-    USER_REGISTERED,
-    APPOINTMENT_CREATED,
+    WORKER_UPDATED,
+    DOCTOR_CREATED,
+    PATIENT_ADMITTED,
+    APPOINTMENT_BOOKED,
     APPOINTMENT_CANCELLED
 }

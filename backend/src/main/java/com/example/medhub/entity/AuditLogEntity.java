@@ -2,38 +2,42 @@ package com.example.medhub.entity;
 
 import com.example.medhub.enums.AuditAction;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "audit_logs")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class AuditLogEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    @Column(name = "user_email", nullable = false)
-    private String userEmail;
+    @Column(nullable = false)
+    private Instant timestamp;
+
+    @Column(nullable = false)
+    private String actorEmail;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "action", nullable = false)
+    @Column(nullable = false)
     private AuditAction action;
 
-    @Column(name = "resource_id")
-    private Long resourceId;
+    @Column(nullable = false)
+    private String resourceId;
 
-    @CreationTimestamp
-    @Column(name = "timestamp", nullable = false, updatable = false)
-    private LocalDateTime timestamp;
+    @Column(name = "request_id")
+    private String requestId;
 
-    @Column(name = "details", columnDefinition = "TEXT")
-    private String details;
+    @Column(columnDefinition = "TEXT")
+    private String metadata;
 }
