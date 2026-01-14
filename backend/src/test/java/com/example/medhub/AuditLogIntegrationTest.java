@@ -30,8 +30,11 @@ class AuditLogIntegrationTest extends AbstractIntegrationTest {
     void shouldCreateAuditLogWhenWorkerRegistered() {
         WorkerCreateRequestDTO request = new WorkerCreateRequestDTO();
         request.setEmail("audit.test@example.com");
+        request.setName("John");
+        request.setSurname("Doe");
         request.setPassword("SecurePass123!");
-        request.setLocationName("Krakow");
+        request.setLocationName("City Health Clinic");
+        request.setPhoneNumber("123456789");
         workersService.saveWorker(request);
         await().atMost(3, TimeUnit.SECONDS).untilAsserted(() -> {
             List<AuditLogEntity> auditLogs = auditLogRepository.findAll();
