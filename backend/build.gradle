@@ -65,6 +65,7 @@ tasks.named('test') {
 
 test {
     useJUnitPlatform()
+    maxParallelForks = 1
     finalizedBy jacocoTestReport
     testLogging {
         showStandardStreams = true

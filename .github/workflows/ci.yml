@@ -35,7 +35,7 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: true
           DB_USERNAME: test
           DB_PASSWORD: test
-          JWT_SECRET_KEY: MedHubCITestSecretKey1234567890AB
+          JWT_SECRET_KEY: TWVkSHViVGVzdFNlY3JldEtleUZvckNJRW52aXJvbm1lbnQyMDI2
           ADMIN_PASSWORD: admin123
 
   frontend-build:
