@@ -5,14 +5,13 @@ import com.example.medhub.dto.request.AuthenticationRequest;
 import com.example.medhub.dto.request.UserCreateRequestDto;
 import com.example.medhub.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,9 +29,17 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
         @Autowired
         private UserRepository userRepository;
 
-        @BeforeEach
-        void setUp() {
-                userRepository.deleteAll();
+        @AfterEach
+        void cleanup() {
+                // Clean up test-specific users by finding them first, then deleting by ID
+                userRepository.findUserEntitiesByEmail("jan.kowalski@example.com")
+                                .ifPresent(user -> userRepository.deleteById(user.getUserId()));
+                userRepository.findUserEntitiesByEmail("jan.weak@example.com")
+                                .ifPresent(user -> userRepository.deleteById(user.getUserId()));
+                userRepository.findUserEntitiesByEmail("anna.nowak@example.com")
+                                .ifPresent(user -> userRepository.deleteById(user.getUserId()));
+                userRepository.findUserEntitiesByEmail("piotr.zielinski@example.com")
+                                .ifPresent(user -> userRepository.deleteById(user.getUserId()));
         }
 
         @Test

@@ -47,4 +47,11 @@ public class UsersService {
                 .map(appointmentsMapper::toAppointmentDto)
                 .collect(Collectors.toList());
     }
+
+    public void deleteById(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new UsernameNotFoundException("User not found with id: " + id);
+        }
+        userRepository.deleteById(id);
+    }
 }

@@ -19,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -45,6 +44,7 @@ public class JwtSecurityConfig {
                         .requestMatchers("/v1/signin").permitAll()
 
                         .requestMatchers("/v1/users/signup").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/v1/users/{id}").hasAnyAuthority(ADMIN)
                         .requestMatchers("/v1/users/**").hasAnyAuthority(ADMIN, USER)
 
                         .requestMatchers(HttpMethod.POST, "/v1/workers/signup").hasAnyAuthority(ADMIN)
@@ -65,11 +65,11 @@ public class JwtSecurityConfig {
                         .requestMatchers("/v1/availability/**").hasAnyAuthority(ADMIN, WORKER)
 
                         .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}").hasAnyAuthority(ADMIN, WORKER, USER)
-                        .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}/cancel").hasAnyAuthority(ADMIN, WORKER, USER)
+                        .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}/cancel")
+                        .hasAnyAuthority(ADMIN, WORKER, USER)
                         .requestMatchers("/v1/appointments/**").hasAnyAuthority(ADMIN, WORKER)
 
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

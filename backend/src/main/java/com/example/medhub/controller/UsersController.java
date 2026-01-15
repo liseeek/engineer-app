@@ -41,4 +41,16 @@ public class UsersController {
     public ResponseEntity<List<AppointmentsDto>> getAppointmentsForCurrentUser() {
         return ResponseEntity.ok(usersService.getAppointmentsForCurrentUser());
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete user by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "User deleted successfully."),
+            @ApiResponse(responseCode = "404", description = "User not found."),
+            @ApiResponse(responseCode = "403", description = "Access denied - Admin role required.")
+    })
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        usersService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
