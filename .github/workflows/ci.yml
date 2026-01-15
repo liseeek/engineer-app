@@ -21,6 +21,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+      
       - name: Build and Test
         run: ./gradlew build test
         env:
@@ -48,3 +56,5 @@ jobs:
       
       - name: Build
         run: npm run build
+        env:
+          CI: false
