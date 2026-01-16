@@ -55,7 +55,7 @@ class AppointmentsServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
         when(authentication.getPrincipal()).thenReturn(testUser);
-        when(appointmentsRepository.findWithLockingById(1L)).thenReturn(Optional.of(testAppointment));
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
         when(appointmentsRepository.save(any(AppointmentsEntity.class))).thenReturn(testAppointment);
 
         appointmentsService.addAppointmentToUser(1L);
@@ -70,7 +70,7 @@ class AppointmentsServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
         when(authentication.getPrincipal()).thenReturn(testUser);
-        when(appointmentsRepository.findWithLockingById(1L)).thenReturn(Optional.empty());
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(MedHubServiceException.class, () -> appointmentsService.addAppointmentToUser(1L));
         verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
@@ -82,7 +82,7 @@ class AppointmentsServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
         when(authentication.getPrincipal()).thenReturn(testUser);
-        when(appointmentsRepository.findWithLockingById(1L)).thenReturn(Optional.of(testAppointment));
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
 
         assertThrows(MedHubServiceException.class, () -> appointmentsService.addAppointmentToUser(1L));
         verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));

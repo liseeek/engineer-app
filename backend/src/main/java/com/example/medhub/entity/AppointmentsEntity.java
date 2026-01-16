@@ -49,10 +49,15 @@ public class AppointmentsEntity {
     @Enumerated(EnumType.STRING)
     private AppointmentType appointmentType;
 
+    @Version
+    private Long version;
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         AppointmentsEntity that = (AppointmentsEntity) o;
         return Objects.equals(appointmentId, that.appointmentId);
     }
@@ -62,4 +67,3 @@ public class AppointmentsEntity {
         return Objects.hash(appointmentId);
     }
 }
-
