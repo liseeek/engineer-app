@@ -4,6 +4,7 @@ import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.enums.AppointmentType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "appointments")
 public class AppointmentsEntity {
     @Id

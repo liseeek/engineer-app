@@ -52,13 +52,14 @@ public class AvailabilityService {
             List<AppointmentsEntity> appointmentsEntities = new ArrayList<>();
             for (LocalTime fromTime = availabilityCreateRequestDto.getFromTime(); fromTime
                     .isBefore(toTime); fromTime = fromTime.plusMinutes(visitTime)) {
-                AppointmentsEntity appointment = new AppointmentsEntity();
-                appointment.setDoctor(doctor);
-                appointment.setDate(availabilityCreateRequestDto.getDate());
-                appointment.setTime(fromTime);
-                appointment.setLocation(location);
-                appointment.setAppointmentStatus(AppointmentStatus.ACTIVE);
-                appointment.setAppointmentType(availabilityCreateRequestDto.getAppointmentType());
+                AppointmentsEntity appointment = AppointmentsEntity.builder()
+                        .doctor(doctor)
+                        .date(availabilityCreateRequestDto.getDate())
+                        .time(fromTime)
+                        .location(location)
+                        .appointmentStatus(AppointmentStatus.ACTIVE)
+                        .appointmentType(availabilityCreateRequestDto.getAppointmentType())
+                        .build();
                 appointmentsEntities.add(appointment);
             }
             appointmentsRepository.saveAll(appointmentsEntities);
