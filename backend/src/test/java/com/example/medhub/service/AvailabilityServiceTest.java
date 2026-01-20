@@ -37,6 +37,9 @@ class AvailabilityServiceTest {
     private AppointmentsRepository appointmentsRepository;
 
     @Mock
+    private AppointmentsSlotGenerator slotGenerator;
+
+    @Mock
     private DoctorRepository doctorRepository;
 
     @Mock
@@ -85,6 +88,11 @@ class AvailabilityServiceTest {
         request.setVisitTime(30L);
         request.setAppointmentType(AppointmentType.NFZ);
 
+        List<AppointmentsEntity> expectedSlots = List.of(
+                AppointmentsEntity.builder().doctor(doctor).location(location).time(LocalTime.of(8, 0)).build(),
+                AppointmentsEntity.builder().doctor(doctor).location(location).time(LocalTime.of(8, 30)).build());
+        when(slotGenerator.generateSlots(any(), any(), any(), any(), any(), any(), any())).thenReturn(expectedSlots);
+
         availabilityService.createAvailability(request);
 
         ArgumentCaptor<List<AppointmentsEntity>> captor = ArgumentCaptor.forClass(List.class);
@@ -93,7 +101,7 @@ class AvailabilityServiceTest {
         List<AppointmentsEntity> savedAppointments = captor.getValue();
 
         assertThat(savedAppointments).hasSize(2);
-        
+
         assertThat(savedAppointments.get(0).getTime()).isEqualTo(LocalTime.of(8, 0));
         assertThat(savedAppointments.get(1).getTime()).isEqualTo(LocalTime.of(8, 30));
 

@@ -27,6 +27,7 @@ public class AvailabilityService {
     private final AppointmentsRepository appointmentsRepository;
     private final DoctorRepository doctorRepository;
     private final AppointmentsMapper appointmentsMapper;
+    private final AppointmentsSlotGenerator slotGenerator;
 
     @Transactional
     public List<AppointmentsDto> getAvailability(String locationId, String doctorId, AppointmentType appointmentType) {
@@ -49,20 +50,16 @@ public class AvailabilityService {
             LocalTime toTime = availabilityCreateRequestDto.getToTime();
             Long visitTime = availabilityCreateRequestDto.getVisitTime();
 
-            List<AppointmentsEntity> appointmentsEntities = new ArrayList<>();
-            for (LocalTime fromTime = availabilityCreateRequestDto.getFromTime(); fromTime
-                    .isBefore(toTime); fromTime = fromTime.plusMinutes(visitTime)) {
-                AppointmentsEntity appointment = AppointmentsEntity.builder()
-                        .doctor(doctor)
-                        .date(availabilityCreateRequestDto.getDate())
-                        .time(fromTime)
-                        .location(location)
-                        .appointmentStatus(AppointmentStatus.ACTIVE)
-                        .appointmentType(availabilityCreateRequestDto.getAppointmentType())
-                        .build();
-                appointmentsEntities.add(appointment);
-            }
-            appointmentsRepository.saveAll(appointmentsEntities);
+            List<AppointmentsEntity> slots = slotGenerator.generateSlots(
+                    doctor,
+                    location,
+                    availabilityCreateRequestDto.getDate(),
+                    availabilityCreateRequestDto.getFromTime(),
+                    toTime,
+                    visitTime,
+                    availabilityCreateRequestDto.getAppointmentType()
+            );
+            appointmentsRepository.saveAll(slots);
         } else {
             throw new MedHubServiceException("Not found");
         }
