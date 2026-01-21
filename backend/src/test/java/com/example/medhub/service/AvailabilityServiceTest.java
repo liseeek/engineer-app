@@ -48,9 +48,6 @@ class AvailabilityServiceTest {
     @Mock
     private Authentication authentication;
 
-    @Mock
-    private AppointmentsMapper appointmentsMapper;
-
     @InjectMocks
     private AvailabilityService availabilityService;
 

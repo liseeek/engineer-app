@@ -5,6 +5,7 @@ import com.example.medhub.entity.DoctorEntity;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.enums.AppointmentType;
+import com.example.medhub.exceptions.MedHubServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,12 +25,16 @@ public class AppointmentsSlotGenerator {
             LocalTime fromTime,
             LocalTime toTime,
             Long visitTime,
-            AppointmentType appointmentType
-    ) {
+            AppointmentType appointmentType) {
+
+        if (visitTime == null || visitTime <= 0) {
+            throw new MedHubServiceException("Visit time must be greater than 0");
+        }
+
         List<AppointmentsEntity> slots = new ArrayList<>();
 
-        for (LocalTime time = fromTime; time.isBefore(toTime);
-             time = time.plusMinutes(visitTime)) {
+        for (LocalTime time = fromTime; !time.plusMinutes(visitTime).isAfter(toTime); time = time
+                .plusMinutes(visitTime)) {
             AppointmentsEntity appointment = AppointmentsEntity.builder()
                     .doctor(doctor)
                     .date(date)

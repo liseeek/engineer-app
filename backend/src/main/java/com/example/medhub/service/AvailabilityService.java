@@ -2,12 +2,11 @@ package com.example.medhub.service;
 
 import com.example.medhub.dto.AppointmentsDto;
 import com.example.medhub.dto.request.AvailabilityCreateRequestDto;
-import com.example.medhub.enums.AppointmentStatus;
-import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.entity.DoctorEntity;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.WorkerEntity;
+import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.mapper.AppointmentsMapper;
 import com.example.medhub.repository.AppointmentsRepository;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -57,11 +55,10 @@ public class AvailabilityService {
                     availabilityCreateRequestDto.getFromTime(),
                     toTime,
                     visitTime,
-                    availabilityCreateRequestDto.getAppointmentType()
-            );
+                    availabilityCreateRequestDto.getAppointmentType());
             appointmentsRepository.saveAll(slots);
         } else {
-            throw new MedHubServiceException("Not found");
+            throw new MedHubServiceException("User is not authorized to create availability");
         }
     }
 }

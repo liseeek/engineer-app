@@ -2,6 +2,8 @@ package com.example.medhub.dto.request;
 
 import com.example.medhub.enums.AppointmentType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +24,7 @@ public class AvailabilityCreateRequestDto {
     private Long doctorId;
 
     @NotNull
+    @FutureOrPresent
     @Schema(example = "2023-01-01")
     private LocalDate date;
 
@@ -34,6 +37,7 @@ public class AvailabilityCreateRequestDto {
     private LocalTime toTime;
 
     @NotNull
+    @Min(1)
     @Schema(type = "string", example = "30")
     private Long visitTime;
 
