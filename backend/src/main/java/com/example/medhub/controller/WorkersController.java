@@ -8,6 +8,7 @@ import com.example.medhub.service.WorkersService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class WorkersController {
             @ApiResponse(responseCode = "201", description = "New worker created successfully."),
             @ApiResponse(responseCode = "400", description = "Worker already exists.")
     })
-    public ResponseEntity<?> addWorker(@RequestBody WorkerCreateRequestDTO workerCreateRequestDTO) {
+    public ResponseEntity<?> addWorker(@Valid @RequestBody WorkerCreateRequestDTO workerCreateRequestDTO) {
         workersService.saveWorker(workerCreateRequestDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

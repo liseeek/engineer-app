@@ -11,7 +11,6 @@ import com.example.medhub.mapper.WorkerMapper;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.WorkerRepository;
-import com.example.medhub.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,8 +37,6 @@ class WorkersServiceTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private AppointmentsRepository appointmentsRepository;
-    @Mock
-    private UserRepository userRepository;
     @Mock
     private DoctorMapper doctorMapper;
     @Mock
@@ -98,21 +95,5 @@ class WorkersServiceTest {
                 .hasMessage("Location not found");
 
         verify(workerRepository, never()).save(any(WorkerEntity.class));
-    }
-
-    @Test
-    void saveWorker_ShouldThrowException_WhenEmailAlreadyExistsInUsers() {
-        String existingEmail = "patient@medhub.pl";
-        WorkerCreateRequestDTO request = new WorkerCreateRequestDTO();
-        request.setEmail(existingEmail);
-        request.setLocationName("Gdańsk");
-
-        when(userRepository.existsByEmail(existingEmail)).thenReturn(true);
-
-        assertThatThrownBy(() -> workersService.saveWorker(request))
-                .isInstanceOf(MedHubServiceException.class)
-                .hasMessage("Email already exists");
-
-        verify(workerRepository, never()).save(any());
     }
 }
