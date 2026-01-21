@@ -1,18 +1,20 @@
 package com.example.medhub.dto.request;
 
+import com.example.medhub.validation.UniqueEmail;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
 @Schema
 public class UserCreateRequestDto {
     @NotBlank
@@ -25,6 +27,7 @@ public class UserCreateRequestDto {
     @Schema(example = "Kowalski")
     private String surname;
 
+    @UniqueEmail
     @NotBlank
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
     @Size(max = 48)

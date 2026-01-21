@@ -16,7 +16,6 @@ import com.example.medhub.mapper.LocationMapper;
 import com.example.medhub.mapper.WorkerMapper;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.LocationRepository;
-import com.example.medhub.repository.UserRepository;
 import com.example.medhub.repository.WorkerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,7 +32,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class WorkersService {
-    private final UserRepository userRepository;
     private final WorkerRepository workerRepository;
     private final LocationRepository locationRepository;
     private final AppointmentsRepository appointmentsRepository;
@@ -46,10 +44,6 @@ public class WorkersService {
 
     @Transactional
     public void saveWorker(WorkerCreateRequestDTO workerCreateRequestDTO) {
-        if (userRepository.existsByEmail(workerCreateRequestDTO.getEmail())) {
-            throw new MedHubServiceException("Email already exists");
-        }
-
         Optional<LocationEntity> location = locationRepository
                 .findLocationByLocationName(workerCreateRequestDTO.getLocationName());
 
