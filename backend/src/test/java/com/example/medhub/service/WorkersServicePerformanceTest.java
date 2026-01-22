@@ -76,6 +76,7 @@ class WorkersServicePerformanceTest extends AbstractIntegrationTest {
         DoctorEntity doctor = new DoctorEntity();
         doctor.setName("Doc");
         doctor.setSurname("Tor");
+        doctor.setPwz("9999999");
         doctor.setSpecialization(spec);
         doctor = doctorRepository.save(doctor);
 
@@ -115,7 +116,7 @@ class WorkersServicePerformanceTest extends AbstractIntegrationTest {
 
     @Test
     @Transactional
-    @WithMockUser(username = "worker@test.com", roles = {"WORKER"})
+    @WithMockUser(username = "worker@test.com", roles = { "WORKER" })
     void getAppointmentsForCurrentWorker_ShouldBeEfficient() {
         entityManager.flush();
         entityManager.clear();

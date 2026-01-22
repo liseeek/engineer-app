@@ -27,15 +27,14 @@ public class DoctorEntity {
     @Column(name = "surname")
     private String surname;
 
+    @Column(name = "pwz", unique = true, length = 7)
+    private String pwz;
+
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AppointmentsEntity> appointments;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    @JoinTable(
-            name = "doctor_locations",
-            joinColumns = @JoinColumn(name = "doctor_id"),
-            inverseJoinColumns = @JoinColumn(name = "location_id")
-    )
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+    @JoinTable(name = "doctor_locations", joinColumns = @JoinColumn(name = "doctor_id"), inverseJoinColumns = @JoinColumn(name = "location_id"))
     private List<LocationEntity> locations;
 
     @ManyToOne
@@ -44,8 +43,10 @@ public class DoctorEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         DoctorEntity that = (DoctorEntity) o;
         return doctorId == that.doctorId;
     }

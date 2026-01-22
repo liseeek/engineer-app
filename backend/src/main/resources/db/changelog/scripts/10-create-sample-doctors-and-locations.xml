@@ -18,29 +18,34 @@
 
 
         <sql>
-            INSERT INTO doctors (name, surname, specialization_id)
+            INSERT INTO doctors (name, surname, pwz, specialization_id)
             VALUES ('John',
                     'Doe',
+                    '1234567',
                     (SELECT specialization_id
                      FROM specializations
                      WHERE specialization_name = 'Cardiology')),
                    ('Anna',
                     'Smith',
+                    '2345678',
                     (SELECT specialization_id
                      FROM specializations
                      WHERE specialization_name = 'Dermatology and Venereology')),
                    ('Michael',
                     'Brown',
+                    '3456789',
                     (SELECT specialization_id
                      FROM specializations
                      WHERE specialization_name = 'Orthopedics and Traumatology')),
                    ('Sarah',
                     'Johnson',
+                    '4567890',
                     (SELECT specialization_id
                      FROM specializations
                      WHERE specialization_name = 'Pediatrics')),
                    ('Robert',
                     'Wilson',
+                    '5678901',
                     (SELECT specialization_id
                      FROM specializations
                      WHERE specialization_name = 'Psychiatry'));

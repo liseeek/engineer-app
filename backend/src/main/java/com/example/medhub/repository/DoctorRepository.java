@@ -11,5 +11,8 @@ public interface DoctorRepository extends JpaRepository<DoctorEntity, Long> {
     List<DoctorEntity> findBySpecialization_SpecializationId(Long specializationId);
 
     @Query("SELECT d FROM DoctorEntity d JOIN d.locations l WHERE l.city = :city AND d.specialization.specializationId = :specializationId")
-    List<DoctorEntity> findByCityAndSpecialization(@Param("city") String city, @Param("specializationId") Long specializationId);
+    List<DoctorEntity> findByCityAndSpecialization(@Param("city") String city,
+            @Param("specializationId") Long specializationId);
+
+    boolean existsByPwz(String pwz);
 }
