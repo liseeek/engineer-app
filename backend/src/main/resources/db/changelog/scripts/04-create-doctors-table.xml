@@ -12,32 +12,22 @@
         </preConditions>
 
         <createTable tableName="doctors">
-            <column name="doctor_id" type="SERIAL">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="name" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="surname" type="VARCHAR(50)">
-                <constraints nullable="false"/>
+            <column name="user_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"
+                             foreignKeyName="fk_doctors_users"
+                             referencedTableName="users"
+                             referencedColumnNames="user_id"/>
             </column>
             <column name="pwz" type="VARCHAR(7)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
-            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column name="specialization_id" type="bigint">
-                <constraints nullable="true" foreignKeyName="fk_specialization"
+            <column name="specialization_id" type="BIGINT">
+                <constraints nullable="false" 
+                             foreignKeyName="fk_doctor_specialization"
                              referencedTableName="specializations"
                              referencedColumnNames="specialization_id"/>
             </column>
         </createTable>
-
-        <addUniqueConstraint
-                tableName="doctors"
-                columnNames="name, surname, specialization_id"
-                constraintName="uq_doctors_name_surname_specialization"/>
 
         <addUniqueConstraint
                 tableName="doctors"

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+    <changeSet author="lissz" id="13">
+        <preConditions onFail="WARN">
+            <not>
+                <tableExists tableName="invitations"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="invitations">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="used" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="BIGINT">
+                <constraints nullable="true"
+                             foreignKeyName="fk_invitation_creator"
+                             referencedTableName="users"
+                             referencedColumnNames="user_id"/>
+            </column>
+            <column name="location_id" type="BIGINT">
+                <constraints nullable="true"
+                             foreignKeyName="fk_invitation_location"
+                             referencedTableName="locations"
+                             referencedColumnNames="location_id"/>
+            </column>
+            <column name="pwz" type="VARCHAR(7)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="specialization_id" type="BIGINT">
+                <constraints nullable="true"
+                             foreignKeyName="fk_invitation_specialization"
+                             referencedTableName="specializations"
+                             referencedColumnNames="specialization_id"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="invitations" indexName="idx_invitations_token">
+            <column name="token"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
