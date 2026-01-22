@@ -21,6 +21,9 @@
             <column name="surname" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
+            <column name="pwz" type="VARCHAR(7)">
+                <constraints nullable="false"/>
+            </column>
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -35,5 +38,10 @@
                 tableName="doctors"
                 columnNames="name, surname, specialization_id"
                 constraintName="uq_doctors_name_surname_specialization"/>
+
+        <addUniqueConstraint
+                tableName="doctors"
+                columnNames="pwz"
+                constraintName="uq_doctors_pwz"/>
     </changeSet>
 </databaseChangeLog>
