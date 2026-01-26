@@ -3,7 +3,7 @@ package com.example.medhub.service;
 import com.example.medhub.dto.DoctorDto;
 import com.example.medhub.dto.SpecializationDto;
 import com.example.medhub.dto.request.DoctorCreateRequestDto;
-import com.example.medhub.entity.DoctorEntity;
+import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.SpecializationEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
@@ -48,7 +48,7 @@ class DoctorsServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(MedHubServiceException.class, () -> doctorsService.saveDoctor(request));
-        
+
         verify(doctorRepository, never()).save(any());
     }
 
@@ -67,20 +67,19 @@ class DoctorsServiceTest {
         specialization.setSpecializationId(1L);
         specialization.setSpecializationName("Cardiology");
 
-        DoctorEntity savedDoctor = new DoctorEntity();
-        savedDoctor.setDoctorId(10L);
+        Doctor savedDoctor = new Doctor();
+        savedDoctor.setUserId(10L);
         savedDoctor.setName("Jan");
         savedDoctor.setSurname("Kowalski");
         savedDoctor.setSpecialization(specialization);
         savedDoctor.setLocations(List.of(location));
-        
+
         DoctorDto doctorDto = new DoctorDto(10L, "Jan", "Kowalski", null, null);
 
         when(locationRepository.findLocationByLocationName(any())).thenReturn(Optional.of(location));
         when(specializationRepository.findById(1L)).thenReturn(Optional.of(specialization));
         when(doctorRepository.save(any())).thenReturn(savedDoctor);
-        when(doctorMapper.toDoctorDto(any(DoctorEntity.class), any(SpecializationDto.class))).thenReturn(doctorDto);
-
+        when(doctorMapper.toDoctorDto(any(Doctor.class), any(SpecializationDto.class))).thenReturn(doctorDto);
 
         DoctorDto result = doctorsService.saveDoctor(request);
 
@@ -92,9 +91,9 @@ class DoctorsServiceTest {
     @Test
     void deleteById_doctorExists_success() {
         when(doctorRepository.existsById(any())).thenReturn(true);
-        
+
         doctorsService.deleteById(1L);
-        
+
         verify(doctorRepository, times(1)).deleteById(1L);
     }
 
@@ -103,17 +102,17 @@ class DoctorsServiceTest {
         when(doctorRepository.existsById(any())).thenReturn(false);
 
         assertThrows(MedHubServiceException.class, () -> doctorsService.deleteById(1L));
-        
+
         verify(doctorRepository, never()).deleteById(anyLong());
     }
 
     @Test
     void getAllDoctors_success() {
-        DoctorEntity doctor = new DoctorEntity();
+        Doctor doctor = new Doctor();
         doctor.setSurname("House");
-        
+
         DoctorDto doctorDto = new DoctorDto(1L, "Gregory", "House", null, null);
-        
+
         when(doctorRepository.findAll()).thenReturn(List.of(doctor));
         when(doctorMapper.toDoctorDto(doctor)).thenReturn(doctorDto);
 

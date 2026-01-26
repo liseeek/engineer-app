@@ -1,18 +1,25 @@
 package com.example.medhub.entity;
 
-import com.example.medhub.enums.AuditAction;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "audit_logs")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,17 +29,17 @@ public class AuditLogEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private Instant timestamp;
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime timestamp;
 
-    @Column(nullable = false)
+    @Column(name = "actor_email", nullable = false)
     private String actorEmail;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AuditAction action;
+    private String action;
 
-    @Column(nullable = false)
+    @Column(name = "resource_id", nullable = false)
     private String resourceId;
 
     @Column(name = "request_id")

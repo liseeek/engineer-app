@@ -6,10 +6,6 @@ import org.springframework.lang.NonNull;
 
 import java.util.Map;
 
-/**
- * Copies MDC context from parent thread to async child threads.
- * Required for request tracing in @Async operations.
- */
 public class MdcTaskDecorator implements TaskDecorator {
 
     @Override

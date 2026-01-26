@@ -19,7 +19,7 @@
                              referencedColumnNames="user_id"/>
             </column>
             <column name="pesel" type="VARCHAR(11)">
-                <constraints nullable="true"/>
+                <constraints nullable="true" unique="true"/>
             </column>
         </createTable>
     </changeSet>

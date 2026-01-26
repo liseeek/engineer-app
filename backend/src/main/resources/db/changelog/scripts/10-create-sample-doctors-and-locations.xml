@@ -16,165 +16,76 @@
                    ('Mountain Medical Facility', 'Peak Street 77', 'Zakopane', 'Poland');
         </sql>
 
-
         <sql>
-            INSERT INTO doctors (name, surname, pwz, specialization_id)
-            VALUES ('John',
-                    'Doe',
+            -- John Doe
+            INSERT INTO users (name, surname, email, password, phone_number, role, authority, created_at)
+            VALUES ('John', 'Doe', 'john.doe@medhub.pl', '$2a$10$w0X...encrypted...', '123456789', 'DOCTOR', 'ROLE_DOCTOR', NOW());
+
+            INSERT INTO doctors (user_id, pwz, specialization_id)
+            VALUES ((SELECT user_id FROM users WHERE email='john.doe@medhub.pl'),
                     '1234567',
-                    (SELECT specialization_id
-                     FROM specializations
-                     WHERE specialization_name = 'Cardiology')),
-                   ('Anna',
-                    'Smith',
+                    (SELECT specialization_id FROM specializations WHERE specialization_name = 'Cardiology'));
+
+            -- Anna Smith
+            INSERT INTO users (name, surname, email, password, phone_number, role, authority, created_at)
+            VALUES ('Anna', 'Smith', 'anna.smith@medhub.pl', '$2a$10$w0X...encrypted...', '123456789', 'DOCTOR', 'ROLE_DOCTOR', NOW());
+
+            INSERT INTO doctors (user_id, pwz, specialization_id)
+            VALUES ((SELECT user_id FROM users WHERE email='anna.smith@medhub.pl'),
                     '2345678',
-                    (SELECT specialization_id
-                     FROM specializations
-                     WHERE specialization_name = 'Dermatology and Venereology')),
-                   ('Michael',
-                    'Brown',
+                    (SELECT specialization_id FROM specializations WHERE specialization_name = 'Dermatology and Venereology'));
+
+            -- Michael Brown
+            INSERT INTO users (name, surname, email, password, phone_number, role, authority, created_at)
+            VALUES ('Michael', 'Brown', 'michael.brown@medhub.pl', '$2a$10$w0X...encrypted...', '123456789', 'DOCTOR', 'ROLE_DOCTOR', NOW());
+
+            INSERT INTO doctors (user_id, pwz, specialization_id)
+            VALUES ((SELECT user_id FROM users WHERE email='michael.brown@medhub.pl'),
                     '3456789',
-                    (SELECT specialization_id
-                     FROM specializations
-                     WHERE specialization_name = 'Orthopedics and Traumatology')),
-                   ('Sarah',
-                    'Johnson',
+                    (SELECT specialization_id FROM specializations WHERE specialization_name = 'Orthopedics and Traumatology'));
+
+            -- Sarah Johnson
+            INSERT INTO users (name, surname, email, password, phone_number, role, authority, created_at)
+            VALUES ('Sarah', 'Johnson', 'sarah.johnson@medhub.pl', '$2a$10$w0X...encrypted...', '123456789', 'DOCTOR', 'ROLE_DOCTOR', NOW());
+
+            INSERT INTO doctors (user_id, pwz, specialization_id)
+            VALUES ((SELECT user_id FROM users WHERE email='sarah.johnson@medhub.pl'),
                     '4567890',
-                    (SELECT specialization_id
-                     FROM specializations
-                     WHERE specialization_name = 'Pediatrics')),
-                   ('Robert',
-                    'Wilson',
+                    (SELECT specialization_id FROM specializations WHERE specialization_name = 'Pediatrics'));
+
+            -- Robert Wilson
+            INSERT INTO users (name, surname, email, password, phone_number, role, authority, created_at)
+            VALUES ('Robert', 'Wilson', 'robert.wilson@medhub.pl', '$2a$10$w0X...encrypted...', '123456789', 'DOCTOR', 'ROLE_DOCTOR', NOW());
+
+            INSERT INTO doctors (user_id, pwz, specialization_id)
+            VALUES ((SELECT user_id FROM users WHERE email='robert.wilson@medhub.pl'),
                     '5678901',
-                    (SELECT specialization_id
-                     FROM specializations
-                     WHERE specialization_name = 'Psychiatry'));
+                    (SELECT specialization_id FROM specializations WHERE specialization_name = 'Psychiatry'));
         </sql>
 
         <sql>
-            INSERT INTO doctor_locations (doctor_id, location_id)
-            VALUES ((SELECT doctor_id
-                     FROM doctors
-                     WHERE name = 'John'
-                       AND surname = 'Doe'),
-                    (SELECT location_id
-                     FROM locations
-                     WHERE location_name = 'City Health Clinic')),
-                   ((SELECT doctor_id
-                     FROM doctors
-                     WHERE name = 'John'
-                       AND surname = 'Doe'),
-                    (SELECT location_id
-                     FROM locations
-                     WHERE location_name = 'Suburban Medical Center')),
-                   ((SELECT doctor_id
-                     FROM doctors
-                     WHERE name = 'Anna'
-                       AND surname = 'Smith'),
-                    (SELECT location_id
-                     FROM locations
-                     WHERE location_name = 'City Health Clinic')),
-                   ((SELECT doctor_id
-                     FROM doctors
-                     WHERE name = 'Michael'
-                       AND surname = 'Brown'),
-                    (SELECT location_id
-                     FROM locations
-                     WHERE location_name = 'Suburban Medical Center')),
-                   ((SELECT doctor_id
-                     FROM doctors
-                     WHERE name = 'Michael'
-                       AND surname = 'Brown'),
-                    (SELECT location_id
-                     FROM locations
-                     WHERE location_name = 'Lakeside Hospital')),
-                   ((SELECT doctor_id
-                     FROM doctors
-                     WHERE name = 'Sarah'
-                       AND surname = 'Johnson'),
-                    (SELECT location_id
-                     FROM locations
-                     WHERE location_name = 'Lakeside Hospital')),
-                   ((SELECT doctor_id
-                     FROM doctors
-                     WHERE name = 'Robert'
-                       AND surname = 'Wilson'),
-                    (SELECT location_id
-                     FROM locations
-                     WHERE location_name = 'Mountain Medical Facility'));
+            INSERT INTO doctor_locations (user_id, location_id)
+            VALUES ((SELECT user_id FROM users WHERE email='john.doe@medhub.pl'),
+                    (SELECT location_id FROM locations WHERE location_name = 'City Health Clinic')),
+                   ((SELECT user_id FROM users WHERE email='john.doe@medhub.pl'),
+                    (SELECT location_id FROM locations WHERE location_name = 'Suburban Medical Center')),
+                   ((SELECT user_id FROM users WHERE email='anna.smith@medhub.pl'),
+                    (SELECT location_id FROM locations WHERE location_name = 'City Health Clinic')),
+                   ((SELECT user_id FROM users WHERE email='michael.brown@medhub.pl'),
+                    (SELECT location_id FROM locations WHERE location_name = 'Suburban Medical Center')),
+                   ((SELECT user_id FROM users WHERE email='michael.brown@medhub.pl'),
+                    (SELECT location_id FROM locations WHERE location_name = 'Lakeside Hospital')),
+                   ((SELECT user_id FROM users WHERE email='sarah.johnson@medhub.pl'),
+                    (SELECT location_id FROM locations WHERE location_name = 'Lakeside Hospital')),
+                   ((SELECT user_id FROM users WHERE email='robert.wilson@medhub.pl'),
+                    (SELECT location_id FROM locations WHERE location_name = 'Mountain Medical Facility'));
         </sql>
 
         <rollback>
-            DELETE FROM doctor_locations
-            WHERE doctor_id = (
-            SELECT doctor_id FROM doctors
-            WHERE name='John' AND surname='Doe'
-            )
-            AND location_id = (
-            SELECT location_id FROM locations
-            WHERE location_name='City Health Clinic'
-            );
-
-            DELETE FROM doctor_locations
-            WHERE doctor_id = (
-            SELECT doctor_id FROM doctors
-            WHERE name='John' AND surname='Doe'
-            )
-            AND location_id = (
-            SELECT location_id FROM locations
-            WHERE location_name='Suburban Medical Center'
-            );
-
-            DELETE FROM doctor_locations
-            WHERE doctor_id = (
-            SELECT doctor_id FROM doctors
-            WHERE name='Anna' AND surname='Smith'
-            )
-            AND location_id = (
-            SELECT location_id FROM locations
-            WHERE location_name='City Health Clinic'
-            );
-
-            DELETE FROM doctor_locations
-            WHERE doctor_id = (
-            SELECT doctor_id FROM doctors
-            WHERE name='Michael' AND surname='Brown'
-            )
-            AND location_id = (
-            SELECT location_id FROM locations
-            WHERE location_name='Suburban Medical Center'
-            );
-
-            DELETE FROM doctor_locations
-            WHERE doctor_id = (
-            SELECT doctor_id FROM doctors
-            WHERE name='Michael' AND surname='Brown'
-            )
-            AND location_id = (
-            SELECT location_id FROM locations
-            WHERE location_name='Lakeside Hospital'
-            );
-
-            DELETE FROM doctor_locations
-            WHERE doctor_id = (
-            SELECT doctor_id FROM doctors
-            WHERE name='Sarah' AND surname='Johnson'
-            )
-            AND location_id = (
-            SELECT location_id FROM locations
-            WHERE location_name='Lakeside Hospital'
-            );
-
-            DELETE FROM doctor_locations
-            WHERE doctor_id = (
-            SELECT doctor_id FROM doctors
-            WHERE name='Robert' AND surname='Wilson'
-            )
-            AND location_id = (
-            SELECT location_id FROM locations
-            WHERE location_name='Mountain Medical Facility'
-            );
-
+            DELETE FROM doctor_locations;
+            DELETE FROM doctors;
+            DELETE FROM users WHERE email IN ('john.doe@medhub.pl', 'anna.smith@medhub.pl', 'michael.brown@medhub.pl', 'sarah.johnson@medhub.pl', 'robert.wilson@medhub.pl');
+            DELETE FROM locations WHERE location_name IN ('City Health Clinic', 'Suburban Medical Center', 'Lakeside Hospital', 'Mountain Medical Facility');
         </rollback>
 
     </changeSet>

@@ -3,10 +3,9 @@ package com.example.medhub.service;
 import com.example.medhub.dto.request.AvailabilityCreateRequestDto;
 import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.entity.AppointmentsEntity;
-import com.example.medhub.entity.DoctorEntity;
+import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
-import com.example.medhub.entity.WorkerEntity;
-import com.example.medhub.mapper.AppointmentsMapper;
+import com.example.medhub.entity.Worker;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.DoctorRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -17,9 +16,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -43,38 +39,24 @@ class AvailabilityServiceTest {
     private DoctorRepository doctorRepository;
 
     @Mock
-    private SecurityContext securityContext;
-
-    @Mock
-    private Authentication authentication;
+    private SecurityService securityService;
 
     @InjectMocks
     private AvailabilityService availabilityService;
 
-    @BeforeEach
-    void setUp() {
-        SecurityContextHolder.setContext(securityContext);
-    }
-
-    @AfterEach
-    void tearDown() {
-        SecurityContextHolder.clearContext();
-    }
-
     @Test
     void createAvailability_ShouldGenerateCorrectSlots_WhenWorkerIsAuthenticated() {
-        WorkerEntity worker = new WorkerEntity();
+        Worker worker = new Worker();
         LocationEntity location = new LocationEntity();
         location.setLocationId(1L);
         location.setCity("Gdańsk");
         worker.setLocation(location);
 
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getPrincipal()).thenReturn(worker);
+        when(securityService.getCurrentWorker()).thenReturn(worker);
 
         Long doctorId = 10L;
-        DoctorEntity doctor = new DoctorEntity();
-        doctor.setDoctorId(doctorId);
+        Doctor doctor = new Doctor();
+        doctor.setUserId(doctorId);
         when(doctorRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
 
         AvailabilityCreateRequestDto request = new AvailabilityCreateRequestDto();

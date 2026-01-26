@@ -31,6 +31,12 @@ spring:
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
+medhub:
+  security:
+    encryption:
+      key: ${ENCRYPTION_KEY}
+    hashing:
+      salt: ${HASHING_SALT}
 database:
   admin:
     name: "Szymon"

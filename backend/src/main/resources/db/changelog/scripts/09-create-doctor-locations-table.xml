@@ -6,7 +6,7 @@
 
     <changeSet author="lissz" id="09">
         <createTable tableName="doctor_locations">
-            <column name="doctor_id" type="bigint">
+            <column name="user_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="location_id" type="bigint">
@@ -16,9 +16,9 @@
 
         <addForeignKeyConstraint
                 baseTableName="doctor_locations"
-                baseColumnNames="doctor_id"
+                baseColumnNames="user_id"
                 referencedTableName="doctors"
-                referencedColumnNames="doctor_id"
+                referencedColumnNames="user_id"
                 constraintName="fk_doctor_locations_doctor"/>
 
         <addForeignKeyConstraint
@@ -28,7 +28,7 @@
                 referencedColumnNames="location_id"
                 constraintName="fk_doctor_locations_location"/>
 
-        <addPrimaryKey columnNames="doctor_id, location_id"
+        <addPrimaryKey columnNames="user_id, location_id"
                        tableName="doctor_locations"
                        constraintName="pk_doctor_locations"/>
     </changeSet>

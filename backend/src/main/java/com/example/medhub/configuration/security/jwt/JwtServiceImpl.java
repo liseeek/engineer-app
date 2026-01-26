@@ -1,10 +1,7 @@
 package com.example.medhub.configuration.security.jwt;
 
-
-import com.example.medhub.entity.UserEntity;
-import com.example.medhub.entity.WorkerEntity;
+import com.example.medhub.entity.User;
 import com.example.medhub.repository.UserRepository;
-import com.example.medhub.repository.WorkerRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -19,7 +16,6 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 @Service
@@ -27,7 +23,6 @@ import java.util.function.Function;
 public class JwtServiceImpl implements JwtService {
     private final JwtKeyProperties jwtKeyProperties;
     private final UserRepository userRepository;
-    private final WorkerRepository workerRepository;
 
     @Override
     public String extractUserName(String token) {
@@ -36,15 +31,12 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateToken(UserDetails userDetails) {
-        Optional<Long> userId = userRepository.findUserEntitiesByEmail(userDetails.getUsername())
-                .map(UserEntity::getUserId);
-        Optional<Long> workerId = workerRepository.findWorkerEntitiesByEmail(userDetails.getUsername())
-                .map(WorkerEntity::getUserId);
-        if (userId.isEmpty() && workerId.isEmpty()) {
-            throw new UsernameNotFoundException("User not found: " + userDetails.getUsername());
-        }
+        Long userId = userRepository.findByEmail(userDetails.getUsername())
+                .map(User::getUserId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userDetails.getUsername()));
+
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId.orElseGet(workerId::get));
+        claims.put("userId", userId);
         return createToken(claims, userDetails.getUsername());
     }
 

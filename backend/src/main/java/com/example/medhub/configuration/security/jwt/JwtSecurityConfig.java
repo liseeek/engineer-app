@@ -29,7 +29,7 @@ public class JwtSecurityConfig {
 
     private final String ADMIN = Authority.ROLE_ADMIN.getAuthority();
     private final String WORKER = Authority.ROLE_WORKER.getAuthority();
-    private final String USER = Authority.ROLE_USER.getAuthority();
+    private final String PATIENT = Authority.ROLE_PATIENT.getAuthority();
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,28 +45,30 @@ public class JwtSecurityConfig {
 
                         .requestMatchers("/v1/users/signup").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/v1/users/{id}").hasAnyAuthority(ADMIN)
-                        .requestMatchers("/v1/users/**").hasAnyAuthority(ADMIN, USER)
+                        .requestMatchers("/v1/users/**").hasAnyAuthority(ADMIN, PATIENT)
 
                         .requestMatchers(HttpMethod.POST, "/v1/workers/signup").hasAnyAuthority(ADMIN)
                         .requestMatchers("/v1/workers/**").hasAnyAuthority(ADMIN, WORKER)
 
-                        .requestMatchers(HttpMethod.GET, "/v1/specializations/**").hasAnyAuthority(ADMIN, WORKER, USER)
+                        .requestMatchers(HttpMethod.GET, "/v1/specializations/**")
+                        .hasAnyAuthority(ADMIN, WORKER, PATIENT)
                         .requestMatchers("/v1/specializations/**").hasAnyAuthority(ADMIN, WORKER)
 
                         .requestMatchers(HttpMethod.DELETE, "/v1/locations/{id}").hasAnyAuthority(ADMIN)
                         .requestMatchers(HttpMethod.POST, "/v1/locations").hasAnyAuthority(ADMIN)
-                        .requestMatchers(HttpMethod.GET, "/v1/locations/**").hasAnyAuthority(ADMIN, WORKER, USER)
+                        .requestMatchers(HttpMethod.GET, "/v1/locations/**").hasAnyAuthority(ADMIN, WORKER, PATIENT)
                         .requestMatchers("/v1/locations/**").hasAnyAuthority(ADMIN, WORKER)
 
-                        .requestMatchers(HttpMethod.GET, "/v1/doctors/**").hasAnyAuthority(ADMIN, WORKER, USER)
+                        .requestMatchers(HttpMethod.GET, "/v1/doctors/**").hasAnyAuthority(ADMIN, WORKER, PATIENT)
                         .requestMatchers("/v1/doctors/**").hasAnyAuthority(ADMIN, WORKER)
 
-                        .requestMatchers(HttpMethod.GET, "/v1/availability/**").hasAnyAuthority(ADMIN, WORKER, USER)
+                        .requestMatchers(HttpMethod.GET, "/v1/availability/**").hasAnyAuthority(ADMIN, WORKER, PATIENT)
                         .requestMatchers("/v1/availability/**").hasAnyAuthority(ADMIN, WORKER)
 
-                        .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}").hasAnyAuthority(ADMIN, WORKER, USER)
+                        .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}")
+                        .hasAnyAuthority(ADMIN, WORKER, PATIENT)
                         .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}/cancel")
-                        .hasAnyAuthority(ADMIN, WORKER, USER)
+                        .hasAnyAuthority(ADMIN, WORKER, PATIENT)
                         .requestMatchers("/v1/appointments/**").hasAnyAuthority(ADMIN, WORKER)
 
                         .anyRequest().authenticated())

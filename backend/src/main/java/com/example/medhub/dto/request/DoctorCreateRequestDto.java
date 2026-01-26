@@ -1,6 +1,6 @@
 package com.example.medhub.dto.request;
 
-import com.example.medhub.validation.ValidPwz;
+import com.example.medhub.validation.UniquePwz;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -26,7 +26,8 @@ public class DoctorCreateRequestDto {
     @Schema(example = "Doe")
     private String surname;
 
-    @ValidPwz
+    @UniquePwz
+    @jakarta.validation.constraints.Pattern(regexp = "^\\d{7}$", message = "PWZ format must be 7 digits")
     @NotBlank
     @Size(max = 7)
     @Schema(example = "1234567")

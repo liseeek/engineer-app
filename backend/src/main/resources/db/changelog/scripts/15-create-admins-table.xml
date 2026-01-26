@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+    <changeSet author="lissz" id="15">
+        <preConditions onFail="WARN">
+            <not>
+                <tableExists tableName="admins"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="admins">
+            <column name="user_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"
+                             foreignKeyName="fk_admins_users"
+                             referencedTableName="users"
+                             referencedColumnNames="user_id"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

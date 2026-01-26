@@ -19,8 +19,10 @@ public class SpecializationsService {
     private final SpecializationRepository specializationRepository;
     private final SpecializationMapper specializationMapper;
 
-    public void saveLocation(SpecializationCreateRequestDto specializationCreateRequestDto) {
-        if (specializationRepository.findSpecializationEntityBySpecializationName(specializationCreateRequestDto.getSpecializationName()).isPresent()) {
+    public void saveSpecialization(SpecializationCreateRequestDto specializationCreateRequestDto) {
+        if (specializationRepository
+                .findSpecializationEntityBySpecializationName(specializationCreateRequestDto.getSpecializationName())
+                .isPresent()) {
             throw new MedHubServiceException("Already Exist");
         }
         specializationRepository.save(specializationMapper.toEntity(specializationCreateRequestDto));
@@ -38,6 +40,5 @@ public class SpecializationsService {
                 .map(specializationMapper::entityToDto)
                 .collect(Collectors.toList());
     }
-
 
 }

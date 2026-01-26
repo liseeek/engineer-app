@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="20-fix-active-users-index" author="lissz">
+        <dropIndex tableName="users" indexName="uindex_users_email" />
+        <sql dbms="postgresql">
+            CREATE UNIQUE INDEX idx_users_email_active ON users(email) WHERE deleted = false;
+        </sql>
+
+        <sql dbms="postgresql">
+            ALTER TABLE doctors DROP CONSTRAINT IF EXISTS uq_doctors_pwz;
+            ALTER TABLE doctors DROP CONSTRAINT IF EXISTS uk_doctors_pwz;
+            ALTER TABLE doctors DROP CONSTRAINT IF EXISTS doctors_pwz_key;
+        </sql>
+
+        <dropIndex tableName="patients" indexName="idx_patients_pesel_hash" />
+    </changeSet>
+
+</databaseChangeLog>

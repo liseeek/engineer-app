@@ -2,7 +2,7 @@ package com.example.medhub.service;
 
 import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.entity.AppointmentsEntity;
-import com.example.medhub.entity.UserEntity;
+import com.example.medhub.entity.Patient;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.repository.AppointmentsRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -12,9 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
@@ -27,49 +24,43 @@ class AppointmentsServiceTest {
     @Mock
     private AppointmentsRepository appointmentsRepository;
 
+    @Mock
+    private SecurityService securityService;
+
     @InjectMocks
     private AppointmentsService appointmentsService;
 
-    @Mock
-    private SecurityContext securityContext;
-    @Mock
-    private Authentication authentication;
-
-    private UserEntity testUser;
+    private Patient testUser;
     private AppointmentsEntity testAppointment;
 
     @BeforeEach
     void setUp() {
-        testUser = new UserEntity();
+        testUser = new Patient();
         testUser.setUserId(1L);
         testUser.setEmail("test@user.com");
 
         testAppointment = new AppointmentsEntity();
         testAppointment.setAppointmentId(1L);
         testAppointment.setAppointmentStatus(AppointmentStatus.ACTIVE);
-        testAppointment.setUser(null);
+        testAppointment.setPatient(null);
     }
 
     @Test
     void addAppointmentToUser_success() {
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-        when(authentication.getPrincipal()).thenReturn(testUser);
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
         when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
         when(appointmentsRepository.save(any(AppointmentsEntity.class))).thenReturn(testAppointment);
 
         appointmentsService.addAppointmentToUser(1L);
 
-        assertNotNull(testAppointment.getUser());
-        assertEquals(testUser.getUserId(), testAppointment.getUser().getUserId());
+        assertNotNull(testAppointment.getPatient());
+        assertEquals(testUser.getUserId(), testAppointment.getPatient().getUserId());
         verify(appointmentsRepository, times(1)).save(testAppointment);
     }
 
     @Test
     void addAppointmentToUser_appointmentNotFound_throwsMedHubServiceException() {
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-        when(authentication.getPrincipal()).thenReturn(testUser);
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
         when(appointmentsRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(MedHubServiceException.class, () -> appointmentsService.addAppointmentToUser(1L));
@@ -78,10 +69,8 @@ class AppointmentsServiceTest {
 
     @Test
     void addAppointmentToUser_appointmentAlreadyTaken_throwsMedHubServiceException() {
-        testAppointment.setUser(new UserEntity());
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-        when(authentication.getPrincipal()).thenReturn(testUser);
+        testAppointment.setPatient(new Patient());
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
         when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
 
         assertThrows(MedHubServiceException.class, () -> appointmentsService.addAppointmentToUser(1L));

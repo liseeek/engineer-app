@@ -26,7 +26,7 @@
             </column>
         </createTable>
 
-        <!-- No need for email index - it's in users table -->
+
     </changeSet>
 
 </databaseChangeLog>

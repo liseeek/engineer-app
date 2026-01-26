@@ -1,7 +1,7 @@
 package com.example.medhub.service;
 
 import com.example.medhub.entity.AppointmentsEntity;
-import com.example.medhub.entity.DoctorEntity;
+import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.enums.AppointmentType;
@@ -19,7 +19,7 @@ import java.util.List;
 public class AppointmentsSlotGenerator {
 
     public List<AppointmentsEntity> generateSlots(
-            DoctorEntity doctor,
+            Doctor doctor,
             LocationEntity location,
             LocalDate date,
             LocalTime fromTime,
