@@ -2,7 +2,7 @@ package com.example.medhub.service;
 
 import com.example.medhub.dto.request.WorkerCreateRequestDTO;
 import com.example.medhub.entity.LocationEntity;
-import com.example.medhub.entity.WorkerEntity;
+import com.example.medhub.entity.Worker;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.mapper.AppointmentsMapper;
 import com.example.medhub.mapper.DoctorMapper;
@@ -47,6 +47,8 @@ class WorkersServiceTest {
     private LocationMapper locationMapper;
     @Mock
     private ApplicationEventPublisher eventPublisher;
+    @Mock
+    private SecurityService securityService;
 
     @InjectMocks
     private WorkersService workersService;
@@ -66,7 +68,7 @@ class WorkersServiceTest {
         LocationEntity location = new LocationEntity();
         location.setLocationName(locationName);
 
-        WorkerEntity workerEntity = new WorkerEntity();
+        Worker workerEntity = new Worker();
         workerEntity.setUserId(1L);
         workerEntity.setEmail(worker.getEmail());
         workerEntity.setLocation(location);
@@ -74,11 +76,12 @@ class WorkersServiceTest {
         when(locationRepository.findLocationByLocationName(locationName)).thenReturn(Optional.of(location));
         when(passwordEncoder.encode("secretPassword")).thenReturn("hashed_secret");
         when(workerMapper.toWorker(any(), any())).thenReturn(workerEntity);
-        when(workerRepository.save(any(WorkerEntity.class))).thenReturn(workerEntity);
+        when(workerRepository.save(any(Worker.class))).thenReturn(workerEntity);
+        when(securityService.getCurrentUserEmail()).thenReturn("admin@test.com");
 
         workersService.saveWorker(worker);
 
-        verify(workerRepository, times(1)).save(any(WorkerEntity.class));
+        verify(workerRepository, times(1)).save(any(Worker.class));
         verify(passwordEncoder, times(1)).encode("secretPassword");
     }
 
@@ -94,6 +97,6 @@ class WorkersServiceTest {
                 .isInstanceOf(MedHubServiceException.class)
                 .hasMessage("Location not found");
 
-        verify(workerRepository, never()).save(any(WorkerEntity.class));
+        verify(workerRepository, never()).save(any(Worker.class));
     }
 }

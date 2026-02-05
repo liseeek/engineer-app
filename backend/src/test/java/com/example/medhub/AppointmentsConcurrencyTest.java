@@ -1,18 +1,19 @@
 package com.example.medhub;
 
 import com.example.medhub.entity.AppointmentsEntity;
-import com.example.medhub.entity.DoctorEntity;
+import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
-import com.example.medhub.entity.UserEntity;
+import com.example.medhub.entity.Patient;
 import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.enums.Authority;
-import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.LocationRepository;
+import com.example.medhub.repository.SpecializationRepository;
 import com.example.medhub.repository.UserRepository;
 import com.example.medhub.service.AppointmentsService;
+import com.example.medhub.entity.SpecializationEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,9 +51,12 @@ class AppointmentsConcurrencyTest extends AbstractIntegrationTest {
     @Autowired
     private LocationRepository locationRepository;
 
+    @Autowired
+    private SpecializationRepository specializationRepository;
+
     private Long testAppointmentId;
-    private UserEntity testUser1;
-    private UserEntity testUser2;
+    private Patient testUser1;
+    private Patient testUser2;
 
     @BeforeEach
     void setUp() {
@@ -67,30 +71,43 @@ class AppointmentsConcurrencyTest extends AbstractIntegrationTest {
                     return locationRepository.save(loc);
                 });
 
-        DoctorEntity doctor = doctorRepository.findAll().stream().findFirst()
+        SpecializationEntity specialization = specializationRepository.findAll().stream().findFirst()
                 .orElseGet(() -> {
-                    DoctorEntity doc = new DoctorEntity();
+                    SpecializationEntity spec = new SpecializationEntity();
+                    spec.setSpecializationName("Internal Medicine");
+                    return specializationRepository.save(spec);
+                });
+
+        Doctor doctor = doctorRepository.findAll().stream().findFirst()
+                .orElseGet(() -> {
+                    Doctor doc = new Doctor();
                     doc.setName("Dr. Test");
                     doc.setSurname("Doctor");
+                    doc.setPwz("1234567");
+                    doc.setEmail("doctor@test.com");
+                    doc.setPassword("pass");
+                    doc.setPhoneNumber("123456789");
+                    doc.setAuthority(Authority.ROLE_DOCTOR);
+                    doc.setSpecialization(specialization);
                     return doctorRepository.save(doc);
                 });
 
-        testUser1 = new UserEntity();
+        testUser1 = new Patient();
         testUser1.setName("Jan");
         testUser1.setSurname("Kowalski");
         testUser1.setEmail("user1@test.com");
         testUser1.setPassword("password123");
         testUser1.setPhoneNumber("111222333");
-        testUser1.setAuthority(Authority.ROLE_USER);
+        testUser1.setAuthority(Authority.ROLE_PATIENT);
         testUser1 = userRepository.save(testUser1);
 
-        testUser2 = new UserEntity();
+        testUser2 = new Patient();
         testUser2.setName("Anna");
         testUser2.setSurname("Nowak");
         testUser2.setEmail("user2@test.com");
         testUser2.setPassword("password123");
         testUser2.setPhoneNumber("444555666");
-        testUser2.setAuthority(Authority.ROLE_USER);
+        testUser2.setAuthority(Authority.ROLE_PATIENT);
         testUser2 = userRepository.save(testUser2);
 
         AppointmentsEntity appointment = new AppointmentsEntity();
@@ -100,7 +117,7 @@ class AppointmentsConcurrencyTest extends AbstractIntegrationTest {
         appointment.setTime(LocalTime.of(10, 0));
         appointment.setAppointmentStatus(AppointmentStatus.ACTIVE);
         appointment.setAppointmentType(AppointmentType.NFZ);
-        appointment.setUser(null);
+        appointment.setPatient(null);
 
         testAppointmentId = appointmentsRepository.save(appointment).getAppointmentId();
     }
@@ -159,10 +176,10 @@ class AppointmentsConcurrencyTest extends AbstractIntegrationTest {
                 .isEqualTo(1);
 
         AppointmentsEntity bookedAppointment = appointmentsRepository.findById(testAppointmentId).orElseThrow();
-        assertThat(bookedAppointment.getUser()).isNotNull();
+        assertThat(bookedAppointment.getPatient()).isNotNull();
     }
 
-    private void setSecurityContext(UserEntity user) {
+    private void setSecurityContext(Patient user) {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 user, null, user.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);

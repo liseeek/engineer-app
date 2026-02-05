@@ -2,7 +2,6 @@ package com.example.medhub.service;
 
 import com.example.medhub.dto.LocationDto;
 import com.example.medhub.dto.request.LocationCreateRequestDto;
-import com.example.medhub.entity.DoctorEntity;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.mapper.LocationMapper;
@@ -43,7 +42,7 @@ class LocationsServiceTest {
         LocationCreateRequestDto request = new LocationCreateRequestDto();
         request.setLocationName("Clinic A");
         request.setCity("Warsaw");
-        
+
         LocationEntity entity = new LocationEntity();
         entity.setLocationName("Clinic A");
 
@@ -65,7 +64,7 @@ class LocationsServiceTest {
         assertThatThrownBy(() -> locationsService.saveLocation(request))
                 .isInstanceOf(MedHubServiceException.class)
                 .hasMessage("Already Exist");
-        
+
         verify(locationRepository, never()).save(any());
     }
 
@@ -92,7 +91,7 @@ class LocationsServiceTest {
         assertThatThrownBy(() -> locationsService.deleteById(id))
                 .isInstanceOf(MedHubServiceException.class)
                 .hasMessage("Not found");
-        
+
         verify(locationRepository, never()).deleteById(any());
     }
 

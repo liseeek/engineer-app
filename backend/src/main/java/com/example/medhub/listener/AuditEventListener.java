@@ -25,9 +25,9 @@ public class AuditEventListener {
         String requestId = MDC.get("requestId");
 
         AuditLogEntity auditLog = AuditLogEntity.builder()
-                .timestamp(event.getEventTime())
+                .timestamp(java.time.LocalDateTime.ofInstant(event.getEventTime(), java.time.ZoneId.systemDefault()))
                 .actorEmail(event.getActorEmail())
-                .action(event.getAction())
+                .action(event.getAction().name())
                 .resourceId(event.getResourceId())
                 .requestId(requestId != null ? requestId : "ASYNC_NO_ID")
                 .metadata("Worker registered: " + event.getWorkerEmail())

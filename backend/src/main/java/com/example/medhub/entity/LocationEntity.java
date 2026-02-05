@@ -1,6 +1,15 @@
 package com.example.medhub.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +23,9 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "locations")
+@Table(name = "locations", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "location_name", "city", "address" })
+})
 public class LocationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,16 +44,24 @@ public class LocationEntity {
     @Column
     private String country;
 
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column
+    private String email;
+
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<WorkerEntity> workers;
+    private List<Worker> workers;
 
     @ManyToMany(mappedBy = "locations")
-    private List<DoctorEntity> doctors;
+    private List<Doctor> doctors;
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         LocationEntity that = (LocationEntity) o;
         return Objects.equals(locationId, that.locationId);
     }

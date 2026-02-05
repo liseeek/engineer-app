@@ -4,11 +4,10 @@ import com.example.medhub.dto.AppointmentsDto;
 import com.example.medhub.entity.AppointmentsEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { DoctorMapper.class, UserMapper.class })
 public interface AppointmentsMapper {
 
-    @Mapping(target = "doctor.specialization", source = "doctor.specialization")
+    @Mapping(source = "patient", target = "user")
     AppointmentsDto toAppointmentDto(AppointmentsEntity appointment);
 }

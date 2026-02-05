@@ -31,6 +31,10 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+
+        <addUniqueConstraint tableName="locations"
+                             columnNames="location_name, city, address"
+                             constraintName="uq_locations_name_city_address"/>
     </changeSet>
 
 </databaseChangeLog>

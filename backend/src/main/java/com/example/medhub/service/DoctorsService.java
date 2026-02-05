@@ -5,7 +5,7 @@ import com.example.medhub.dto.LocationDto;
 import com.example.medhub.dto.SpecializationDto;
 import com.example.medhub.dto.request.DoctorCreateRequestDto;
 import com.example.medhub.dto.request.UpdateDoctorLocationRequestDto;
-import com.example.medhub.entity.DoctorEntity;
+import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.SpecializationEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
@@ -42,18 +42,18 @@ public class DoctorsService {
                     .findById(newDoctorDto.getSpecializationId())
                     .orElseThrow(() -> new MedHubServiceException("Specialization not found"));
 
-            DoctorEntity doctorEntity = new DoctorEntity();
-            doctorEntity.setName(newDoctorDto.getName());
-            doctorEntity.setSurname(newDoctorDto.getSurname());
-            doctorEntity.setLocations(List.of(location.get()));
-            doctorEntity.setSpecialization(specializationEntity);
+            Doctor doctor = new Doctor();
+            doctor.setName(newDoctorDto.getName());
+            doctor.setSurname(newDoctorDto.getSurname());
+            doctor.setLocations(List.of(location.get()));
+            doctor.setSpecialization(specializationEntity);
 
-            DoctorEntity savedDoctorEntity = doctorRepository.save(doctorEntity);
+            Doctor savedDoctor = doctorRepository.save(doctor);
 
             SpecializationDto specializationDto = new SpecializationDto(
                     specializationEntity.getSpecializationId(),
                     specializationEntity.getSpecializationName());
-            return doctorMapper.toDoctorDto(savedDoctorEntity, specializationDto);
+            return doctorMapper.toDoctorDto(savedDoctor, specializationDto);
         }
     }
 
@@ -66,20 +66,21 @@ public class DoctorsService {
     }
 
     public List<DoctorDto> getAllDoctors() {
-        List<DoctorEntity> allDoctorEntities = doctorRepository.findAll();
-        return allDoctorEntities.stream()
+        List<Doctor> allDoctors = doctorRepository.findAll();
+        return allDoctors.stream()
                 .map(doctorMapper::toDoctorDto)
                 .collect(Collectors.toList());
     }
 
     public List<DoctorDto> getDoctorsBySpecialization(Long specializationId) {
-        List<DoctorEntity> doctorEntities = doctorRepository.findBySpecialization_SpecializationId(specializationId);
+        List<Doctor> doctors = doctorRepository.findBySpecialization_SpecializationId(specializationId);
 
-        return doctorEntities.stream()
+        return doctors.stream()
                 .map(doctor -> {
-                    List<LocationDto> locationDtos = doctor.getLocations().stream().map(locationMapper::toLocationDto).toList();
+                    List<LocationDto> locationDtos = doctor.getLocations().stream().map(locationMapper::toLocationDto)
+                            .toList();
                     return new DoctorDto(
-                            doctor.getDoctorId(),
+                            doctor.getUserId(),
                             doctor.getName(),
                             doctor.getSurname(),
                             locationDtos,
@@ -89,7 +90,7 @@ public class DoctorsService {
     }
 
     public List<LocationDto> getLocationsByDoctorId(Long id) {
-        Optional<DoctorEntity> doctor = doctorRepository.findById(id);
+        Optional<Doctor> doctor = doctorRepository.findById(id);
         if (doctor.isPresent()) {
             return doctor.get().getLocations().stream().map(locationMapper::toLocationDto).toList();
         } else {
@@ -98,13 +99,14 @@ public class DoctorsService {
     }
 
     public List<DoctorDto> getDoctorsByCityAndSpecialization(String city, Long specializationId) {
-        List<DoctorEntity> doctors = doctorRepository.findByCityAndSpecialization(city, specializationId);
+        List<Doctor> doctors = doctorRepository.findByCityAndSpecialization(city, specializationId);
 
         return doctors.stream()
                 .map(doctor -> {
-                    List<LocationDto> locationDtos = doctor.getLocations().stream().map(locationMapper::toLocationDto).toList();
+                    List<LocationDto> locationDtos = doctor.getLocations().stream().map(locationMapper::toLocationDto)
+                            .toList();
                     return new DoctorDto(
-                            doctor.getDoctorId(),
+                            doctor.getUserId(),
                             doctor.getName(),
                             doctor.getSurname(),
                             locationDtos,
@@ -114,11 +116,11 @@ public class DoctorsService {
     }
 
     public void addLocation(Long id, UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {
-        Optional<DoctorEntity> optionalDoctor = doctorRepository.findById(id);
+        Optional<Doctor> optionalDoctor = doctorRepository.findById(id);
         Optional<LocationEntity> optionalLocation = locationRepository
                 .findById(updateDoctorLocationRequestDto.getLocationId());
         if (optionalDoctor.isPresent() && optionalLocation.isPresent()) {
-            DoctorEntity doctor = optionalDoctor.get();
+            Doctor doctor = optionalDoctor.get();
             LocationEntity location = optionalLocation.get();
             doctor.getLocations().add(location);
             doctorRepository.save(doctor);
@@ -128,11 +130,11 @@ public class DoctorsService {
     }
 
     public void removeLocation(Long id, UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {
-        Optional<DoctorEntity> optionalDoctor = doctorRepository.findById(id);
+        Optional<Doctor> optionalDoctor = doctorRepository.findById(id);
         Optional<LocationEntity> optionalLocation = locationRepository
                 .findById(updateDoctorLocationRequestDto.getLocationId());
         if (optionalDoctor.isPresent() && optionalLocation.isPresent()) {
-            DoctorEntity doctor = optionalDoctor.get();
+            Doctor doctor = optionalDoctor.get();
             LocationEntity location = optionalLocation.get();
             doctor.getLocations().removeIf(location::equals);
             doctorRepository.save(doctor);

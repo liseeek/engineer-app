@@ -14,7 +14,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -74,7 +83,7 @@ public class DoctorsController {
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
     public List<DoctorDto> getDoctorsByCityAndSpecialization(@RequestParam String city,
-                                                             @RequestParam Long specializationId) {
+            @RequestParam Long specializationId) {
         return doctorsService.getDoctorsByCityAndSpecialization(city, specializationId);
     }
 
@@ -85,7 +94,7 @@ public class DoctorsController {
             @ApiResponse(responseCode = "404", description = "Doctor not found.")
     })
     public ResponseEntity<?> updateDoctorLocation(@PathVariable Long id,
-                                                  @RequestBody UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {
+            @RequestBody UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {
         if (updateDoctorLocationRequestDto.getOperationType().equals(OperationType.ADD)) {
             doctorsService.addLocation(id, updateDoctorLocationRequestDto);
         }
@@ -106,4 +115,3 @@ public class DoctorsController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
-

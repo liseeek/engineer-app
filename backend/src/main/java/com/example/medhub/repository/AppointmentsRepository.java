@@ -15,7 +15,14 @@ import java.util.Optional;
 public interface AppointmentsRepository extends JpaRepository<AppointmentsEntity, Long> {
         List<AppointmentsEntity> findByLocation(LocationEntity location);
 
-        List<AppointmentsEntity> findByUserUserId(Long userId);
+        List<AppointmentsEntity> findByPatientUserId(Long userId);
+
+        @Query("SELECT a FROM AppointmentsEntity a " +
+                        "JOIN FETCH a.patient p " +
+                        "JOIN FETCH a.location l " +
+                        "WHERE a.doctor.userId = :doctorId " +
+                        "ORDER BY a.date ASC, a.time ASC")
+        List<AppointmentsEntity> findAllByDoctorUserId(@Param("doctorId") Long doctorId);
 
         @Lock(LockModeType.PESSIMISTIC_WRITE)
         @Query("SELECT a FROM AppointmentsEntity a WHERE a.appointmentId = :id")
@@ -23,7 +30,7 @@ public interface AppointmentsRepository extends JpaRepository<AppointmentsEntity
 
         @Query("SELECT a FROM AppointmentsEntity a " +
                         "WHERE a.location.locationId = :locationId " +
-                        "AND a.doctor.doctorId = :doctorId " +
+                        "AND a.doctor.userId = :doctorId " +
                         "AND a.appointmentType = :appointmentType")
         List<AppointmentsEntity> findAppointmentsByFilters(
                         @Param("locationId") Long locationId,
@@ -33,9 +40,9 @@ public interface AppointmentsRepository extends JpaRepository<AppointmentsEntity
         @Query("SELECT DISTINCT a FROM AppointmentsEntity a " +
                         "JOIN FETCH a.doctor d " +
                         "JOIN FETCH d.specialization " +
-                        "JOIN FETCH a.user u " +
+                        "JOIN FETCH a.patient u " +
                         "LEFT JOIN FETCH d.locations " +
                         "WHERE a.location = :location " +
-                        "AND a.user IS NOT NULL")
+                        "AND a.patient IS NOT NULL")
         List<AppointmentsEntity> findAllScheduledByLocation(@Param("location") LocationEntity location);
 }

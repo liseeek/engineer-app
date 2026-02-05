@@ -31,14 +31,13 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
 
         @AfterEach
         void cleanup() {
-                // Clean up test-specific users by finding them first, then deleting by ID
-                userRepository.findUserEntitiesByEmail("jan.kowalski@example.com")
+                userRepository.findByEmail("jan.kowalski@example.com")
                                 .ifPresent(user -> userRepository.deleteById(user.getUserId()));
-                userRepository.findUserEntitiesByEmail("jan.weak@example.com")
+                userRepository.findByEmail("jan.weak@example.com")
                                 .ifPresent(user -> userRepository.deleteById(user.getUserId()));
-                userRepository.findUserEntitiesByEmail("anna.nowak@example.com")
+                userRepository.findByEmail("anna.nowak@example.com")
                                 .ifPresent(user -> userRepository.deleteById(user.getUserId()));
-                userRepository.findUserEntitiesByEmail("piotr.zielinski@example.com")
+                userRepository.findByEmail("piotr.zielinski@example.com")
                                 .ifPresent(user -> userRepository.deleteById(user.getUserId()));
         }
 
@@ -50,7 +49,8 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
                                 "jan.kowalski@example.com",
                                 "StrongPass1!",
                                 "StrongPass1!",
-                                "123456789");
+                                "123456789",
+                                null);
 
                 mockMvc.perform(post("/v1/users/signup")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -66,11 +66,32 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
                                 "jan.weak@example.com",
                                 "weak",
                                 "weak",
-                                "123456789");
+                                "123456789",
+                                null);
 
                 mockMvc.perform(post("/v1/users/signup")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void shouldFailRegistrationWithDuplicatePesel() throws Exception {
+                UserCreateRequestDto firstUser = new UserCreateRequestDto(
+                                "Jan", "Kowalski", "jan.unique@example.com", "StrongPass1!", "StrongPass1!",
+                                "111222333", "99010112345");
+                mockMvc.perform(post("/v1/users/signup")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(firstUser)))
+                                .andExpect(status().isCreated());
+
+                UserCreateRequestDto secondUser = new UserCreateRequestDto(
+                                "Anna", "Nowak", "anna.unique@example.com", "StrongPass1!", "StrongPass1!", "444555666",
+                                "99010112345");
+
+                mockMvc.perform(post("/v1/users/signup")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(secondUser)))
                                 .andExpect(status().isBadRequest());
         }
 
@@ -82,7 +103,8 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
                                 "anna.nowak@example.com",
                                 "StrongPass1!",
                                 "StrongPass1!",
-                                "987654321");
+                                "987654321",
+                                null);
 
                 mockMvc.perform(post("/v1/users/signup")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -108,7 +130,8 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
                                 "piotr.zielinski@example.com",
                                 "StrongPass1!",
                                 "StrongPass1!",
-                                "123123123");
+                                "123123123",
+                                null);
 
                 mockMvc.perform(post("/v1/users/signup")
                                 .contentType(MediaType.APPLICATION_JSON)

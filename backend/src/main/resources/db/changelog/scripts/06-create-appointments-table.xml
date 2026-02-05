@@ -54,8 +54,8 @@
                                  constraintName="fk_user_id"/>
 
         <addForeignKeyConstraint baseTableName="appointments" baseColumnNames="doctor_id"
-                                 referencedTableName="doctors" referencedColumnNames="doctor_id"
-                                 constraintName="fk_doctor_id"/>
+                                 referencedTableName="doctors" referencedColumnNames="user_id"
+                                 constraintName="fk_appointments_doctor"/>
 
         <addForeignKeyConstraint baseTableName="appointments" baseColumnNames="location_id"
                                  referencedTableName="locations" referencedColumnNames="location_id"

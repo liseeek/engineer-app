@@ -6,12 +6,17 @@ import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.enums.Authority;
 import com.example.medhub.entity.AppointmentsEntity;
-import com.example.medhub.entity.DoctorEntity;
+import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.SpecializationEntity;
-import com.example.medhub.entity.UserEntity;
-import com.example.medhub.entity.WorkerEntity;
-import com.example.medhub.repository.*;
+import com.example.medhub.entity.Patient;
+import com.example.medhub.entity.Worker;
+import com.example.medhub.repository.AppointmentsRepository;
+import com.example.medhub.repository.DoctorRepository;
+import com.example.medhub.repository.LocationRepository;
+import com.example.medhub.repository.SpecializationRepository;
+import com.example.medhub.repository.UserRepository;
+import com.example.medhub.repository.WorkerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +64,7 @@ class WorkersServicePerformanceTest extends AbstractIntegrationTest {
         testLocation.setCountry("PL");
         testLocation = locationRepository.save(testLocation);
 
-        WorkerEntity worker = new WorkerEntity();
+        Worker worker = new Worker();
         worker.setEmail("worker@test.com");
         worker.setPassword(passwordEncoder.encode("pass"));
         worker.setName("Worker");
@@ -73,27 +78,32 @@ class WorkersServicePerformanceTest extends AbstractIntegrationTest {
         spec.setSpecializationName("TestSpec");
         spec = specializationRepository.save(spec);
 
-        DoctorEntity doctor = new DoctorEntity();
+        Doctor doctor = new Doctor();
         doctor.setName("Doc");
         doctor.setSurname("Tor");
         doctor.setPwz("9999999");
+        doctor.setEmail("doc@test.com");
+        doctor.setPassword("pass");
+        doctor.setPhoneNumber("999");
+        doctor.setAuthority(Authority.ROLE_DOCTOR);
         doctor.setSpecialization(spec);
         doctor = doctorRepository.save(doctor);
 
-        UserEntity user = new UserEntity();
+        Patient user = new Patient();
         user.setEmail("patient@test.com");
         user.setPassword("pass");
         user.setName("Patient");
         user.setSurname("Zero");
         user.setPhoneNumber("222");
-        user.setAuthority(Authority.ROLE_USER);
-        user = userRepository.save(user);
+        user.setPesel("12345678901");
+        user.setAuthority(Authority.ROLE_PATIENT);
+        userRepository.save(user);
 
         for (int i = 0; i < 5; i++) {
             AppointmentsEntity appt = new AppointmentsEntity();
             appt.setLocation(testLocation);
             appt.setDoctor(doctor);
-            appt.setUser(user);
+            appt.setPatient(user);
             appt.setDate(LocalDate.now().plusDays(i));
             appt.setTime(LocalTime.of(10, 0));
             appt.setAppointmentStatus(AppointmentStatus.ACTIVE);
@@ -105,7 +115,7 @@ class WorkersServicePerformanceTest extends AbstractIntegrationTest {
             AppointmentsEntity appt = new AppointmentsEntity();
             appt.setLocation(testLocation);
             appt.setDoctor(doctor);
-            appt.setUser(null);
+            appt.setPatient(null);
             appt.setDate(LocalDate.now().plusWeeks(1).plusDays(i));
             appt.setTime(LocalTime.of(12, 0));
             appt.setAppointmentStatus(AppointmentStatus.ACTIVE);

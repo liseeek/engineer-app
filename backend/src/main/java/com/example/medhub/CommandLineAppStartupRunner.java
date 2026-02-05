@@ -1,7 +1,7 @@
 package com.example.medhub;
 
 import com.example.medhub.enums.Authority;
-import com.example.medhub.entity.UserEntity;
+import com.example.medhub.entity.Admin;
 import com.example.medhub.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,8 +32,8 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (userRepository.findUserEntitiesByEmail(adminEmail).isEmpty()) {
-            UserEntity admin = new UserEntity();
+        if (userRepository.findByEmail(adminEmail).isEmpty()) {
+            Admin admin = new Admin();
             admin.setName(adminName);
             admin.setSurname(adminSurname);
             admin.setEmail(adminEmail);

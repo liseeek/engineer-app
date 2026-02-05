@@ -1,6 +1,4 @@
 spring:
-  profiles:
-    active: test
   jpa:
     show-sql: true
     properties:
@@ -19,3 +17,9 @@ jwt:
   secret:
     key: ${JWT_SECRET_KEY:4d65644875625365637265744b657947656e657261746564466f72546573747321}
 
+medhub:
+  security:
+    encryption:
+      key: "00000000000000000000000000000000"
+    hashing:
+      salt: "test-salt"

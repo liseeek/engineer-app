@@ -36,6 +36,9 @@
             <column name="authority" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
+            <column name="role" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <createIndex tableName="users" indexName="uindex_users_email" unique="true">

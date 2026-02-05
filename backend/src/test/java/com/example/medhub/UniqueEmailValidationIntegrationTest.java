@@ -3,8 +3,8 @@ package com.example.medhub;
 import com.example.medhub.dto.request.UserCreateRequestDto;
 import com.example.medhub.dto.request.WorkerCreateRequestDTO;
 import com.example.medhub.entity.LocationEntity;
-import com.example.medhub.entity.UserEntity;
-import com.example.medhub.entity.WorkerEntity;
+import com.example.medhub.entity.Patient;
+import com.example.medhub.entity.Worker;
 import com.example.medhub.enums.Authority;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.UserRepository;
@@ -35,8 +35,8 @@ class UniqueEmailValidationIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private Validator validator;
 
-    private UserEntity existingUser;
-    private WorkerEntity existingWorker;
+    private Patient existingUser;
+    private Worker existingWorker;
     private LocationEntity testLocation;
 
     @BeforeEach
@@ -54,16 +54,17 @@ class UniqueEmailValidationIntegrationTest extends AbstractIntegrationTest {
                     return locationRepository.save(newLocation);
                 });
 
-        existingUser = new UserEntity();
+        existingUser = new Patient();
         existingUser.setName("Jan");
         existingUser.setSurname("Kowalski");
         existingUser.setEmail("user@test.com");
         existingUser.setPassword("hashedPassword123");
         existingUser.setPhoneNumber("111222333");
-        existingUser.setAuthority(Authority.ROLE_USER);
+        existingUser.setPesel("12345678901");
+        existingUser.setAuthority(Authority.ROLE_PATIENT);
         existingUser = userRepository.save(existingUser);
 
-        existingWorker = new WorkerEntity();
+        existingWorker = new Worker();
         existingWorker.setName("Anna");
         existingWorker.setSurname("Nowak");
         existingWorker.setEmail("worker@test.com");

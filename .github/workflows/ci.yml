@@ -2,7 +2,7 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "**" ]
   pull_request:
     branches: [ main ]
 
@@ -35,8 +35,11 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: true
           DB_USERNAME: test
           DB_PASSWORD: test
-          JWT_SECRET_KEY: TWVkSHViVGVzdFNlY3JldEtleUZvckNJRW52aXJvbm1lbnQyMDI2
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY || 'TWVkSHViVGVzdFNlY3JldEtleUZvckNJRW52aXJvbm1lbnQyMDI2' }}
           ADMIN_PASSWORD: admin123
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY || '00000000000000000000000000000000' }}
+          HASHING_SALT: ${{ secrets.HASHING_SALT || 'ci-test-salt' }}
+
 
   frontend-build:
     runs-on: ubuntu-latest

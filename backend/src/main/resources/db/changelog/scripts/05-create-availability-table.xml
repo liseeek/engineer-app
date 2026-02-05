@@ -33,7 +33,7 @@
         </createTable>
 
         <addForeignKeyConstraint baseTableName="availability" baseColumnNames="doctor_id"
-                                 referencedTableName="doctors" referencedColumnNames="doctor_id"
+                                 referencedTableName="doctors" referencedColumnNames="user_id"
                                  constraintName="fk_doctor_id"/>
     </changeSet>
 

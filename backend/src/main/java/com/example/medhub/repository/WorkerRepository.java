@@ -1,12 +1,6 @@
 package com.example.medhub.repository;
 
-import com.example.medhub.entity.WorkerEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.medhub.entity.Worker;
 
-import java.util.Optional;
-
-public interface WorkerRepository extends JpaRepository<WorkerEntity, Long> {
-    Optional<WorkerEntity> findWorkerEntitiesByEmail(String email);
-
-    boolean existsByEmail(String email);
+public interface WorkerRepository extends BaseUserRepository<Worker> {
 }

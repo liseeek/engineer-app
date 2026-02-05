@@ -1,7 +1,7 @@
 package com.example.medhub.service;
 
 import com.example.medhub.entity.AppointmentsEntity;
-import com.example.medhub.entity.DoctorEntity;
+import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.exceptions.MedHubServiceException;
@@ -19,13 +19,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class AppointmentsSlotGeneratorTest {
 
     private AppointmentsSlotGenerator generator;
-    private DoctorEntity doctor;
+    private Doctor doctor;
     private LocationEntity location;
 
     @BeforeEach
     void setUp() {
         generator = new AppointmentsSlotGenerator();
-        doctor = new DoctorEntity();
+        doctor = new Doctor();
         location = new LocationEntity();
     }
 

@@ -1,6 +1,7 @@
 package com.example.medhub.dto.request;
 
 import com.example.medhub.validation.UniqueEmail;
+import com.example.medhub.validation.UniquePesel;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -50,4 +51,9 @@ public class UserCreateRequestDto {
     @Size(max = 48)
     @Schema(example = "123456789")
     private String phoneNumber;
+
+    @UniquePesel
+    @Schema(example = "12345678901")
+    @Size(min = 11, max = 11)
+    private String pesel;
 }

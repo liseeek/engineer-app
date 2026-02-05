@@ -1,5 +1,6 @@
 package com.example.medhub.entity;
 
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -9,10 +10,11 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "workers")
+@DiscriminatorValue("WORKER")
 @Getter
 @Setter
-public class WorkerEntity extends User {
+public class Worker extends User {
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
-    LocationEntity location;
+    private LocationEntity location;
 }
