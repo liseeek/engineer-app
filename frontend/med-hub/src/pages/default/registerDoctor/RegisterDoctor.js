@@ -80,10 +80,7 @@ const RegisterDoctor = () => {
                 );
                 return;
             }
-            const msg =
-                err.response?.data?.message ||
-                (Array.isArray(err.response?.data?.errors) && err.response.data.errors[0]?.defaultMessage) ||
-                'Registration failed';
+            const msg = err.response?.data?.message || 'Registration failed';
             toast.error(msg);
         }
     };

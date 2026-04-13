@@ -58,7 +58,7 @@ const Visits = () => {
 
     const handleCancelClick = (id) => async () => {
         const responseStatus = await cancelAppointment(id);
-        if (responseStatus === 200) {
+        if (responseStatus >= 200 && responseStatus < 300) {
             setRows((prevRows) =>
                 prevRows.map((row) => (row.id === id ? { ...row, visitStatus: "CANCELED" } : row))
             );

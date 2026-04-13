@@ -42,6 +42,18 @@ spring:
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
 medhub:
   security:
     encryption:

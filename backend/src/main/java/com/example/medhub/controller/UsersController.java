@@ -1,6 +1,7 @@
 package com.example.medhub.controller;
 
 import com.example.medhub.dto.AppointmentsDto;
+import com.example.medhub.dto.UserListItemDto;
 import com.example.medhub.dto.request.UserCreateRequestDto;
 import com.example.medhub.service.UsersService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,7 +16,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 import java.util.List;
 
@@ -26,6 +32,18 @@ import jakarta.validation.Valid;
 @RequestMapping("/v1/users")
 public class UsersController {
     private final UsersService usersService;
+
+    @GetMapping
+    @Operation(summary = "List users (admin)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users page."),
+            @ApiResponse(responseCode = "403", description = "Forbidden.")
+    })
+    public ResponseEntity<Page<UserListItemDto>> getUsers(
+            @RequestParam(required = false) String search,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(usersService.getUsers(search, pageable));
+    }
 
     @PostMapping(path = "/signup")
     @Operation(summary = "Create new service user")

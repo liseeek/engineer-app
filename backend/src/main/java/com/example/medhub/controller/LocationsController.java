@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -35,7 +37,7 @@ public class LocationsController {
             @ApiResponse(responseCode = "201", description = "New location created successfully."),
             @ApiResponse(responseCode = "400", description = "Bad request.")
     })
-    public ResponseEntity<?> addLocation(@RequestBody LocationCreateRequestDto locationCreateRequestDto) {
+    public ResponseEntity<?> addLocation(@RequestBody @Valid LocationCreateRequestDto locationCreateRequestDto) {
         locationsService.saveLocation(locationCreateRequestDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

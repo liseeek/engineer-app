@@ -48,12 +48,8 @@ const ManageVisits = () => {
 
     const cancelAppointment = async (id, reason) => {
         try {
-            if (reason) {
-                await request('post',
-                    `/v1/facility/appointments/${id}/cancel?reason=${encodeURIComponent(reason)}`);
-            } else {
-                await request('patch', `/v1/appointments/${id}/cancel`);
-            }
+            await request('post',
+                `/v1/facility/appointments/${id}/cancel?reason=${encodeURIComponent(reason)}`);
             toast.success("Appointment canceled successfully!");
             return 200;
         } catch (error) {

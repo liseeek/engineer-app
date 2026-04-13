@@ -12,7 +12,7 @@ const AddWorker = () => {
         surname: '',
         email: '',
         password: '',
-        confirmedPassword: '',
+        passwordConfirmation: '',
         locationName: '',
         phoneNumber: '',
     });
@@ -49,7 +49,7 @@ const AddWorker = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (user.password !== user.confirmedPassword) {
+        if (user.password !== user.passwordConfirmation) {
             toast.error('Passwords do not match');
             return;
         }
@@ -124,11 +124,11 @@ const AddWorker = () => {
 
                             <TextField
                                 label="Confirm Password"
-                                name="confirmedPassword"
+                                name="passwordConfirmation"
                                 type="password"
                                 fullWidth
                                 margin="normal"
-                                value={user.confirmedPassword}
+                                value={user.passwordConfirmation}
                                 onChange={handleChange}
                                 required
                             />

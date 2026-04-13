@@ -7,12 +7,17 @@ import com.example.medhub.enums.Authority;
 import com.example.medhub.entity.Patient;
 import com.example.medhub.entity.User;
 import com.example.medhub.mapper.AppointmentsMapper;
+import com.example.medhub.dto.UserListItemDto;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +34,13 @@ public class UsersService {
     private final AppointmentsMapper appointmentsMapper;
     private final SecurityService securityService;
     private final CryptoService cryptoService;
+
+    public Page<UserListItemDto> getUsers(String search, Pageable pageable) {
+        Page<User> users = StringUtils.hasText(search)
+                ? userRepository.searchUsers(search.trim(), pageable)
+                : userRepository.findAll(pageable);
+        return users.map(userMapper::toUserListItem);
+    }
 
     public void saveUser(UserCreateRequestDto newUser) {
         var encryptedPassword = passwordEncoder.encode(newUser.getPassword());

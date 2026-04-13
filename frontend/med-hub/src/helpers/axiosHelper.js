@@ -49,6 +49,18 @@ export const unwrapPage = (data) => {
 axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 
+axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const isLoginRequest = error.config?.url?.includes('/v1/signin');
+        if (error.response?.status === 401 && !isLoginRequest) {
+            clearAuthStorage();
+            window.location.href = '/';
+        }
+        return Promise.reject(error);
+    }
+);
+
 export const request = (method, url, data) => {
     const token = getAuthToken();
     const headers = token ? { Authorization: `Bearer ${token}` } : {};

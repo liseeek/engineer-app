@@ -1,7 +1,6 @@
 package com.example.medhub.service;
 
 import com.example.medhub.entity.AppointmentsEntity;
-import com.example.medhub.entity.User;
 import com.example.medhub.entity.Worker;
 import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.exceptions.MedHubServiceException;
@@ -11,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import com.example.medhub.aspect.annotation.Auditable;
 
 @Service
@@ -20,7 +18,6 @@ public class FacilityOperationService {
 
     private final AppointmentsRepository appointmentsRepository;
     private final SecurityService securityService;
-    private final AvailabilityService availabilityService;
 
     @Transactional
     @Auditable(action = "CANCEL_APPOINTMENT", resourceId = "#appointmentId")
@@ -36,21 +33,6 @@ public class FacilityOperationService {
         }
 
         appointment.setAppointmentStatus(AppointmentStatus.CANCELED);
-
-        appointmentsRepository.save(appointment);
-    }
-
-    @Transactional
-    public void rescheduleAppointment(Long appointmentId, LocalDateTime newStart) {
-        Worker currentWorker = securityService.getCurrentWorker();
-        AppointmentsEntity appointment = getAppointmentOrThrow(appointmentId);
-
-        validateWorkerAccess(currentWorker, appointment);
-
-        appointment.setDate(newStart.toLocalDate());
-        appointment.setTime(newStart.toLocalTime());
-
-        appointment.setAppointmentStatus(AppointmentStatus.RESCHEDULED);
 
         appointmentsRepository.save(appointment);
     }

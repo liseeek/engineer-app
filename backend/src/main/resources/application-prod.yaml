@@ -1,0 +1,7 @@
+# Use with --spring.profiles.active=prod on a public host.
+# Swagger/OpenAPI is off by default in prod; override with SPRINGDOC_* env vars if needed.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

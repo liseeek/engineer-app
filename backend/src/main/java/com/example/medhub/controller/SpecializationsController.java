@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -32,7 +34,7 @@ public class SpecializationsController {
             @ApiResponse(responseCode = "400", description = "Bad request.")
     })
     public ResponseEntity<?> addSpecialization(
-            @RequestBody SpecializationCreateRequestDto specializationCreateRequestDto) {
+            @RequestBody @Valid SpecializationCreateRequestDto specializationCreateRequestDto) {
         specializationsService.saveSpecialization(specializationCreateRequestDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

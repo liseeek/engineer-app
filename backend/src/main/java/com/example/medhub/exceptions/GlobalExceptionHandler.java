@@ -49,13 +49,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
         log.warn("Validation failed: {}", ex.getMessage());
-        Map<String, String> errors = new HashMap<>();
+        Map<String, String> fieldErrors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
+            String fieldName = error instanceof FieldError fieldError
+                    ? fieldError.getField()
+                    : error.getObjectName();
+            fieldErrors.put(fieldName, error.getDefaultMessage());
         });
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
+        body.put("message", "Validation failed");
+        body.put("fieldErrors", fieldErrors);
+        body.put("requestId", MDC.get("requestId"));
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

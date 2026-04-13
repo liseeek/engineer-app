@@ -131,10 +131,11 @@ cd backend
 ![alt text](doc/role_view.png)
 
 ## 📜 Swagger API Endpoints
-- Explore MedHub's API with Swagger:
+Swagger UI is **enabled by default** after you clone the repo and run the backend (with or without the `local` profile), so you can open the API docs without extra configuration:
 ```
 http://localhost:8080/swagger-ui/index.html
 ```
+On a **public server**, disable it by running with `--spring.profiles.active=prod` (see `application-prod.yaml`) or by setting `SPRINGDOC_API_DOCS_ENABLED=false` and `SPRINGDOC_SWAGGER_UI_ENABLED=false` in your environment.
 ![alt text](doc/swagger_view.png)
 ## 📩 Contact
 Created by Szymon Lis - contact me!

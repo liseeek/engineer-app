@@ -2,7 +2,9 @@ package com.example.medhub.mapper;
 
 import com.example.medhub.dto.request.UserCreateRequestDto;
 import com.example.medhub.dto.UserDto;
+import com.example.medhub.dto.UserListItemDto;
 import com.example.medhub.entity.Patient;
+import com.example.medhub.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -18,4 +20,6 @@ public interface UserMapper {
     Patient toUser(UserCreateRequestDto createRequestDto, String encryptedPassword);
 
     UserDto toUserDto(Patient savedUser);
+
+    UserListItemDto toUserListItem(User user);
 }

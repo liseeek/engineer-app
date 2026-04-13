@@ -41,6 +41,7 @@ public class JwtSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
 
@@ -49,6 +50,7 @@ public class JwtSecurityConfig {
                         .requestMatchers("/v1/invitations/**").permitAll()
 
                         .requestMatchers("/v1/users/signup").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/users").hasAuthority(ADMIN)
                         .requestMatchers(HttpMethod.DELETE, "/v1/users/{id}").hasAnyAuthority(ADMIN)
                         .requestMatchers("/v1/users/**").hasAnyAuthority(ADMIN, PATIENT)
 
@@ -76,7 +78,7 @@ public class JwtSecurityConfig {
                         .requestMatchers("/v1/availability/**").hasAnyAuthority(ADMIN, WORKER)
 
                         .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}")
-                        .hasAnyAuthority(ADMIN, WORKER, PATIENT)
+                        .hasAnyAuthority(PATIENT)
                         .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}/cancel")
                         .hasAnyAuthority(PATIENT)
                         .requestMatchers("/v1/appointments/**").hasAnyAuthority(ADMIN, WORKER)
