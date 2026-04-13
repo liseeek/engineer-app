@@ -53,7 +53,7 @@ function App() {
               <Route path="/addDoctorAvailability" element={<AddDoctorAvailability />} />
               <Route path="/manageVisits" element={<ManageVisits />} />
             </Route>
-            <Route element={<ProtectedRoute requiredRoles={[ROLES.USER]} />}>
+            <Route element={<ProtectedRoute requiredRoles={[ROLES.PATIENT]} />}>
               <Route path="/visits" element={<Visits />} />
               <Route path="/booking" element={<Booking />} />
             </Route>

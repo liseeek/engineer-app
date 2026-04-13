@@ -2,9 +2,13 @@ package com.example.medhub.service;
 
 import com.example.medhub.config.MedHubProperties;
 import com.example.medhub.enums.AppointmentStatus;
+import com.example.medhub.entity.Admin;
 import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.entity.Patient;
+import com.example.medhub.entity.User;
+import com.example.medhub.entity.Worker;
 import com.example.medhub.exceptions.MedHubServiceException;
+import com.example.medhub.exceptions.UnauthorizedOperationException;
 import com.example.medhub.repository.AppointmentsRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,25 +50,31 @@ public class AppointmentsService {
 
     @Transactional
     public void completeAppointment(Long appointmentId) {
-        Optional<AppointmentsEntity> appointment = appointmentsRepository.findById(appointmentId);
-        if (appointment.isPresent()) {
-            AppointmentsEntity appointmentEntity = appointment.get();
-            appointmentEntity.setAppointmentStatus(AppointmentStatus.COMPLETED);
-            appointmentsRepository.save(appointmentEntity);
-        } else {
-            throw new EntityNotFoundException("Appointment with ID: " + appointmentId + " does not exist.");
+        AppointmentsEntity appointment = appointmentsRepository.findById(appointmentId)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+        User user = securityService.getCurrentUser();
+        if (user instanceof Worker worker) {
+            if (!worker.getLocation().getLocationId().equals(appointment.getLocation().getLocationId())) {
+                throw new UnauthorizedOperationException(
+                        "Worker does not belong to the facility where the appointment is scheduled.");
+            }
+        } else if (!(user instanceof Admin)) {
+            throw new UnauthorizedOperationException("Only workers and administrators can complete appointments.");
         }
+        appointment.setAppointmentStatus(AppointmentStatus.COMPLETED);
+        appointmentsRepository.save(appointment);
     }
 
     @Transactional
     public void cancelAppointment(Long appointmentId) {
-        Optional<AppointmentsEntity> appointment = appointmentsRepository.findById(appointmentId);
-        if (appointment.isPresent()) {
-            AppointmentsEntity appointmentEntity = appointment.get();
-            appointmentEntity.setAppointmentStatus(AppointmentStatus.CANCELED);
-            appointmentsRepository.save(appointmentEntity);
-        } else {
-            throw new EntityNotFoundException("Appointment with ID: " + appointmentId + " does not exist.");
+        Patient patient = securityService.getCurrentPatient();
+        AppointmentsEntity appointment = appointmentsRepository.findById(appointmentId)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+        if (appointment.getPatient() == null
+                || !appointment.getPatient().getUserId().equals(patient.getUserId())) {
+            throw new UnauthorizedOperationException("You can only cancel your own appointments.");
         }
+        appointment.setAppointmentStatus(AppointmentStatus.CANCELED);
+        appointmentsRepository.save(appointment);
     }
 }

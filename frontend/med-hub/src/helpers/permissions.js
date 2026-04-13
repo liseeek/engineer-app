@@ -8,7 +8,7 @@ const permissions = {
         { label: 'Send Invitation', path: '/send-invitation', icon: 'fa-solid fa-envelope' },
         { label: 'Manage Users', path: '/manage-users', icon: 'fa-solid fa-users' },
     ],
-    [ROLES.USER]: [
+    [ROLES.PATIENT]: [
         { label: 'Visits', path: '/visits', icon: 'fa-solid fa-calendar-days' },
         { label: 'Booking', path: '/booking', icon: 'fa-regular fa-calendar-check' },
         { label: 'Mainpage', path: '/mainpage', icon: 'fa-solid fa-house' },

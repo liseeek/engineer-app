@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthenticatedLayout from '../../../layouts/AuthenticatedLayout';
 import styles from './MainPage.module.css';
 import services from '../../../img/services.svg';
 import doctor from '../../../img/doctor.svg';
 
 function MainPage() {
+    const navigate = useNavigate();
     return (
         <AuthenticatedLayout variant="main">
             <div className={styles.mainPageMessages}></div>
@@ -22,7 +24,7 @@ function MainPage() {
                         <div className={styles.mainPageButtonContainer}>
                             <button
                                 className={styles.mainPageBookButton}
-                                onClick={() => (window.location.href = 'booking')}
+                                onClick={() => navigate('/booking')}
                             >
                                 BOOK NOW
                             </button>

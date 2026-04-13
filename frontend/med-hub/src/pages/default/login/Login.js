@@ -33,7 +33,7 @@ const Login = () => {
                     case ROLES.ADMIN:
                         navigate('/addWorker');
                         break;
-                    case ROLES.USER:
+                    case ROLES.PATIENT:
                         navigate('/mainpage');
                         break;
                     case ROLES.WORKER:
@@ -64,7 +64,7 @@ const Login = () => {
                     case ROLES.ADMIN:
                         navigate('/addWorker');
                         break;
-                    case ROLES.USER:
+                    case ROLES.PATIENT:
                         navigate('/mainpage');
                         break;
                     case ROLES.WORKER:

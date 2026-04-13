@@ -2,9 +2,13 @@ package com.example.medhub.service;
 
 import com.example.medhub.config.MedHubProperties;
 import com.example.medhub.enums.AppointmentStatus;
+import com.example.medhub.entity.Admin;
 import com.example.medhub.entity.AppointmentsEntity;
+import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.Patient;
+import com.example.medhub.entity.Worker;
 import com.example.medhub.exceptions.MedHubServiceException;
+import com.example.medhub.exceptions.UnauthorizedOperationException;
 import com.example.medhub.repository.AppointmentsRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,7 +117,17 @@ class AppointmentsServiceTest {
     }
 
     @Test
-    void completeAppointment_success() {
+    void completeAppointment_success_asWorker_sameFacility() {
+        LocationEntity location = new LocationEntity();
+        location.setLocationId(10L);
+        testAppointment.setLocation(location);
+
+        LocationEntity workerLocation = new LocationEntity();
+        workerLocation.setLocationId(10L);
+        Worker worker = new Worker();
+        worker.setLocation(workerLocation);
+
+        when(securityService.getCurrentUser()).thenReturn(worker);
         when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
         when(appointmentsRepository.save(any(AppointmentsEntity.class))).thenReturn(testAppointment);
 
@@ -121,6 +135,37 @@ class AppointmentsServiceTest {
 
         assertEquals(AppointmentStatus.COMPLETED, testAppointment.getAppointmentStatus());
         verify(appointmentsRepository, times(1)).save(testAppointment);
+    }
+
+    @Test
+    void completeAppointment_success_asAdmin() {
+        Admin admin = new Admin();
+        when(securityService.getCurrentUser()).thenReturn(admin);
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
+        when(appointmentsRepository.save(any(AppointmentsEntity.class))).thenReturn(testAppointment);
+
+        appointmentsService.completeAppointment(1L);
+
+        assertEquals(AppointmentStatus.COMPLETED, testAppointment.getAppointmentStatus());
+        verify(appointmentsRepository, times(1)).save(testAppointment);
+    }
+
+    @Test
+    void completeAppointment_workerWrongFacility_throwsUnauthorizedOperationException() {
+        LocationEntity appointmentLoc = new LocationEntity();
+        appointmentLoc.setLocationId(10L);
+        testAppointment.setLocation(appointmentLoc);
+
+        LocationEntity workerLoc = new LocationEntity();
+        workerLoc.setLocationId(99L);
+        Worker worker = new Worker();
+        worker.setLocation(workerLoc);
+
+        when(securityService.getCurrentUser()).thenReturn(worker);
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
+
+        assertThrows(UnauthorizedOperationException.class, () -> appointmentsService.completeAppointment(1L));
+        verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
     }
 
     @Test
@@ -133,6 +178,8 @@ class AppointmentsServiceTest {
 
     @Test
     void cancelAppointment_success() {
+        testAppointment.setPatient(testUser);
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
         when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
         when(appointmentsRepository.save(any(AppointmentsEntity.class))).thenReturn(testAppointment);
 
@@ -140,6 +187,18 @@ class AppointmentsServiceTest {
 
         assertEquals(AppointmentStatus.CANCELED, testAppointment.getAppointmentStatus());
         verify(appointmentsRepository, times(1)).save(testAppointment);
+    }
+
+    @Test
+    void cancelAppointment_notOwnAppointment_throwsUnauthorizedOperationException() {
+        Patient otherPatient = new Patient();
+        otherPatient.setUserId(99L);
+        testAppointment.setPatient(otherPatient);
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
+
+        assertThrows(UnauthorizedOperationException.class, () -> appointmentsService.cancelAppointment(1L));
+        verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
     }
 
     @Test

@@ -78,7 +78,7 @@ public class JwtSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}")
                         .hasAnyAuthority(ADMIN, WORKER, PATIENT)
                         .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}/cancel")
-                        .hasAnyAuthority(ADMIN, WORKER, PATIENT)
+                        .hasAnyAuthority(PATIENT)
                         .requestMatchers("/v1/appointments/**").hasAnyAuthority(ADMIN, WORKER)
 
                         .anyRequest().authenticated())
