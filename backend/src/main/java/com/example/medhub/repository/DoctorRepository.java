@@ -23,9 +23,12 @@ public interface DoctorRepository extends BaseUserRepository<Doctor> {
             @Param("specializationId") Long specializationId, Pageable pageable);
 
     /**
-     * Explicit JPQL (see {@link UserRepository#countUsersWithEmail(String)} for rationale).
+     * Native SQL: JPQL {@code COUNT} on {@code Doctor} can produce invalid SQL with Hibernate 6
+     * when combining {@code @SoftDelete} on {@link com.example.medhub.entity.User} with JOINED inheritance
+     * (missing join for the {@code users.deleted} predicate).
      */
-    @Query("SELECT COUNT(d) FROM Doctor d WHERE d.pwz = :pwz")
+    @Query(value = "SELECT COUNT(*) FROM doctors d INNER JOIN users u ON u.user_id = d.user_id "
+            + "WHERE d.pwz = :pwz AND u.deleted = false", nativeQuery = true)
     long countDoctorsWithPwz(@Param("pwz") String pwz);
 
     default boolean existsByPwz(String pwz) {
