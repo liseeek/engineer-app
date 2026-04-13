@@ -65,6 +65,23 @@ public class GlobalExceptionHandler {
                 "Data integrity violation: Duplicate entry or constraint failure.");
     }
 
+    /**
+     * Used by services (e.g. {@link com.example.medhub.service.InvitationCreationService}) for input / rule violations.
+     * Without this handler, {@link IllegalArgumentException} was mapped to HTTP 500 and the UI looked like
+     * a generic "mail send" failure (e.g. email already registered).
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.warn("Bad request: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Object> handleIllegalStateException(IllegalStateException ex) {
+        log.warn("Invalid state: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGlobalException(Exception ex) {
         log.error("An unexpected internal server error occurred", ex);

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/facility")
+@RequestMapping("/v1/facility")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('WORKER')")
 public class FacilityOperationController {

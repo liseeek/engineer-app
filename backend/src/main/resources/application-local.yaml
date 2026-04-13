@@ -3,3 +3,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/med-hub-db
     username: postgres
     password: password
+
+# Local dev: allow doctor self-registration without setting root .env (see README / .env.example for production-style defaults).
+medhub:
+  doctor-self-signup:
+    enabled: true

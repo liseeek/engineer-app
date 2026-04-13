@@ -18,6 +18,15 @@ services:
       timeout: 5s
       retries: 5
 
+  # Local SMTP catcher: open http://localhost:8025 to read "sent" invitation emails
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: medhub-mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -28,6 +37,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
       - DB_USERNAME=${DB_USERNAME}
@@ -37,11 +48,26 @@ services:
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - HASHING_SALT=${HASHING_SALT}
+      # Default to Mailpit service in this compose file (override in .env if needed)
+      - MAIL_HOST=${MAIL_HOST:-mailpit}
+      - MAIL_PORT=${MAIL_PORT:-1025}
+      - MAIL_USERNAME=${MAIL_USERNAME:-}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
+      - MAIL_FROM=${MAIL_FROM:-noreply@medhub.local}
+      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL:-http://localhost:3000}
+      - MAIL_SMTP_AUTH=${MAIL_SMTP_AUTH:-false}
+      - MAIL_STARTTLS_ENABLE=${MAIL_STARTTLS_ENABLE:-false}
+      # Demo/local stack: allow doctor self-signup. Set to false on a public VPS (see README).
+      - MEDHUB_DOCTOR_SELF_SIGNUP_ENABLED=${MEDHUB_DOCTOR_SELF_SIGNUP_ENABLED:-true}
+      - MEDHUB_APPOINTMENTS_MAX_UPCOMING_PER_PATIENT=${MEDHUB_APPOINTMENTS_MAX_UPCOMING_PER_PATIENT:-5}
 
   frontend:
     build:
       context: ./frontend/med-hub
       dockerfile: Dockerfile
+      args:
+        # Show "Register as doctor" in the login UI when using this compose file (override in root .env if needed).
+        REACT_APP_DOCTOR_SIGNUP_ENABLED: ${REACT_APP_DOCTOR_SIGNUP_ENABLED:-true}
     container_name: medhub-frontend-container
     ports:
       - "3000:80"

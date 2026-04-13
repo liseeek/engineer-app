@@ -1,5 +1,6 @@
 package com.example.medhub.repository;
 
+import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.entity.LocationEntity;
@@ -9,6 +10,11 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,10 +45,19 @@ public interface AppointmentsRepository extends JpaRepository<AppointmentsEntity
 
         @Query("SELECT DISTINCT a FROM AppointmentsEntity a " +
                         "JOIN FETCH a.doctor d " +
-                        "JOIN FETCH d.specialization " +
                         "JOIN FETCH a.patient u " +
                         "LEFT JOIN FETCH d.locations " +
                         "WHERE a.location = :location " +
                         "AND a.patient IS NOT NULL")
         List<AppointmentsEntity> findAllScheduledByLocation(@Param("location") LocationEntity location);
+
+        Page<AppointmentsEntity> findAllByLocationAndPatientIsNotNullOrderByDateAscTimeAsc(
+                        LocationEntity location, Pageable pageable);
+
+        @Query("SELECT COUNT(a) FROM AppointmentsEntity a WHERE a.patient.userId = :patientUserId "
+                        + "AND a.date >= :minDate AND a.appointmentStatus IN :statuses")
+        long countUpcomingForPatient(
+                        @Param("patientUserId") Long patientUserId,
+                        @Param("minDate") LocalDate minDate,
+                        @Param("statuses") Collection<AppointmentStatus> statuses);
 }

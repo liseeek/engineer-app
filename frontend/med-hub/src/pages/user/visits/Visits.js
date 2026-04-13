@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Helmet } from "react-helmet";
+import AuthenticatedLayout from '../../../layouts/AuthenticatedLayout';
 import styles from '../../../components/Adding.module.css';
-import NavRespo from '../../../components/NavRespo';
-import logo from '../../../img/logo.svg';
 
 import { request } from "../../../helpers/axiosHelper";
 import Box from '@mui/material/Box';
@@ -39,7 +37,6 @@ const Visits = () => {
 
             setRows(transformedData);
         } catch (error) {
-            console.error("Failed to fetch appointments:", error);
             toast.error("Failed to fetch appointments. Please try again later.");
         }
     };
@@ -50,7 +47,6 @@ const Visits = () => {
             toast.success("Appointment canceled successfully!");
             return response.status;
         } catch (error) {
-            console.error("Failed to cancel appointment:", error);
             toast.error("Failed to cancel appointment. Please try again later.");
             return error.response?.status || 500;
         }
@@ -100,19 +96,7 @@ const Visits = () => {
     ];
 
     return (
-        <div>
-            <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-            </Helmet>
-            <div className={styles.addingBaseContainer}>
-                <header className={styles.addingHeader}>
-                    <div className={styles.addingLogo}>
-                        <img src={logo} alt="Logo" />
-                    </div>
-                    <NavRespo />
-                </header>
-            </div>
-            <main className={styles.addingMain}>
+        <AuthenticatedLayout>
                 <div className={styles.addingContainer}>
                     <Box
                         sx={{
@@ -142,9 +126,8 @@ const Visits = () => {
                         </Box>
                     </Box>
                 </div>
-            </main>
             <ToastContainer position="top-center" autoClose={4000} />
-        </div>
+        </AuthenticatedLayout>
     );
 };
 

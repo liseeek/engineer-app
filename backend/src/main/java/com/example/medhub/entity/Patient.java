@@ -1,13 +1,8 @@
 package com.example.medhub.entity;
 
 import com.example.medhub.converter.PeselAttributeConverter;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.example.medhub.listener.PatientEntityListener;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +13,7 @@ import java.util.List;
 @DiscriminatorValue("PATIENT")
 @Getter
 @Setter
+@EntityListeners(PatientEntityListener.class)
 public class Patient extends User {
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -21,14 +21,29 @@ export const decodeToken = () => {
 
     try {
         return jwtDecode(token);
-    } catch (error) {
-        console.error('Invalid token:', error);
+    } catch {
         return null;
     }
 };
 
 export const getUserRole = () => {
     return window.localStorage.getItem("user_role");
+};
+
+export const clearAuthStorage = () => {
+    window.localStorage.removeItem('auth_token');
+    window.localStorage.removeItem('user_role');
+};
+
+/** Spring Data Page JSON uses `content`; legacy APIs returned a bare array. */
+export const unwrapPage = (data) => {
+    if (data && Array.isArray(data.content)) {
+        return data.content;
+    }
+    if (Array.isArray(data)) {
+        return data;
+    }
+    return [];
 };
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8080';

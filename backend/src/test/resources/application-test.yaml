@@ -23,3 +23,7 @@ medhub:
       key: "00000000000000000000000000000000"
     hashing:
       salt: "test-salt"
+  doctor-self-signup:
+    enabled: true
+  appointments:
+    max-upcoming-per-patient: 5

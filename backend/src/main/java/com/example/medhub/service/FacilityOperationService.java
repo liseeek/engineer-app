@@ -47,8 +47,6 @@ public class FacilityOperationService {
 
         validateWorkerAccess(currentWorker, appointment);
 
-        validateWorkerAccess(currentWorker, appointment);
-
         appointment.setDate(newStart.toLocalDate());
         appointment.setTime(newStart.toLocalTime());
 

@@ -28,6 +28,17 @@ spring:
       is-getter: any
     deserialization:
       fail-on-unknown-properties: false
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_STARTTLS_ENABLE:true}
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
@@ -37,6 +48,13 @@ medhub:
       key: ${ENCRYPTION_KEY}
     hashing:
       salt: ${HASHING_SALT}
+  invitations:
+    from-email: ${MAIL_FROM:noreply@medhub.local}
+    frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:3000}
+  doctor-self-signup:
+    enabled: ${MEDHUB_DOCTOR_SELF_SIGNUP_ENABLED:false}
+  appointments:
+    max-upcoming-per-patient: ${MEDHUB_APPOINTMENTS_MAX_UPCOMING_PER_PATIENT:5}
 database:
   admin:
     name: "Szymon"

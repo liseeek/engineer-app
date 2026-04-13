@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+
 import java.util.List;
 
 @RestController
@@ -42,8 +46,8 @@ public class LocationsController {
             @ApiResponse(responseCode = "200", description = "Locations found."),
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
-    public ResponseEntity<List<LocationDto>> getLocations() {
-        return ResponseEntity.ok(locationsService.getLocations());
+    public ResponseEntity<Page<LocationDto>> getLocations(@PageableDefault(size = 50) Pageable pageable) {
+        return ResponseEntity.ok(locationsService.getLocations(pageable));
     }
 
     @GetMapping("/cities/distinct")

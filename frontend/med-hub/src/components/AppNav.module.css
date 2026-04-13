@@ -1,4 +1,4 @@
-.sidebarContainer {
+.sidebar {
     height: 100%;
     width: 0;
     position: fixed;
@@ -6,16 +6,16 @@
     left: 0;
     background-color: #fff;
     overflow-x: hidden;
-    transition: 0.3s ease;
+    transition: 0.3s;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
 }
 
-.sidebarContainer.open {
+.sidebar.open {
     width: 250px;
 }
 
-.sidebarCloseBtn {
+.closeBtn {
     position: absolute;
     top: 10px;
     right: 20px;
@@ -26,18 +26,17 @@
     cursor: pointer;
 }
 
-.sidebarList {
+.navList {
     list-style-type: none;
     padding: 0;
-    margin: 60px 0 0;
+    margin: 80px 0 0;
 }
 
-.sidebarItem {
+.navItem {
     margin: 15px 0;
 }
 
-.sidebarLink,
-.sidebarActiveLink {
+.navLink, .navActiveLink {
     color: #000;
     text-decoration: none;
     font-size: 1.5rem;
@@ -46,22 +45,21 @@
     transition: color 0.3s ease;
 }
 
-.sidebarActiveLink {
+.navActiveLink {
     background-color: #bebbbb;
 }
 
-.sidebarLink:hover,
-.sidebarActiveLink:hover {
+.navLink:hover, .navActiveLink:hover {
     color: #6bcbb8;
 }
 
-.sidebarIcon {
+.navIcon {
     font-size: 1.5rem;
     color: #6bcbb8;
     margin-right: 10px;
 }
 
-.sidebarButton {
+.navButton {
     background: transparent;
     border: none;
     color: #000;
@@ -72,56 +70,57 @@
     cursor: pointer;
 }
 
-.sidebarButton:hover {
+.navButton:hover {
     color: #6bcbb8;
 }
 
-.sidebarOpenBtn {
-    font-size: 20px;
+.openBtn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    font-size: 1.8rem;
     background-color: #6bcbb8;
     color: white;
     border: none;
-    cursor: pointer;
     padding: 10px 15px;
-    position: fixed;
-    top: 10px;
-    left: 10px;
+    cursor: pointer;
     z-index: 1100;
     border-radius: 5px;
 }
 
-.sidebarOpenBtn:hover {
+.openBtn:hover {
     background-color: #4aa98b;
 }
 
 @media (max-width: 768px) {
-    .sidebarLink,
-    .sidebarActiveLink,
-    .sidebarButton {
+    .navLink,
+    .navActiveLink,
+    .navButton {
+        font-size: 1.25rem;
+        padding: 10px;
+    }
+
+    .navIcon {
         font-size: 1.25rem;
     }
 
-    .sidebarIcon {
-        font-size: 1.25rem;
-    }
-
-    .sidebarOpenBtn {
+    .openBtn {
         font-size: 1.5rem;
     }
 }
 
 @media (max-width: 480px) {
-    .sidebarLink,
-    .sidebarActiveLink,
-    .sidebarButton {
+    .navLink,
+    .navActiveLink,
+    .navButton {
         font-size: 1rem;
     }
 
-    .sidebarIcon {
+    .navIcon {
         font-size: 1rem;
     }
 
-    .sidebarOpenBtn {
+    .openBtn {
         font-size: 1.2rem;
         padding: 8px 12px;
     }

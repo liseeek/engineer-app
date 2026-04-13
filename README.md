@@ -20,6 +20,11 @@ cp .env.example .env
 ```
 - Open `.env` and provide your secrets (JWT key, encryption key, etc.).
 
+**Testing invitation emails with Mailpit (optional, free):**  
+`docker compose` starts a **Mailpit** service. In `.env`, set:
+`MAIL_HOST=mailpit`, `MAIL_PORT=1025`, `MAIL_SMTP_AUTH=false`, `MAIL_STARTTLS_ENABLE=false` (see `.env.example`).  
+Then open **http://localhost:8025** — invitation emails from the app appear there (nothing is sent to the real internet).
+
 3. Set up the infrastructure and start the application:
 - Run this command in the root folder of the project to build and start all services:
 ```bash
@@ -32,6 +37,14 @@ Upon the first launch, the system automatically creates an administrative accoun
 - **Password:** Value defined in your `ADMIN_PASSWORD` environment variable.
 
 ## 🛡️ Security Features
+
+### Portfolio / abuse-minded defaults
+
+- **Doctor self-registration** is controlled by `medhub.doctor-self-signup.enabled` (env: `MEDHUB_DOCTOR_SELF_SIGNUP_ENABLED`). In `application.yaml` it defaults to **`false`** so a publicly exposed API does not allow unlimited doctor account creation. **`docker-compose`** sets it to **`true`** so a local/demo stack works out of the box; for a public VPS set it to **`false`** in your environment.
+- **Patient booking spam:** each patient can have at most **`MEDHUB_APPOINTMENTS_MAX_UPCOMING_PER_PATIENT`** upcoming visits (today or later, statuses `ACTIVE` / `RESCHEDULED`). This is a simple guardrail; production apps add verification, rate limits, payments, etc. (documented here as the intended trade-off).
+- **Frontend:** the login link to doctor registration is shown only when the UI is built with `REACT_APP_DOCTOR_SIGNUP_ENABLED=true` (default in `docker-compose` build args). Align this with the backend flag when you change either.
+- **Local Spring profile:** `application-local.yaml` enables doctor signup so you can run the backend with `--spring.profiles.active=local` without touching `.env`.
+- **Possible next iteration:** API rate limiting / CAPTCHA; admin-minted one-time tokens for doctor signup instead of a global boolean.
 
 MedHub prioritizes data security and privacy through several enterprise-grade features:
 - **Data Encryption:** Sensitive patient data (PESEL) is encrypted using **AES-256 GCM** before storage.

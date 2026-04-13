@@ -3,11 +3,14 @@ package com.example.medhub.dto.request;
 import com.example.medhub.validation.UniquePwz;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -38,6 +41,7 @@ public class DoctorCreateRequestDto {
     @Schema(example = "Central Hospital")
     private String locationName;
 
-    @Schema(example = "1")
-    private Long specializationId;
+    @NotEmpty
+    @Schema(example = "[1, 2]")
+    private List<Long> specializationIds;
 }

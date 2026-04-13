@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Helmet } from "react-helmet";
+import AuthenticatedLayout from '../../../layouts/AuthenticatedLayout';
 import styles from '../../../components/Adding.module.css';
-import NavRespo from '../../../components/NavRespo';
-import logo from '../../../img/logo.svg';
 
 import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { toast, ToastContainer } from "react-toastify";
-import { request } from "../../../helpers/axiosHelper";
+import { request, unwrapPage } from "../../../helpers/axiosHelper";
 
 const AddDoctorAvailability = () => {
     const [availability, setAvailability] = useState({
@@ -26,17 +24,16 @@ const AddDoctorAvailability = () => {
     useEffect(() => {
         const fetchDoctors = async () => {
             try {
-                const response = await request('get', '/v1/workers/currentWorker/doctors');
+                const response = await request('get', '/v1/workers/currentWorker/doctors?size=200');
 
                 if (response.status === 200) {
-                    const data = response.data.map((doc) => ({
+                    const data = unwrapPage(response.data).map((doc) => ({
                         doctorId: doc.doctorId,
                         fullName: `${doc.name} ${doc.surname}`,
                     }));
                     setDoctors(data);
                 }
-            } catch (error) {
-                console.error("Failed to fetch doctors:", error);
+            } catch {
                 toast.error("Failed to fetch doctors. Please try again.");
             }
         };
@@ -101,8 +98,7 @@ const AddDoctorAvailability = () => {
             } else {
                 toast.error("Failed to create availability. Please try again.");
             }
-        } catch (error) {
-            console.error("Failed to create availability:", error);
+        } catch {
             toast.error(
                 "Failed to create availability. Please check your inputs and try again."
             );
@@ -110,19 +106,7 @@ const AddDoctorAvailability = () => {
     };
 
     return (
-        <div>
-            <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-            </Helmet>
-            <div className={styles.addingBaseContainer}>
-                <header className={styles.addingHeader}>
-                    <div className={styles.addingLogo}>
-                        <img src={logo} alt="Logo" />
-                    </div>
-                    <NavRespo />
-                </header>
-            </div>
-            <main className={styles.addingMain}>
+        <AuthenticatedLayout>
                 <div className={styles.addingContainer}>
                     <Box
                         sx={{
@@ -219,8 +203,7 @@ const AddDoctorAvailability = () => {
                         <ToastContainer position="top-center" autoClose={4000} />
                     </Box>
                 </div>
-            </main>
-        </div>
+        </AuthenticatedLayout>
     );
 };
 

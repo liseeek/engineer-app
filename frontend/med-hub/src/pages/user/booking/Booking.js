@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Helmet } from "react-helmet";
+import AuthenticatedLayout from "../../../layouts/AuthenticatedLayout";
 import styles from "../../../components/Adding.module.css";
-import NavRespo from "../../../components/NavRespo";
-import logo from "../../../img/logo.svg";
 
 import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
-import { request } from "../../../helpers/axiosHelper";
+import { request, unwrapPage } from "../../../helpers/axiosHelper";
 
 const Booking = () => {
     const [booking, setBooking] = useState({
@@ -17,7 +15,6 @@ const Booking = () => {
         appointmentType: "",
     });
 
-    const [appointments, setAppointments] = useState([]);
     const [groupedAppointments, setGroupedAppointments] = useState({});
     const [selectedDate, setSelectedDate] = useState("");
     const [selectedTime, setSelectedTime] = useState("");
@@ -65,8 +62,8 @@ const Booking = () => {
         const fetchDoctors = async () => {
             if (booking.city && booking.specializationId) {
                 try {
-                    const response = await request('get', `/v1/doctors/by-city-and-specialization?city=${booking.city}&specializationId=${booking.specializationId}`);
-                    const data = response.data.map((doc) => ({
+                    const response = await request('get', `/v1/doctors/by-city-and-specialization?city=${encodeURIComponent(booking.city)}&specializationId=${booking.specializationId}&size=200`);
+                    const data = unwrapPage(response.data).map((doc) => ({
                         doctorId: doc.doctorId,
                         fullName: `${doc.name} ${doc.surname}`,
                     }));
@@ -118,7 +115,6 @@ const Booking = () => {
             if (booking.locationId && booking.doctorId && booking.appointmentType) {
                 try {
                     const response = await request('get', `/v1/availability?locationId=${booking.locationId}&doctorId=${booking.doctorId}&appointmentType=${booking.appointmentType}`);
-                    setAppointments(response.data);
 
                     const grouped = response.data.reduce((acc, appointment) => {
                         const date = appointment.date;
@@ -163,19 +159,7 @@ const Booking = () => {
     };
 
     return (
-        <div>
-            <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-            </Helmet>
-            <div className={styles.addingBaseContainer}>
-                <header className={styles.addingHeader}>
-                    <div className={styles.addingLogo}>
-                        <img src={logo} alt="Logo" />
-                    </div>
-                    <NavRespo />
-                </header>
-            </div>
-            <main className={styles.addingMain}>
+        <AuthenticatedLayout>
                 <div className={styles.addingContainer}>
                     <Box
                         sx={{
@@ -321,8 +305,7 @@ const Booking = () => {
                         <ToastContainer position="top-center" autoClose={4000} />
                     </Box>
                 </div>
-            </main>
-        </div>
+        </AuthenticatedLayout>
     );
 };
 

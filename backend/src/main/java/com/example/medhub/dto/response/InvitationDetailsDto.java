@@ -12,4 +12,7 @@ import lombok.NoArgsConstructor;
 public class InvitationDetailsDto {
     private String email;
     private String role;
+    private String locationName;
+    private String specializationName;
+    private String pwz;
 }

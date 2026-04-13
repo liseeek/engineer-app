@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -94,7 +95,7 @@ class DoctorOpsIntegrationTest extends AbstractIntegrationTest {
         doctor.setPhoneNumber("111");
         doctor.setPwz("9999999");
         doctor.setAuthority(Authority.ROLE_DOCTOR);
-        doctor.setSpecialization(specialization);
+        doctor.setSpecializations(List.of(specialization));
         doctorRepository.save(doctor);
 
         appointment = new AppointmentsEntity();
@@ -130,7 +131,7 @@ class DoctorOpsIntegrationTest extends AbstractIntegrationTest {
     @Test
     @WithMockUser(username = "doc@test.com", roles = "DOCTOR")
     void doctorCanSeeSchedule() throws Exception {
-        mockMvc.perform(get("/api/doctor/appointments"))
+        mockMvc.perform(get("/v1/doctor/appointments"))
                 .andExpect(status().isOk());
     }
 
@@ -139,7 +140,7 @@ class DoctorOpsIntegrationTest extends AbstractIntegrationTest {
     void doctorCanConcludeVisit() throws Exception {
         VisitNoteRequestDto note = new VisitNoteRequestDto("Flu", "Rest", "Water");
 
-        mockMvc.perform(post("/api/doctor/appointments/" + appointment.getAppointmentId() + "/note")
+        mockMvc.perform(post("/v1/doctor/appointments/" + appointment.getAppointmentId() + "/note")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(note)))
                 .andExpect(status().isOk());
@@ -148,7 +149,7 @@ class DoctorOpsIntegrationTest extends AbstractIntegrationTest {
     @Test
     @WithMockUser(username = "worker@test.com", roles = "WORKER")
     void workerCanCancelAppointmentInSameLocation() throws Exception {
-        mockMvc.perform(post("/api/facility/appointments/" + appointment.getAppointmentId() + "/cancel")
+        mockMvc.perform(post("/v1/facility/appointments/" + appointment.getAppointmentId() + "/cancel")
                 .param("reason", "Emergency"))
                 .andExpect(status().isOk());
     }
@@ -156,7 +157,7 @@ class DoctorOpsIntegrationTest extends AbstractIntegrationTest {
     @Test
     @WithMockUser(username = "other@test.com", roles = "WORKER")
     void workerCannotCancelAppointmentInDifferentLocation() throws Exception {
-        mockMvc.perform(post("/api/facility/appointments/" + appointment.getAppointmentId() + "/cancel")
+        mockMvc.perform(post("/v1/facility/appointments/" + appointment.getAppointmentId() + "/cancel")
                 .param("reason", "Malicious"))
                 .andExpect(status().isForbidden());
     }

@@ -4,8 +4,10 @@ import { Helmet } from "react-helmet";
 import { request } from '../../../helpers/axiosHelper';
 import logo from '../../../img/logo.svg';
 import styles from './Register.module.css';
-import { Box, TextField } from "@mui/material";
+import { Box, TextField, LinearProgress, Collapse, Typography } from "@mui/material";
+import { CheckCircle, Cancel } from "@mui/icons-material";
 import { toast, ToastContainer } from "react-toastify";
+import { usePasswordValidation } from '../../../hooks/usePasswordValidation';
 
 const Register = () => {
     const [user, setUser] = useState({
@@ -14,9 +16,12 @@ const Register = () => {
         email: '',
         password: '',
         passwordConfirmation: '',
+        pesel: '',
         phoneNumber: ''
     });
     const navigate = useNavigate();
+    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+    const [isPasswordConfirmationFocused, setIsPasswordConfirmationFocused] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -45,8 +50,48 @@ const Register = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setUser({ ...user, [name]: value });
+        
+        if (name === 'pesel') {
+            const numericValue = value.replace(/\D/g, '');
+            if (numericValue.length <= 11) {
+                setUser({ ...user, [name]: numericValue });
+            }
+        } else if (name === 'phoneNumber') {
+            const numericValue = value.replace(/\D/g, '');
+            if (numericValue.length <= 11) {
+                setUser({ ...user, [name]: numericValue });
+            }
+        } else {
+            setUser({ ...user, [name]: value });
+        }
     };
+
+    const passwordValidation = usePasswordValidation(user.password);
+
+    const getStrengthPercentage = () => {
+        const passedChecks = Object.values(passwordValidation.checks).filter(Boolean).length;
+        return (passedChecks / 5) * 100;
+    };
+
+    const getStrengthColor = () => {
+        if (passwordValidation.strength === 'strong') return 'success';
+        if (passwordValidation.strength === 'medium') return 'warning';
+        return 'error';
+    };
+
+    const requirements = [
+        { key: 'minLength', label: 'Minimum 8 characters', valid: passwordValidation.checks.minLength },
+        { key: 'hasUpperCase', label: 'At least 1 uppercase letter', valid: passwordValidation.checks.hasUpperCase },
+        { key: 'hasNumber', label: 'At least 1 number', valid: passwordValidation.checks.hasNumber },
+        { key: 'hasSpecialChar', label: 'At least 1 special character (@#$%^&+=!)', valid: passwordValidation.checks.hasSpecialChar },
+        { key: 'noSpaces', label: 'No spaces', valid: passwordValidation.checks.noSpaces },
+    ];
+
+    const passwordsMatch = user.password === user.passwordConfirmation && 
+                          user.passwordConfirmation.length > 0;
+
+    const showMatchIndicator = isPasswordConfirmationFocused || 
+                              (user.password.length > 0 && user.passwordConfirmation.length > 0);
 
     return (
         <div>
@@ -109,8 +154,70 @@ const Register = () => {
                                 margin="normal"
                                 value={user.password}
                                 onChange={handleChange}
+                                onFocus={() => setIsPasswordFocused(true)}
+                                onBlur={() => setIsPasswordFocused(false)}
                                 required
                             />
+                            <Collapse in={isPasswordFocused || user.password.length > 0}>
+                                <Box sx={{ mt: 1, mb: 2 }}>
+                                    <LinearProgress
+                                        variant="determinate"
+                                        value={getStrengthPercentage()}
+                                        color={getStrengthColor()}
+                                        sx={{
+                                            height: 8,
+                                            borderRadius: 4,
+                                            mb: 1,
+                                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                                        }}
+                                    />
+                                    <Typography
+                                        variant="caption"
+                                        sx={{
+                                            display: 'block',
+                                            mb: 2,
+                                            color: getStrengthColor() === 'success' ? 'success.main' :
+                                                  getStrengthColor() === 'warning' ? 'warning.main' : 'error.main',
+                                            fontWeight: 'medium',
+                                        }}
+                                    >
+                                        Password Strength: {passwordValidation.strength.toUpperCase()}
+                                    </Typography>
+                                    <Box sx={{ mt: 1 }}>
+                                        {requirements.map((req) => (
+                                            <Box
+                                                key={req.key}
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    mb: 1,
+                                                }}
+                                            >
+                                                {req.valid ? (
+                                                    <CheckCircle
+                                                        color="success"
+                                                        sx={{ fontSize: 20, mr: 1 }}
+                                                    />
+                                                ) : (
+                                                    <Cancel
+                                                        color="error"
+                                                        sx={{ fontSize: 20, mr: 1 }}
+                                                    />
+                                                )}
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        color: req.valid ? 'text.primary' : 'text.secondary',
+                                                        fontSize: '0.875rem',
+                                                    }}
+                                                >
+                                                    {req.label}
+                                                </Typography>
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </Box>
+                            </Collapse>
                             <TextField
                                 label="Confirm Password"
                                 name="passwordConfirmation"
@@ -118,6 +225,39 @@ const Register = () => {
                                 fullWidth
                                 margin="normal"
                                 value={user.passwordConfirmation}
+                                onChange={handleChange}
+                                onFocus={() => setIsPasswordConfirmationFocused(true)}
+                                onBlur={() => setIsPasswordConfirmationFocused(false)}
+                                required
+                            />
+                            <Collapse in={showMatchIndicator}>
+                                <Box sx={{ mt: 0.5, mb: 1, display: 'flex', alignItems: 'center' }}>
+                                    {passwordsMatch ? (
+                                        <>
+                                            <CheckCircle color="success" sx={{ fontSize: 20, mr: 1 }} />
+                                            <Typography variant="body2" color="success.main">
+                                                Passwords match
+                                            </Typography>
+                                        </>
+                                    ) : (
+                                        user.passwordConfirmation.length > 0 && (
+                                            <>
+                                                <Cancel color="error" sx={{ fontSize: 20, mr: 1 }} />
+                                                <Typography variant="body2" color="error.main">
+                                                    Passwords do not match
+                                                </Typography>
+                                            </>
+                                        )
+                                    )}
+                                </Box>
+                            </Collapse>
+                            <TextField
+                                label="PESEL"
+                                name="pesel"
+                                type="text"
+                                fullWidth
+                                margin="normal"
+                                value={user.pesel}
                                 onChange={handleChange}
                                 required
                             />

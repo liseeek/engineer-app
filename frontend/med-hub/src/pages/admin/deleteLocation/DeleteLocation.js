@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Helmet } from "react-helmet";
-import logo from '../../../img/logo.svg';
-import NavRespo from "../../../components/NavRespo";
+import AuthenticatedLayout from '../../../layouts/AuthenticatedLayout';
 import styles from '../../../components/Adding.module.css';
 import { Autocomplete, Box, TextField } from '@mui/material';
 
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { request } from "../../../helpers/axiosHelper";
+import { request, unwrapPage } from "../../../helpers/axiosHelper";
 
 const DeleteLocation = () => {
 
@@ -17,13 +15,12 @@ const DeleteLocation = () => {
 
     const fetchLocations = async () => {
         try {
-            const response = await request('get', '/v1/locations');
+            const response = await request('get', '/v1/locations?size=500');
             if (response.status === 200) {
-                const data = response.data;
-                setLocations(data);
+                setLocations(unwrapPage(response.data));
             }
-        } catch (error) {
-            console.error('Failed to fetch locations!');
+        } catch {
+            toast.error('Failed to fetch locations');
         }
 
     };
@@ -47,17 +44,7 @@ const DeleteLocation = () => {
     };
 
     return (
-        <div className={styles.addingBaseContainer}>
-            <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-            </Helmet>
-            <header className={styles.addingHeader}>
-                <div className={styles.addingLogo}>
-                    <img src={logo} alt="Logo" />
-                </div>
-                <NavRespo />
-            </header>
-            <main className={styles.addingMain}>
+        <AuthenticatedLayout>
                 <div className={styles.addingContainer}>
                     <Box
                         sx={{
@@ -96,8 +83,7 @@ const DeleteLocation = () => {
                         <ToastContainer position={"top-center"} autoClose={4000} />
                     </Box>
                 </div>
-            </main>
-        </div>
+        </AuthenticatedLayout>
     );
 };
 

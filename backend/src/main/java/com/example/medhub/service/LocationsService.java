@@ -10,6 +10,8 @@ import com.example.medhub.repository.LocationRepository;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,10 +45,8 @@ public class LocationsService {
         }
     }
 
-    public List<LocationDto> getLocations() {
-        return locationRepository.findAll().stream()
-                .map(locationMapper::toLocationDto)
-                .toList();
+    public Page<LocationDto> getLocations(Pageable pageable) {
+        return locationRepository.findAll(pageable).map(locationMapper::toLocationDto);
     }
 
     public List<String> getDistinctLocations() {

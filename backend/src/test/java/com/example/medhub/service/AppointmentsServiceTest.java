@@ -1,5 +1,6 @@
 package com.example.medhub.service;
 
+import com.example.medhub.config.MedHubProperties;
 import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.entity.Patient;
@@ -12,13 +13,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AppointmentsServiceTest {
 
     @Mock
@@ -26,6 +33,9 @@ class AppointmentsServiceTest {
 
     @Mock
     private SecurityService securityService;
+
+    @Mock
+    private MedHubProperties medHubProperties;
 
     @InjectMocks
     private AppointmentsService appointmentsService;
@@ -43,12 +53,19 @@ class AppointmentsServiceTest {
         testAppointment.setAppointmentId(1L);
         testAppointment.setAppointmentStatus(AppointmentStatus.ACTIVE);
         testAppointment.setPatient(null);
+
+        MedHubProperties.Appointments appts = new MedHubProperties.Appointments();
+        appts.setMaxUpcomingPerPatient(5);
+        when(medHubProperties.getAppointments()).thenReturn(appts);
     }
 
     @Test
     void addAppointmentToUser_success() {
         when(securityService.getCurrentPatient()).thenReturn(testUser);
-        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
+        when(appointmentsRepository.countUpcomingForPatient(
+                eq(1L), any(LocalDate.class), eq(List.of(AppointmentStatus.ACTIVE, AppointmentStatus.RESCHEDULED))))
+                .thenReturn(0L);
+        when(appointmentsRepository.findWithLockingById(1L)).thenReturn(Optional.of(testAppointment));
         when(appointmentsRepository.save(any(AppointmentsEntity.class))).thenReturn(testAppointment);
 
         appointmentsService.addAppointmentToUser(1L);
@@ -61,7 +78,10 @@ class AppointmentsServiceTest {
     @Test
     void addAppointmentToUser_appointmentNotFound_throwsMedHubServiceException() {
         when(securityService.getCurrentPatient()).thenReturn(testUser);
-        when(appointmentsRepository.findById(1L)).thenReturn(Optional.empty());
+        when(appointmentsRepository.countUpcomingForPatient(
+                eq(1L), any(LocalDate.class), eq(List.of(AppointmentStatus.ACTIVE, AppointmentStatus.RESCHEDULED))))
+                .thenReturn(0L);
+        when(appointmentsRepository.findWithLockingById(1L)).thenReturn(Optional.empty());
 
         assertThrows(MedHubServiceException.class, () -> appointmentsService.addAppointmentToUser(1L));
         verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
@@ -71,9 +91,24 @@ class AppointmentsServiceTest {
     void addAppointmentToUser_appointmentAlreadyTaken_throwsMedHubServiceException() {
         testAppointment.setPatient(new Patient());
         when(securityService.getCurrentPatient()).thenReturn(testUser);
-        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
+        when(appointmentsRepository.countUpcomingForPatient(
+                eq(1L), any(LocalDate.class), eq(List.of(AppointmentStatus.ACTIVE, AppointmentStatus.RESCHEDULED))))
+                .thenReturn(0L);
+        when(appointmentsRepository.findWithLockingById(1L)).thenReturn(Optional.of(testAppointment));
 
         assertThrows(MedHubServiceException.class, () -> appointmentsService.addAppointmentToUser(1L));
+        verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
+    }
+
+    @Test
+    void addAppointmentToUser_maxUpcomingReached_throwsMedHubServiceException() {
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
+        when(appointmentsRepository.countUpcomingForPatient(
+                eq(1L), any(LocalDate.class), eq(List.of(AppointmentStatus.ACTIVE, AppointmentStatus.RESCHEDULED))))
+                .thenReturn(5L);
+
+        assertThrows(MedHubServiceException.class, () -> appointmentsService.addAppointmentToUser(1L));
+        verify(appointmentsRepository, never()).findWithLockingById(anyLong());
         verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
     }
 

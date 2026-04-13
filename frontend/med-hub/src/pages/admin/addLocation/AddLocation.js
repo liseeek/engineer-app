@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { Helmet } from "react-helmet";
-import logo from '../../../img/logo.svg';
-import NavRespo from "../../../components/NavRespo";
+import AuthenticatedLayout from '../../../layouts/AuthenticatedLayout';
 import styles from '../../../components/Adding.module.css';
 import { Box, TextField } from '@mui/material';
 
@@ -35,17 +33,7 @@ const AddLocation = () => {
     };
 
     return (
-        <div className={styles.addingBaseContainer}>
-            <Helmet>
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-            </Helmet>
-            <header className={styles.addingHeader}>
-                <div className={styles.addingLogo}>
-                    <img src={logo} alt="Logo" />
-                </div>
-                <NavRespo />
-            </header>
-            <main className={styles.addingMain}>
+        <AuthenticatedLayout>
                 <div className={styles.addingContainer}>
                     <Box
                         sx={{
@@ -108,8 +96,7 @@ const AddLocation = () => {
                         <ToastContainer position={"top-center"} autoClose={4000} />
                     </Box>
                 </div>
-            </main>
-        </div>
+        </AuthenticatedLayout>
     );
 };
 

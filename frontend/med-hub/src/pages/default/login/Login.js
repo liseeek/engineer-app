@@ -1,19 +1,22 @@
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { decodeToken, getAuthToken, getUserRole, request, setAuthHeader } from '../../../helpers/axiosHelper';
+import { useNavigate, Link } from 'react-router-dom';
+import { clearAuthStorage, decodeToken, getAuthToken, getUserRole, request } from '../../../helpers/axiosHelper';
 import { ROLES } from '../../../helpers/roles';
+import { useAuth } from '../../../context/AuthContext';
 import { Helmet } from "react-helmet";
 import logo from '../../../img/logo.svg';
 import styles from './Login.module.css';
 import { Box, TextField } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 
+const doctorSignupEnabled = process.env.REACT_APP_DOCTOR_SIGNUP_ENABLED === 'true';
+
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [messages, setMessages] = useState('');
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     useEffect(() => {
         const token = getAuthToken();
@@ -22,8 +25,7 @@ const Login = () => {
             const currentDate = new Date();
 
             if (decodedToken.exp * 1000 < currentDate.getTime()) {
-                localStorage.removeItem('auth_token');
-                localStorage.removeItem('user_role');
+                clearAuthStorage();
             } else {
                 const userRole = getUserRole();
 
@@ -36,6 +38,9 @@ const Login = () => {
                         break;
                     case ROLES.WORKER:
                         navigate('/addDoctor');
+                        break;
+                    case ROLES.DOCTOR:
+                        navigate('/doctor/schedule');
                         break;
                     default:
                         navigate('/');
@@ -51,7 +56,7 @@ const Login = () => {
             const response = await request('post', '/v1/signin', { email, password });
 
             if (response.data.jwtToken && response.data.authority) {
-                setAuthHeader(response.data);
+                login(response.data);
 
                 const userRole = response.data.authority;
 
@@ -65,6 +70,9 @@ const Login = () => {
                     case ROLES.WORKER:
                         navigate('/addDoctor');
                         break;
+                    case ROLES.DOCTOR:
+                        navigate('/doctor/schedule');
+                        break;
                     default:
                         navigate('/');
                         break;
@@ -73,7 +81,6 @@ const Login = () => {
                 toast.error("Login failed: Invalid response");
             }
         } catch (error) {
-            console.error("Login error:", error);
             toast.error(error.response?.data.message || 'Login failed');
         }
     };
@@ -133,6 +140,11 @@ const Login = () => {
                             <button className={styles.loginButton} type="submit">LOGIN</button>
                             <a className={styles.loginRegisterButton} href="/register">Don't have an account? Sign
                                 up</a>
+                            {doctorSignupEnabled && (
+                                <Link className={styles.loginRegisterButton} to="/register/doctor" style={{ display: 'block', marginTop: 8 }}>
+                                    Are you a doctor? Sign up
+                                </Link>
+                            )}
                         </form>
 
                         <ToastContainer position={"top-center"} autoClose={4000} />

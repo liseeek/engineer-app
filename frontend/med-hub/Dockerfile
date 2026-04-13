@@ -8,6 +8,9 @@ RUN npm install
 
 COPY . .
 
+ARG REACT_APP_DOCTOR_SIGNUP_ENABLED=true
+ENV REACT_APP_DOCTOR_SIGNUP_ENABLED=$REACT_APP_DOCTOR_SIGNUP_ENABLED
+
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 FROM nginx:alpine

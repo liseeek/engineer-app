@@ -2,7 +2,7 @@ package com.example.medhub.controller;
 
 import com.example.medhub.dto.request.InvitationRequestDto;
 import com.example.medhub.entity.User;
-import com.example.medhub.service.InvitationService;
+import com.example.medhub.service.InvitationCreationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AdminInvitationController {
 
-    private final InvitationService invitationService;
+    private final InvitationCreationService invitationCreationService;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -26,7 +26,7 @@ public class AdminInvitationController {
             @RequestBody @Valid InvitationRequestDto request,
             @AuthenticationPrincipal User currentUser) {
 
-        invitationService.createInvitation(request, currentUser);
+        invitationCreationService.createInvitation(request, currentUser);
         return ResponseEntity.accepted().build();
     }
 }

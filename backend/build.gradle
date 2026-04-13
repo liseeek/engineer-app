@@ -28,8 +28,9 @@ repositories {
 
 dependencies {
     annotationProcessor(
-            'org.mapstruct:mapstruct-processor:1.5.5.Final',
-            'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+            'org.projectlombok:lombok',
+            'org.projectlombok:lombok-mapstruct-binding:0.2.0',
+            'org.mapstruct:mapstruct-processor:1.5.5.Final'
     )
 
     implementation(
@@ -39,6 +40,7 @@ dependencies {
             'org.springframework.boot:spring-boot-starter-validation',
             'org.springframework.boot:spring-boot-starter-security',
             'org.springframework.boot:spring-boot-starter-aop',
+            'org.springframework.boot:spring-boot-starter-mail',
             'org.mapstruct:mapstruct:1.5.5.Final',
             'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2',
             'org.postgresql:postgresql:42.7.2',
@@ -51,7 +53,6 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.2'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.springframework.security:spring-security-test'

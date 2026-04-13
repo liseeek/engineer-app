@@ -14,18 +14,28 @@ import DeleteLocation from "./pages/admin/deleteLocation/DeleteLocation";
 import DeleteDoctor from "./pages/worker/deleteDoctor/DeleteDoctor";
 import UpdateDoctorLocation from "./pages/worker/updateDoctorLocation/UpdateDoctorLocation";
 import AddDoctorAvailability from "./pages/worker/addDoctorAvailability/AddDoctorAvailability";
+import RegisterInvitation from "./pages/default/registerInvitation/RegisterInvitation";
+import RegisterDoctor from "./pages/default/registerDoctor/RegisterDoctor";
+import SendInvitation from "./pages/admin/sendInvitation/SendInvitation";
+import DoctorSchedule from "./pages/doctor/schedule/DoctorSchedule";
+import DoctorFacilityRequests from "./pages/doctor/facilityRequests/DoctorFacilityRequests";
+import ManageUsers from "./pages/admin/manageUsers/ManageUsers";
 import './global.css'
 import Unauthorized from "./helpers/unauthorized";
 import { ROLES } from './helpers/roles';
+import { AuthProvider } from './context/AuthContext';
 
 
 function App() {
   return (
     <Router>
+      <AuthProvider>
       <div className="App">
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/register/doctor" element={<RegisterDoctor />} />
+          <Route path="/register-invitation/:token" element={<RegisterInvitation />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/mainpage" element={<MainPage />} />
@@ -33,6 +43,8 @@ function App() {
               <Route path="/addWorker" element={<AddWorker />} />
               <Route path="/addLocation" element={<AddLocation />} />
               <Route path="/deleteLocation" element={<DeleteLocation />} />
+              <Route path="/send-invitation" element={<SendInvitation />} />
+              <Route path="/manage-users" element={<ManageUsers />} />
             </Route>
             <Route element={<ProtectedRoute requiredRoles={[ROLES.WORKER]} />}>
               <Route path="/addDoctor" element={<AddDoctor />} />
@@ -45,10 +57,15 @@ function App() {
               <Route path="/visits" element={<Visits />} />
               <Route path="/booking" element={<Booking />} />
             </Route>
+            <Route element={<ProtectedRoute requiredRoles={[ROLES.DOCTOR]} />}>
+              <Route path="/doctor/schedule" element={<DoctorSchedule />} />
+              <Route path="/doctor/facility-requests" element={<DoctorFacilityRequests />} />
+            </Route>
           </Route>
         </Routes>
 
       </div>
+      </AuthProvider>
     </Router>
 
   );

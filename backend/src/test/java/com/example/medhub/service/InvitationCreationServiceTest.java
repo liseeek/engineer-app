@@ -7,9 +7,7 @@ import com.example.medhub.entity.User;
 import com.example.medhub.enums.InvitationStatus;
 import com.example.medhub.repository.InvitationRepository;
 import com.example.medhub.repository.LocationRepository;
-import com.example.medhub.repository.SpecializationRepository;
 import com.example.medhub.repository.UserRepository;
-import com.example.medhub.service.strategy.UserRegistrationStrategy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,7 +24,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class InvitationServiceTest {
+class InvitationCreationServiceTest {
 
     @Mock
     private InvitationRepository invitationRepository;
@@ -36,14 +33,10 @@ class InvitationServiceTest {
     @Mock
     private LocationRepository locationRepository;
     @Mock
-    private SpecializationRepository specializationRepository;
-    @Mock
     private EmailService emailService;
-    @Mock
-    private List<UserRegistrationStrategy> registrationStrategies;
 
     @InjectMocks
-    private InvitationService invitationService;
+    private InvitationCreationService invitationCreationService;
 
     @Test
     void shouldCreateInvitation_WhenWorkerRequestIsValid() {
@@ -58,7 +51,7 @@ class InvitationServiceTest {
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
         when(locationRepository.findById(1L)).thenReturn(Optional.of(location));
 
-        invitationService.createInvitation(request, admin);
+        invitationCreationService.createInvitation(request, admin);
 
         ArgumentCaptor<Invitation> captor = ArgumentCaptor.forClass(Invitation.class);
         verify(invitationRepository).save(captor.capture());
@@ -84,7 +77,7 @@ class InvitationServiceTest {
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> invitationService.createInvitation(request, admin));
+                () -> invitationCreationService.createInvitation(request, admin));
 
         assertEquals("User with this email already exists", exception.getMessage());
         verify(invitationRepository, never()).save(any());

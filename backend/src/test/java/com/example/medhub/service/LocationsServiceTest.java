@@ -12,6 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,12 +103,12 @@ class LocationsServiceTest {
         LocationEntity loc1 = new LocationEntity();
         LocationDto dto1 = new LocationDto(1L, "Clinic A", "Street 1", "City", "Country");
 
-        when(locationRepository.findAll()).thenReturn(List.of(loc1));
+        when(locationRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(loc1)));
         when(locationMapper.toLocationDto(loc1)).thenReturn(dto1);
 
-        List<LocationDto> result = locationsService.getLocations();
+        var result = locationsService.getLocations(PageRequest.of(0, 50));
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).locationName()).isEqualTo("Clinic A");
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).locationName()).isEqualTo("Clinic A");
     }
 }

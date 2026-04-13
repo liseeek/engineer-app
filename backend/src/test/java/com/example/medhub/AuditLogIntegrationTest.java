@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,7 +78,7 @@ class AuditLogIntegrationTest extends AbstractIntegrationTest {
         doctor.setPhoneNumber("123");
         doctor.setAuthority(Authority.ROLE_DOCTOR);
         doctor.setPwz("7777777");
-        doctor.setSpecialization(spec);
+        doctor.setSpecializations(List.of(spec));
         doctorRepository.save(doctor);
 
         var worker = new Worker();

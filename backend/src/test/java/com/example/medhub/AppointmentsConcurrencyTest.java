@@ -10,10 +10,8 @@ import com.example.medhub.enums.Authority;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.LocationRepository;
-import com.example.medhub.repository.SpecializationRepository;
 import com.example.medhub.repository.UserRepository;
 import com.example.medhub.service.AppointmentsService;
-import com.example.medhub.entity.SpecializationEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,9 +49,6 @@ class AppointmentsConcurrencyTest extends AbstractIntegrationTest {
     @Autowired
     private LocationRepository locationRepository;
 
-    @Autowired
-    private SpecializationRepository specializationRepository;
-
     private Long testAppointmentId;
     private Patient testUser1;
     private Patient testUser2;
@@ -71,13 +66,6 @@ class AppointmentsConcurrencyTest extends AbstractIntegrationTest {
                     return locationRepository.save(loc);
                 });
 
-        SpecializationEntity specialization = specializationRepository.findAll().stream().findFirst()
-                .orElseGet(() -> {
-                    SpecializationEntity spec = new SpecializationEntity();
-                    spec.setSpecializationName("Internal Medicine");
-                    return specializationRepository.save(spec);
-                });
-
         Doctor doctor = doctorRepository.findAll().stream().findFirst()
                 .orElseGet(() -> {
                     Doctor doc = new Doctor();
@@ -88,7 +76,7 @@ class AppointmentsConcurrencyTest extends AbstractIntegrationTest {
                     doc.setPassword("pass");
                     doc.setPhoneNumber("123456789");
                     doc.setAuthority(Authority.ROLE_DOCTOR);
-                    doc.setSpecialization(specialization);
+                    // Avoid ManyToMany cascade PERSIST on spec loaded via findAll (can be detached here).
                     return doctorRepository.save(doc);
                 });
 

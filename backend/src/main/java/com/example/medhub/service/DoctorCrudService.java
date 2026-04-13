@@ -2,12 +2,12 @@ package com.example.medhub.service;
 
 import com.example.medhub.dto.DoctorDto;
 import com.example.medhub.dto.LocationDto;
-import com.example.medhub.dto.SpecializationDto;
 import com.example.medhub.dto.request.DoctorCreateRequestDto;
 import com.example.medhub.dto.request.UpdateDoctorLocationRequestDto;
 import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.SpecializationEntity;
+import com.example.medhub.enums.DoctorVerificationStatus;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.mapper.DoctorMapper;
 import com.example.medhub.mapper.LocationMapper;
@@ -15,16 +15,19 @@ import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.SpecializationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class DoctorsService {
+public class DoctorCrudService {
+
     private final DoctorRepository doctorRepository;
     private final LocationRepository locationRepository;
     private final SpecializationRepository specializationRepository;
@@ -37,24 +40,22 @@ public class DoctorsService {
                 .findLocationByLocationName(newDoctorDto.getLocationName());
         if (location.isEmpty()) {
             throw new MedHubServiceException("Location not found");
-        } else {
-            SpecializationEntity specializationEntity = specializationRepository
-                    .findById(newDoctorDto.getSpecializationId())
-                    .orElseThrow(() -> new MedHubServiceException("Specialization not found"));
-
-            Doctor doctor = new Doctor();
-            doctor.setName(newDoctorDto.getName());
-            doctor.setSurname(newDoctorDto.getSurname());
-            doctor.setLocations(List.of(location.get()));
-            doctor.setSpecialization(specializationEntity);
-
-            Doctor savedDoctor = doctorRepository.save(doctor);
-
-            SpecializationDto specializationDto = new SpecializationDto(
-                    specializationEntity.getSpecializationId(),
-                    specializationEntity.getSpecializationName());
-            return doctorMapper.toDoctorDto(savedDoctor, specializationDto);
         }
+        List<SpecializationEntity> specializations = new ArrayList<>();
+        for (Long specId : newDoctorDto.getSpecializationIds()) {
+            SpecializationEntity spec = specializationRepository.findById(specId)
+                    .orElseThrow(() -> new MedHubServiceException("Specialization not found"));
+            specializations.add(spec);
+        }
+
+        Doctor doctor = new Doctor();
+        doctor.setName(newDoctorDto.getName());
+        doctor.setSurname(newDoctorDto.getSurname());
+        doctor.setLocations(List.of(location.get()));
+        doctor.setSpecializations(specializations);
+
+        Doctor savedDoctor = doctorRepository.save(doctor);
+        return doctorMapper.toDoctorDto(savedDoctor);
     }
 
     public void deleteById(Long id) {
@@ -65,28 +66,16 @@ public class DoctorsService {
         }
     }
 
-    public List<DoctorDto> getAllDoctors() {
-        List<Doctor> allDoctors = doctorRepository.findAll();
-        return allDoctors.stream()
-                .map(doctorMapper::toDoctorDto)
-                .collect(Collectors.toList());
+    public Page<DoctorDto> getAllDoctors(Pageable pageable, DoctorVerificationStatus verificationStatus) {
+        if (verificationStatus == null) {
+            return doctorRepository.findAll(pageable).map(doctorMapper::toDoctorDto);
+        }
+        return doctorRepository.findByVerificationStatus(verificationStatus, pageable).map(doctorMapper::toDoctorDto);
     }
 
-    public List<DoctorDto> getDoctorsBySpecialization(Long specializationId) {
-        List<Doctor> doctors = doctorRepository.findBySpecialization_SpecializationId(specializationId);
-
-        return doctors.stream()
-                .map(doctor -> {
-                    List<LocationDto> locationDtos = doctor.getLocations().stream().map(locationMapper::toLocationDto)
-                            .toList();
-                    return new DoctorDto(
-                            doctor.getUserId(),
-                            doctor.getName(),
-                            doctor.getSurname(),
-                            locationDtos,
-                            SpecializationDto.from(doctor.getSpecialization()));
-                })
-                .collect(Collectors.toList());
+    public Page<DoctorDto> getDoctorsBySpecialization(Long specializationId, Pageable pageable) {
+        return doctorRepository.findDistinctBySpecializations_SpecializationId(specializationId, pageable)
+                .map(doctorMapper::toDoctorDto);
     }
 
     public List<LocationDto> getLocationsByDoctorId(Long id) {
@@ -98,21 +87,9 @@ public class DoctorsService {
         }
     }
 
-    public List<DoctorDto> getDoctorsByCityAndSpecialization(String city, Long specializationId) {
-        List<Doctor> doctors = doctorRepository.findByCityAndSpecialization(city, specializationId);
-
-        return doctors.stream()
-                .map(doctor -> {
-                    List<LocationDto> locationDtos = doctor.getLocations().stream().map(locationMapper::toLocationDto)
-                            .toList();
-                    return new DoctorDto(
-                            doctor.getUserId(),
-                            doctor.getName(),
-                            doctor.getSurname(),
-                            locationDtos,
-                            SpecializationDto.from(doctor.getSpecialization()));
-                })
-                .collect(Collectors.toList());
+    public Page<DoctorDto> getDoctorsByCityAndSpecialization(String city, Long specializationId, Pageable pageable) {
+        return doctorRepository.findByCityAndSpecialization(city, specializationId, pageable)
+                .map(doctorMapper::toDoctorDto);
     }
 
     public void addLocation(Long id, UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {

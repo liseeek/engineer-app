@@ -14,9 +14,12 @@ import com.example.medhub.mapper.DoctorMapper;
 import com.example.medhub.mapper.LocationMapper;
 import com.example.medhub.mapper.WorkerMapper;
 import com.example.medhub.repository.AppointmentsRepository;
+import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.WorkerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,13 +28,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class WorkersService {
     private final WorkerRepository workerRepository;
+    private final DoctorRepository doctorRepository;
     private final LocationRepository locationRepository;
     private final AppointmentsRepository appointmentsRepository;
     private final PasswordEncoder passwordEncoder;
@@ -71,16 +74,17 @@ public class WorkersService {
         return locationMapper.toLocationDto(worker.getLocation());
     }
 
-    @Transactional
-    public List<DoctorDto> getDoctorsFromWorkerLocation() {
+    public Page<DoctorDto> getDoctorsFromWorkerLocation(Pageable pageable) {
         Worker worker = securityService.getCurrentWorker();
-        return worker.getLocation().getDoctors().stream().map(doctorMapper::toDoctorDto).toList();
+        return doctorRepository.findByLocationsLocationId(worker.getLocation().getLocationId(), pageable)
+                .map(doctorMapper::toDoctorDto);
     }
 
-    public List<AppointmentsDto> getAppointmentsForCurrentWorker() {
+    @Transactional(readOnly = true)
+    public Page<AppointmentsDto> getAppointmentsForCurrentWorker(Pageable pageable) {
         Worker worker = securityService.getCurrentWorker();
-        return appointmentsRepository.findAllScheduledByLocation(worker.getLocation()).stream()
-                .map(appointmentsMapper::toAppointmentDto)
-                .toList();
+        return appointmentsRepository
+                .findAllByLocationAndPatientIsNotNullOrderByDateAscTimeAsc(worker.getLocation(), pageable)
+                .map(appointmentsMapper::toAppointmentDto);
     }
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+    <changeSet id="23-add-doctor-verification" author="lissz">
+        <addColumn tableName="doctors">
+            <column name="verification_status" type="VARCHAR(255)" defaultValue="VERIFIED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="verified_by" type="BIGINT">
+                <constraints nullable="true"
+                             foreignKeyName="fk_doctors_verified_by"
+                             referencedTableName="users"
+                             referencedColumnNames="user_id"/>
+            </column>
+            <column name="verified_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

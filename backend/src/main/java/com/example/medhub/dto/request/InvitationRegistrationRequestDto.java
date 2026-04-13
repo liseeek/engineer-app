@@ -1,5 +1,6 @@
 package com.example.medhub.dto.request;
 
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,4 +30,11 @@ public class InvitationRegistrationRequestDto {
 
     @NotBlank(message = "Phone number is required")
     private String phoneNumber;
+
+    /**
+     * Required when registering via a DOCTOR invitation (validated in {@link com.example.medhub.service.InvitationRegistrationService}).
+     * Ignored for other roles.
+     */
+    @Pattern(regexp = "^$|^\\d{7}$", message = "PWZ must be exactly 7 digits")
+    private String pwz;
 }

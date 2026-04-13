@@ -24,6 +24,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -86,7 +88,7 @@ class WorkersServicePerformanceTest extends AbstractIntegrationTest {
         doctor.setPassword("pass");
         doctor.setPhoneNumber("999");
         doctor.setAuthority(Authority.ROLE_DOCTOR);
-        doctor.setSpecialization(spec);
+        doctor.setSpecializations(List.of(spec));
         doctor = doctorRepository.save(doctor);
 
         Patient user = new Patient();
@@ -131,8 +133,8 @@ class WorkersServicePerformanceTest extends AbstractIntegrationTest {
         entityManager.flush();
         entityManager.clear();
 
-        List<AppointmentsDto> result = workersService.getAppointmentsForCurrentWorker();
+        Page<AppointmentsDto> result = workersService.getAppointmentsForCurrentWorker(PageRequest.of(0, 50));
 
-        assertThat(result).hasSize(5);
+        assertThat(result.getContent()).hasSize(5);
     }
 }

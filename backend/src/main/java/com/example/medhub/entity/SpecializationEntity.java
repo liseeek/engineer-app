@@ -1,12 +1,11 @@
 package com.example.medhub.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,7 +30,7 @@ public class SpecializationEntity {
     @Column(name = "specialization_name")
     private String specializationName;
 
-    @OneToMany(mappedBy = "specialization", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(mappedBy = "specializations")
     private List<Doctor> doctors;
 
     @Override

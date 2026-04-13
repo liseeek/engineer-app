@@ -2,7 +2,7 @@ package com.example.medhub.controller;
 
 import com.example.medhub.dto.response.InvitationDetailsDto;
 import com.example.medhub.entity.Invitation;
-import com.example.medhub.service.InvitationService;
+import com.example.medhub.service.InvitationRegistrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,22 +21,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequiredArgsConstructor
 public class InvitationController {
 
-    private final InvitationService invitationService;
+    private final InvitationRegistrationService invitationRegistrationService;
 
     @GetMapping("/{token}")
     public ResponseEntity<InvitationDetailsDto> validateInvitation(@PathVariable String token) {
-        Invitation invitation = invitationService.validateToken(token);
+        Invitation invitation = invitationRegistrationService.validateToken(token);
 
         return ResponseEntity.ok(InvitationDetailsDto.builder()
                 .email(invitation.getEmail())
                 .role(invitation.getRole())
+                .locationName(invitation.getLocation() != null ? invitation.getLocation().getLocationName() : null)
+                .specializationName(invitation.getSpecialization() != null ? invitation.getSpecialization().getSpecializationName() : null)
+                .pwz(invitation.getPwz())
                 .build());
     }
 
     @PostMapping("/register")
     public ResponseEntity<Void> registerUser(
             @RequestBody @Valid InvitationRegistrationRequestDto request) {
-        invitationService.registerUserWithInvitation(request);
+        invitationRegistrationService.registerUserWithInvitation(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

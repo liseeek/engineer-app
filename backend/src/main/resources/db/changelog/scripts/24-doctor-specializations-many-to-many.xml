@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+    <changeSet id="24-doctor-specializations-m2m" author="lissz">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="doctor_specializations"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="doctor_specializations">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="specialization_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="doctor_specializations"
+                       columnNames="user_id, specialization_id"
+                       constraintName="pk_doctor_specializations"/>
+
+        <addForeignKeyConstraint baseTableName="doctor_specializations"
+                                   baseColumnNames="user_id"
+                                   referencedTableName="doctors"
+                                   referencedColumnNames="user_id"
+                                   constraintName="fk_doctor_specializations_doctor"/>
+
+        <addForeignKeyConstraint baseTableName="doctor_specializations"
+                                   baseColumnNames="specialization_id"
+                                   referencedTableName="specializations"
+                                   referencedColumnNames="specialization_id"
+                                   constraintName="fk_doctor_specializations_spec"/>
+
+        <sql>
+            INSERT INTO doctor_specializations (user_id, specialization_id)
+            SELECT user_id, specialization_id FROM doctors WHERE specialization_id IS NOT NULL;
+        </sql>
+
+        <dropForeignKeyConstraint baseTableName="doctors" constraintName="fk_doctor_specialization"/>
+
+        <dropColumn tableName="doctors" columnName="specialization_id"/>
+    </changeSet>
+</databaseChangeLog>

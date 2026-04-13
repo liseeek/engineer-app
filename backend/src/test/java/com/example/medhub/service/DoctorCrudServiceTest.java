@@ -8,6 +8,7 @@ import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.SpecializationEntity;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.mapper.DoctorMapper;
+import com.example.medhub.mapper.LocationMapper;
 import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.SpecializationRepository;
@@ -16,6 +17,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class DoctorsServiceTest {
+class DoctorCrudServiceTest {
 
     @Mock
     private DoctorRepository doctorRepository;
@@ -35,9 +39,11 @@ class DoctorsServiceTest {
     private SpecializationRepository specializationRepository;
     @Mock
     private DoctorMapper doctorMapper;
+    @Mock
+    private LocationMapper locationMapper;
 
     @InjectMocks
-    private DoctorsService doctorsService;
+    private DoctorCrudService doctorCrudService;
 
     @Test
     void saveDoctor_locationNotFound_throwsMedhubServiceException() {
@@ -47,7 +53,7 @@ class DoctorsServiceTest {
         when(locationRepository.findLocationByLocationName(any(String.class)))
                 .thenReturn(Optional.empty());
 
-        assertThrows(MedHubServiceException.class, () -> doctorsService.saveDoctor(request));
+        assertThrows(MedHubServiceException.class, () -> doctorCrudService.saveDoctor(request));
 
         verify(doctorRepository, never()).save(any());
     }
@@ -56,7 +62,7 @@ class DoctorsServiceTest {
     void saveDoctor_success() {
         DoctorCreateRequestDto request = new DoctorCreateRequestDto();
         request.setLocationName("MaxMed");
-        request.setSpecializationId(1L);
+        request.setSpecializationIds(List.of(1L));
         request.setName("Jan");
         request.setSurname("Kowalski");
 
@@ -71,17 +77,18 @@ class DoctorsServiceTest {
         savedDoctor.setUserId(10L);
         savedDoctor.setName("Jan");
         savedDoctor.setSurname("Kowalski");
-        savedDoctor.setSpecialization(specialization);
+        savedDoctor.setSpecializations(List.of(specialization));
         savedDoctor.setLocations(List.of(location));
 
-        DoctorDto doctorDto = new DoctorDto(10L, "Jan", "Kowalski", null, null);
+        List<SpecializationDto> specDtos = List.of(new SpecializationDto(1L, "Cardiology"));
+        DoctorDto doctorDto = new DoctorDto(10L, "Jan", "Kowalski", null, specDtos);
 
         when(locationRepository.findLocationByLocationName(any())).thenReturn(Optional.of(location));
         when(specializationRepository.findById(1L)).thenReturn(Optional.of(specialization));
         when(doctorRepository.save(any())).thenReturn(savedDoctor);
-        when(doctorMapper.toDoctorDto(any(Doctor.class), any(SpecializationDto.class))).thenReturn(doctorDto);
+        when(doctorMapper.toDoctorDto(any(Doctor.class))).thenReturn(doctorDto);
 
-        DoctorDto result = doctorsService.saveDoctor(request);
+        DoctorDto result = doctorCrudService.saveDoctor(request);
 
         assertNotNull(result);
         assertEquals(10L, result.doctorId());
@@ -92,7 +99,7 @@ class DoctorsServiceTest {
     void deleteById_doctorExists_success() {
         when(doctorRepository.existsById(any())).thenReturn(true);
 
-        doctorsService.deleteById(1L);
+        doctorCrudService.deleteById(1L);
 
         verify(doctorRepository, times(1)).deleteById(1L);
     }
@@ -101,7 +108,7 @@ class DoctorsServiceTest {
     void deleteById_doctorNotFound_throwsMedHubServiceException() {
         when(doctorRepository.existsById(any())).thenReturn(false);
 
-        assertThrows(MedHubServiceException.class, () -> doctorsService.deleteById(1L));
+        assertThrows(MedHubServiceException.class, () -> doctorCrudService.deleteById(1L));
 
         verify(doctorRepository, never()).deleteById(anyLong());
     }
@@ -111,16 +118,16 @@ class DoctorsServiceTest {
         Doctor doctor = new Doctor();
         doctor.setSurname("House");
 
-        DoctorDto doctorDto = new DoctorDto(1L, "Gregory", "House", null, null);
+        DoctorDto doctorDto = new DoctorDto(1L, "Gregory", "House", null, List.of());
 
-        when(doctorRepository.findAll()).thenReturn(List.of(doctor));
+        when(doctorRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(doctor)));
         when(doctorMapper.toDoctorDto(doctor)).thenReturn(doctorDto);
 
-        List<DoctorDto> result = doctorsService.getAllDoctors();
+        var result = doctorCrudService.getAllDoctors(PageRequest.of(0, 20), null);
 
         assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("House", result.get(0).surname());
-        verify(doctorRepository, times(1)).findAll();
+        assertEquals(1, result.getContent().size());
+        assertEquals("House", result.getContent().get(0).surname());
+        verify(doctorRepository, times(1)).findAll(any(Pageable.class));
     }
 }

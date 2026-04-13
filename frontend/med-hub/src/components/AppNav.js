@@ -1,62 +1,59 @@
-import React, {useEffect, useState} from 'react';
-import {NavLink, useNavigate} from 'react-router-dom';
-import styles from './Nav.module.css';
-import {getUserRole} from "../helpers/axiosHelper";
-import permissions from "../helpers/permissions";
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import styles from './AppNav.module.css';
+import permissions from '../helpers/permissions';
+import { useAuth } from '../context/AuthContext';
 
-const Nav = () => {
+const AppNav = () => {
     const navigate = useNavigate();
-    const [role, setRole] = useState(null);
+    const { role, logout } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    useEffect(() => {
-        setRole(getUserRole());
-    }, []);
-
     const handleLogout = () => {
-        if (window.confirm("Are you sure you want to log out?")) {
-            localStorage.removeItem('auth_token');
+        if (window.confirm('Are you sure you want to log out?')) {
+            logout();
             navigate('/');
         }
     };
 
     const links = permissions[role] || permissions.DEFAULT || [];
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
+    const toggleSidebar = () => setIsSidebarOpen((open) => !open);
+    const closeSidebar = () => setIsSidebarOpen(false);
 
     return (
         <div>
             <div className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ''}`}>
-                <button className={styles.closeBtn} onClick={toggleSidebar}>&times;</button>
+                <button type="button" className={styles.closeBtn} onClick={closeSidebar}>
+                    &times;
+                </button>
                 <ul className={styles.navList}>
                     {links.map((link) => (
                         <li key={link.path} className={styles.navItem}>
                             <NavLink
                                 to={link.path}
-                                className={({isActive}) =>
+                                className={({ isActive }) =>
                                     isActive ? styles.navActiveLink : styles.navLink
                                 }
-                                onClick={() => setIsSidebarOpen(false)}
+                                onClick={closeSidebar}
                             >
                                 <i className={`${link.icon} ${styles.navIcon}`}></i> {link.label}
                             </NavLink>
                         </li>
                     ))}
                     <li className={styles.navItem}>
-                        <button onClick={handleLogout} className={styles.navButton}>
+                        <button type="button" onClick={handleLogout} className={styles.navButton}>
                             <i className={`fa-solid fa-right-from-bracket ${styles.navIcon}`}></i> Logout
                         </button>
                     </li>
                 </ul>
             </div>
 
-            <button className={styles.openBtn} onClick={toggleSidebar}>
+            <button type="button" className={styles.openBtn} onClick={toggleSidebar} aria-label="Open menu">
                 &#9776;
             </button>
         </div>
     );
 };
 
-export default Nav;
+export default AppNav;
