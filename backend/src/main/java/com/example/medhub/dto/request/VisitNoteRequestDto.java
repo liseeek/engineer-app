@@ -1,4 +1,4 @@
-package com.example.medhub.dto;
+package com.example.medhub.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

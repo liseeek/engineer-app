@@ -1,74 +1,105 @@
 .mainPageBaseContainer {
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-inline: clamp(1rem, 4vw, 2.5rem);
 }
 
-.mainPageHeader {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
+.mainPageMain {
     width: 100%;
 }
 
-.mainPageLogo img {
-    display: flex;
+.mainPageHeader {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 640px) minmax(0, 1fr);
     align-items: center;
-    justify-content: center;
-    width: 10rem;
-    padding-top: 5%;
-    margin-right: 3em;
+    gap: clamp(0.75rem, 2vw, 2rem);
+    width: 100%;
+    padding: 1rem 0;
+    padding-left: clamp(72px, 8vw, 120px);
+}
+
+.mainPageLogo {
+    justify-self: start;
+}
+
+.mainPageLogo img {
+    display: block;
+    width: clamp(7rem, 10vw, 11rem);
+    height: auto;
+}
+
+.mainPageHeaderCenter {
+    justify-self: center;
+    width: 100%;
+    max-width: 640px;
+}
+
+.mainPageHeaderRight {
+    justify-self: end;
+    min-width: 1px;
 }
 
 .mainPageMessages {
     text-align: center;
     color: #ff0000;
+    min-height: 1.5rem;
 }
 
-.mainPageContentContainer {
-    display: flex;
+.mainPageHero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 4vw, 3rem);
     align-items: center;
+    padding: clamp(1.5rem, 4vw, 3rem) 0;
 }
 
 .mainPageLeftSection {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: flex-start;
-    width: 50%;
+}
+
+.mainPageHealth h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    line-height: 1.1;
+}
+
+.mainPageHealth p {
+    margin: 1rem 0 0;
+    font-size: clamp(1rem, 1.6vw, 1.25rem);
 }
 
 .mainPageButtonContainer {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    gap: 1rem;
+    margin: 1.25rem 0;
     width: 100%;
 }
 
-.mainPageBookButton, .mainPageContactButton {
+.mainPageBookButton,
+.mainPageContactButton {
+    flex: 1 1 10rem;
+    min-height: 3rem;
+    padding-inline: 1.5rem;
+    border: none;
+    border-radius: 999px;
     background: #6bcbb8;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 2rem;
-    width: 10rem;
-    height: 3rem;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
     text-align: center;
-    justify-content: center;
-    font-weight: bold;
+    font-weight: 700;
+    font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+    cursor: pointer;
 }
 
 .mainPageContactButton {
-    background: white;
-    color: black;
-}
-
-.mainPageHealth {
-    font-size: 1.75rem;
-}
-
-.mainPageHealth p {
-    padding-bottom: 5%;
-    font-size: 1rem;
+    background: #ffffff;
+    color: #000000;
 }
 
 .mainPageServices {
@@ -76,141 +107,81 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding-top: 5%;
-    font-size: 1rem;
-    font-weight: bold;
+    gap: 0.75rem;
+    font-size: clamp(1rem, 1.2vw, 1.1rem);
+    font-weight: 700;
 }
 
-.mainPageServices img {
-    width: 30rem;
+.mainPageServices h1 {
+    margin: 0;
+    font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+}
+
+.mainPageServices img,
+.mainPageRightSection img {
+    width: 100%;
+    max-width: 28rem;
+    height: auto;
 }
 
 .mainPageRightSection {
     display: flex;
-    justify-content: flex-end;
-    width: 50%;
+    justify-content: center;
 }
 
-.mainPageRightSection img {
-    max-width: 100%;
+@media (min-width: 900px) {
+    .mainPageHero {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .mainPageRightSection {
+        justify-content: flex-end;
+    }
 }
 
-@media only screen and (max-device-width: 1100px) {
+@media (max-width: 768px) {
     .mainPageHeader {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 0.75rem;
+        padding-left: 0;
+        padding-top: 4rem;
+    }
+
+    .mainPageLogo {
+        justify-self: center;
+    }
+
+    .mainPageHeaderCenter {
+        max-width: 100%;
+    }
+
+    .mainPageHeaderRight {
+        display: none;
+    }
+
+    .mainPageLeftSection {
         align-items: center;
+        text-align: center;
     }
 
-    .mainPageLogo img {
-        padding-top: 10%;
-        margin: 0;
-    }
-
-    .mainPageContentContainer {
-        justify-content: center;
+    .mainPageServices {
+        align-items: center;
+        text-align: center;
     }
 
     .mainPageRightSection {
         display: none;
     }
-
-    .mainPageLeftSection {
-        padding: 0;
-        justify-content: center;
-        align-items: center;
-        width: auto;
-    }
-
-    .mainPageBookButton, .mainPageContactButton {
-        width: 12rem;
-        height: 4.5rem;
-        font-size: 1.25rem;
-        border-radius: 2rem;
-    }
-
-    .mainPageHealth {
-        font-size: 2.5rem;
-    }
-
-    .mainPageHealth p {
-        font-size: 1.5rem;
-    }
-
-    .mainPageServices {
-        font-size: 1.25rem;
-        width: 100%;
-    }
-
-    .mainPageServices img {
-        width: 100%;
-    }
 }
 
-@media only screen and (max-device-width: 510px) {
-    .mainPageLogo img {
-        width: 20rem;
+@media (min-width: 1600px) {
+    .mainPageHero {
+        gap: 4rem;
     }
 
-    .mainPageHealth {
-        font-size: 3.75rem;
-    }
-
-    .mainPageHealth p {
-        font-size: 2rem;
-    }
-
-    .mainPageBookButton, .mainPageContactButton {
-        width: 19rem;
-        height: 7rem;
-        font-size: 2rem;
-        border-radius: 3rem;
-    }
-
-    .mainPageServices {
-        font-size: 2rem;
-        width: 100%;
-    }
-
-    .mainPageServices img {
-        width: 80%;
-        max-width: 100%;
-    }
-}
-
-@media only screen and (min-width: 1200px) {
-    .mainPageBaseContainer, .mainPageMain {
-        max-width: 90%;
-        margin: 0 auto;
-    }
-}
-
-@media only screen and (min-width: 2000px) {
-    .mainPageHealth {
-        font-size: 2.75rem;
-    }
-
-    .mainPageHealth p {
-        font-size: 1.5rem;
-    }
-
-    .mainPageBookButton, .mainPageContactButton {
-        width: 13rem;
-        height: 3.5rem;
-        font-size: 1.25rem;
-        border-radius: 3rem;
-    }
-
-    .mainPageServices {
-        font-size: 1.25rem;
-    }
-
-    .mainPageServices img {
-        width: 40rem;
-    }
-
-    .mainPageLogo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .mainPageServices img,
+    .mainPageRightSection img {
+        max-width: 34rem;
     }
 }

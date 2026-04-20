@@ -93,11 +93,17 @@ cd backend
 - **View appointment history**
 - **Manage appointments efficiently**
 
+#### 🤖 AI Smart Assistant
+- **Symptom Checker** — a floating chat widget (visible to patients) powered by **Google Gemini** via **Spring AI**.
+- Patients describe their age range, gender, and symptoms; the AI suggests up to 3 medical specializations from the clinic's real catalogue with confidence levels and short reasoning.
+- A medical disclaimer is always displayed; no diagnosis is ever made.
+- Requires a `GEMINI_API_KEY` in your `.env` (free tier at [Google AI Studio](https://aistudio.google.com/apikey)). Set `MEDHUB_AI_ENABLED=false` to disable gracefully.
+
 ## 📦 Dependencies
 
 #### MedHub is built using a variety of technologies and frameworks:
 
-- **Backend:** Java 17, Spring Boot 3, Gradle
+- **Backend:** Java 17, Spring Boot 3.5, Spring AI 1.1 (Google Gemini), Gradle
 - **Database:** PostgreSQL, Liquibase
 - **Infrastructure:** Docker
 - **Frontend:** React.js, HTML, CSS

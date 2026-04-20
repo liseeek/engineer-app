@@ -22,6 +22,12 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    @ExceptionHandler(AiServiceUnavailableException.class)
+    public ResponseEntity<Object> handleAiServiceUnavailableException(AiServiceUnavailableException ex) {
+        log.warn("AI service unavailable: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+
     @ExceptionHandler(MedHubServiceException.class)
     public ResponseEntity<Object> handleMedHubServiceException(MedHubServiceException ex) {
         log.warn("Business logic exception: {}", ex.getMessage());

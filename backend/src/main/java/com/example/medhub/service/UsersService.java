@@ -1,13 +1,13 @@
 package com.example.medhub.service;
 
-import com.example.medhub.dto.AppointmentsDto;
+import com.example.medhub.dto.response.AppointmentsDto;
 import com.example.medhub.dto.request.UserCreateRequestDto;
 import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.enums.Authority;
 import com.example.medhub.entity.Patient;
 import com.example.medhub.entity.User;
 import com.example.medhub.mapper.AppointmentsMapper;
-import com.example.medhub.dto.UserListItemDto;
+import com.example.medhub.dto.response.UserListItemDto;
 import com.example.medhub.repository.AppointmentsRepository;
 import com.example.medhub.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +34,7 @@ public class UsersService {
     private final AppointmentsMapper appointmentsMapper;
     private final SecurityService securityService;
     private final CryptoService cryptoService;
+    private final AppointmentMaintenanceService appointmentMaintenanceService;
 
     public Page<UserListItemDto> getUsers(String search, Pageable pageable) {
         Page<User> users = StringUtils.hasText(search)
@@ -51,9 +52,10 @@ public class UsersService {
     }
 
     public List<AppointmentsDto> getAppointmentsForCurrentUser() {
+        appointmentMaintenanceService.markPastAppointmentsCompleted();
         User user = securityService.getCurrentUser();
         Long userId = user.getUserId();
-        List<AppointmentsEntity> appointments = appointmentsRepository.findByPatientUserId(userId);
+        List<AppointmentsEntity> appointments = appointmentsRepository.findAllByPatientUserId(userId);
         return appointments.stream()
                 .map(appointmentsMapper::toAppointmentDto)
                 .collect(Collectors.toList());

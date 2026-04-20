@@ -1,6 +1,6 @@
 package com.example.medhub;
 
-import com.example.medhub.dto.VisitNoteRequestDto;
+import com.example.medhub.dto.request.VisitNoteRequestDto;
 import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;

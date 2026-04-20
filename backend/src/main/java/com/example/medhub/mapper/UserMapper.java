@@ -1,8 +1,8 @@
 package com.example.medhub.mapper;
 
 import com.example.medhub.dto.request.UserCreateRequestDto;
-import com.example.medhub.dto.UserDto;
-import com.example.medhub.dto.UserListItemDto;
+import com.example.medhub.dto.response.UserDto;
+import com.example.medhub.dto.response.UserListItemDto;
 import com.example.medhub.entity.Patient;
 import com.example.medhub.entity.User;
 import org.mapstruct.Mapper;

@@ -1,8 +1,8 @@
 package com.example.medhub.mapper;
 
-import com.example.medhub.dto.SpecializationDto;
+import com.example.medhub.dto.response.SpecializationDto;
 import com.example.medhub.dto.request.DoctorCreateRequestDto;
-import com.example.medhub.dto.DoctorDto;
+import com.example.medhub.dto.response.DoctorDto;
 import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.SpecializationEntity;
 import org.mapstruct.Mapper;
@@ -25,6 +25,8 @@ public interface DoctorMapper {
     @Mapping(target = "verificationStatus", ignore = true)
     @Mapping(target = "verifiedBy", ignore = true)
     @Mapping(target = "verifiedAt", ignore = true)
+    @Mapping(target = "bio", ignore = true)
+    @Mapping(target = "avatarUrl", ignore = true)
     Doctor toDoctor(DoctorCreateRequestDto createRequestDto);
 
     @Mapping(source = "userId", target = "doctorId")
@@ -35,13 +37,15 @@ public interface DoctorMapper {
         if (doctor.getSpecializations() == null) {
             return List.of();
         }
-        return doctor.getSpecializations().stream().map(SpecializationDto::from).toList();
+        return mapSpecializationEntities(doctor.getSpecializations());
     }
 
     default List<SpecializationDto> mapSpecializationEntities(List<SpecializationEntity> entities) {
         if (entities == null) {
             return List.of();
         }
-        return entities.stream().map(SpecializationDto::from).toList();
+        return entities.stream()
+                .map(entity -> new SpecializationDto(entity.getSpecializationId(), entity.getSpecializationName()))
+                .toList();
     }
 }

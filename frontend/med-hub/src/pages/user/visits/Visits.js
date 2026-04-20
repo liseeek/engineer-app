@@ -1,54 +1,112 @@
-import React, { useEffect, useState } from 'react';
-import AuthenticatedLayout from '../../../layouts/AuthenticatedLayout';
-import styles from '../../../components/Adding.module.css';
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+    Box,
+    Button,
+    Paper,
+    Stack,
+    Tab,
+    Tabs,
+    Typography,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import EventBusyIcon from "@mui/icons-material/EventBusy";
 
+import AuthenticatedLayout from "../../../layouts/AuthenticatedLayout";
+import AppointmentCard from "./AppointmentCard";
+import RescheduleDialog from "../../../components/RescheduleDialog";
 import { request } from "../../../helpers/axiosHelper";
-import Box from '@mui/material/Box';
-import CancelIcon from '@mui/icons-material/Close';
-import { DataGrid, GridActionsCellItem, } from '@mui/x-data-grid';
+import { toDateTimeKey } from "../../../helpers/dateTimeSort";
 import { toast, ToastContainer } from "react-toastify";
 
+const TAB_KEYS = {
+    UPCOMING: "upcoming",
+    PAST: "past",
+    CANCELED: "canceled",
+};
+
+function EmptyState({ tab, onBookNew }) {
+    if (tab === TAB_KEYS.UPCOMING) {
+        return (
+            <Box
+                sx={{
+                    border: "1px dashed",
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    p: 3,
+                    textAlign: "center",
+                    backgroundColor: "background.paper",
+                }}
+            >
+                <Stack spacing={1.5} alignItems="center">
+                    <EventBusyIcon color="action" />
+                    <Typography variant="body1" fontWeight={600}>
+                        You have no upcoming visits.
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Book your first appointment to get started.
+                    </Typography>
+                    <Button variant="contained" startIcon={<AddIcon />} onClick={onBookNew}>
+                        Book new
+                    </Button>
+                </Stack>
+            </Box>
+        );
+    }
+
+    if (tab === TAB_KEYS.PAST) {
+        return (
+            <Box sx={{ textAlign: "center", py: 4, color: "text.secondary" }}>
+                <Typography variant="body1">No past visits yet.</Typography>
+            </Box>
+        );
+    }
+
+    return (
+        <Box sx={{ textAlign: "center", py: 4, color: "text.secondary" }}>
+            <Typography variant="body1">No canceled visits.</Typography>
+        </Box>
+    );
+}
+
 const Visits = () => {
+    const navigate = useNavigate();
     const [rows, setRows] = useState([]);
+    const [activeTab, setActiveTab] = useState(TAB_KEYS.UPCOMING);
+    const [openRescheduleDialog, setOpenRescheduleDialog] = useState(false);
+    const [appointmentToReschedule, setAppointmentToReschedule] = useState(null);
 
     const fetchAppointments = async () => {
         try {
-            const response = await request('get', "/v1/users/currentUser/appointments");
+            const response = await request("get", "/v1/users/currentUser/appointments");
+            const sourceRows = Array.isArray(response.data) ? response.data : [];
 
-            const transformedData = response.data.map((appointment) => {
-                const visitDateTime = new Date(`${appointment.date}T${appointment.time}`);
-
-                const formattedDate = new Intl.DateTimeFormat("en-GB", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                    hour12: false,
-                }).format(visitDateTime);
-
-                return {
-                    id: appointment.appointmentId,
-                    doctor: `${appointment.doctor.name} ${appointment.doctor.surname}`,
-                    facility: appointment.location.locationName,
-                    address: appointment.location.address,
-                    visitDateTime: formattedDate,
-                    visitStatus: appointment.appointmentStatus,
-                    visitType: appointment.appointmentType,
-                };
-            });
+            const transformedData = sourceRows.map((appointment) => ({
+                id: appointment.appointmentId,
+                doctor: appointment.doctor,
+                location: appointment.location,
+                rawDate: appointment.date,
+                rawTime: appointment.time,
+                visitDateTimeTs: toDateTimeKey(appointment.date, appointment.time),
+                visitStatus: appointment.appointmentStatus,
+                visitType: appointment.appointmentType,
+                rescheduleReason: appointment.rescheduleReason || "",
+            }));
 
             setRows(transformedData);
-        } catch (error) {
+        } catch {
             toast.error("Failed to fetch appointments. Please try again later.");
         }
     };
 
     const cancelAppointment = async (id) => {
         try {
-            const response = await request('patch', `/v1/appointments/${id}/cancel`);
+            await request("patch", `/v1/appointments/${id}/cancel`);
             toast.success("Appointment canceled successfully!");
-            return response.status;
-        } catch (error) {
+            return true;
+        } catch {
             toast.error("Failed to cancel appointment. Please try again later.");
-            return error.response?.status || 500;
+            return false;
         }
     };
 
@@ -56,76 +114,123 @@ const Visits = () => {
         fetchAppointments();
     }, []);
 
-    const handleCancelClick = (id) => async () => {
-        const responseStatus = await cancelAppointment(id);
-        if (responseStatus >= 200 && responseStatus < 300) {
-            setRows((prevRows) =>
-                prevRows.map((row) => (row.id === id ? { ...row, visitStatus: "CANCELED" } : row))
-            );
-        }
+    const handleCancelClick = async (id) => {
+        const canceled = await cancelAppointment(id);
+        if (!canceled) return;
+
+        setRows((prevRows) =>
+            prevRows.map((row) => (row.id === id ? { ...row, visitStatus: "CANCELED" } : row))
+        );
     };
 
-    const columns = [
-        { field: "doctor", headerName: "Doctor", width: 180, editable: false },
-        { field: "facility", headerName: "Facility", width: 180, editable: false },
-        { field: "address", headerName: "Address", width: 180, editable: false },
-        {
-            field: "visitDateTime",
-            headerName: "Visit Date & Time",
-            width: 150,
-            editable: false,
-        },
-        { field: "visitStatus", headerName: "Visit Status", width: 130, editable: false },
-        { field: "visitType", headerName: "Visit Type", width: 90, editable: false },
-        {
-            field: "actions",
-            type: "actions",
-            headerName: "Actions",
-            width: 100,
-            cellClassName: "actions",
-            getActions: ({ id }) => [
-                <GridActionsCellItem
-                    icon={<CancelIcon />}
-                    label="Cancel"
-                    className="textPrimary"
-                    onClick={handleCancelClick(id)}
-                    color="inherit"
-                />,
-            ],
-        },
-    ];
+    const handleRescheduleClick = (appointment) => {
+        setAppointmentToReschedule(appointment);
+        setOpenRescheduleDialog(true);
+    };
+
+    const handleConfirmReschedule = async (newSlotId) => {
+        await request("patch", `/v1/appointments/${appointmentToReschedule.id}/reschedule`, { newSlotId });
+        toast.success("Appointment rescheduled successfully!");
+        await fetchAppointments();
+    };
+
+    const buckets = useMemo(() => {
+        const nowTs = Date.now();
+        const upcoming = [];
+        const past = [];
+        const canceled = [];
+
+        rows.forEach((row) => {
+            if (row.visitStatus === "CANCELED") {
+                canceled.push(row);
+                return;
+            }
+
+            const isFutureAssigned =
+                (row.visitStatus === "ACTIVE" || row.visitStatus === "RESCHEDULED") &&
+                row.visitDateTimeTs >= nowTs;
+
+            if (isFutureAssigned) {
+                upcoming.push(row);
+                return;
+            }
+
+            past.push(row);
+        });
+
+        upcoming.sort((a, b) => a.visitDateTimeTs - b.visitDateTimeTs);
+        past.sort((a, b) => b.visitDateTimeTs - a.visitDateTimeTs);
+        canceled.sort((a, b) => b.visitDateTimeTs - a.visitDateTimeTs);
+
+        return { upcoming, past, canceled };
+    }, [rows]);
+
+    const currentRows = buckets[activeTab] || [];
 
     return (
         <AuthenticatedLayout>
-                <div className={styles.addingContainer}>
-                    <Box
-                        sx={{
-                            width: "90%",
-                            maxWidth: "1100px",
-                            padding: "20px",
-                            backgroundColor: "#fff",
-                            borderRadius: "8px",
-                            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                            margin: "0 auto",
-                        }}
-                    >
-                        <h1 className={styles.addingHeader}>Your Visits</h1>
-                        <Box
-                            sx={{
-                                height: 500,
-                                width: "100%",
-                                "& .actions": {
-                                    color: "text.secondary",
-                                },
-                                "& .textPrimary": {
-                                    color: "text.primary",
-                                },
-                            }}
-                        >
-                            <DataGrid rows={rows} columns={columns} editMode="row" />
-                        </Box>
-                    </Box>
-                </div>
+            <Paper
+                elevation={2}
+                sx={{
+                    maxWidth: 960,
+                    mx: "auto",
+                    mt: 3,
+                    p: { xs: 2, sm: 4 },
+                    borderRadius: 3,
+                    width: "100%",
+                }}
+            >
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    justifyContent="space-between"
+                    alignItems={{ xs: "stretch", sm: "center" }}
+                    spacing={1.5}
+                    mb={2}
+                >
+                    <Typography variant="h4" fontWeight={700}>
+                        Your Visits
+                    </Typography>
+                    <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate("/booking")}>
+                        Book new
+                    </Button>
+                </Stack>
+
+                <Tabs value={activeTab} onChange={(_event, value) => setActiveTab(value)} variant="fullWidth">
+                    <Tab value={TAB_KEYS.UPCOMING} label={`Upcoming (${buckets.upcoming.length})`} />
+                    <Tab value={TAB_KEYS.PAST} label={`Past (${buckets.past.length})`} />
+                    <Tab value={TAB_KEYS.CANCELED} label={`Canceled (${buckets.canceled.length})`} />
+                </Tabs>
+
+                <Box sx={{ mt: 2 }}>
+                    {currentRows.length === 0 ? (
+                        <EmptyState tab={activeTab} onBookNew={() => navigate("/booking")} />
+                    ) : (
+                        <Stack spacing={2}>
+                            {currentRows.map((appointment) => (
+                                <AppointmentCard
+                                    key={appointment.id}
+                                    appointment={appointment}
+                                    onCancel={handleCancelClick}
+                                    onReschedule={handleRescheduleClick}
+                                />
+                            ))}
+                        </Stack>
+                    )}
+                </Box>
+            </Paper>
+
+            <RescheduleDialog
+                open={openRescheduleDialog}
+                onClose={() => {
+                    setOpenRescheduleDialog(false);
+                    setAppointmentToReschedule(null);
+                }}
+                doctorId={appointmentToReschedule?.doctor?.doctorId}
+                locationId={appointmentToReschedule?.location?.locationId}
+                appointmentType={appointmentToReschedule?.visitType}
+                showReasonField={false}
+                onConfirm={handleConfirmReschedule}
+            />
             <ToastContainer position="top-center" autoClose={4000} />
         </AuthenticatedLayout>
     );

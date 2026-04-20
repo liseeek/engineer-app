@@ -1,12 +1,18 @@
 package com.example.medhub.service;
 
-import com.example.medhub.dto.LocationDto;
+import com.example.medhub.dto.response.LocationDto;
 import com.example.medhub.dto.request.LocationCreateRequestDto;
+import com.example.medhub.dto.request.LocationUpdateRequestDto;
+import com.example.medhub.entity.Admin;
 import com.example.medhub.entity.LocationEntity;
+import com.example.medhub.entity.User;
+import com.example.medhub.entity.Worker;
 import com.example.medhub.exceptions.MedHubServiceException;
+import com.example.medhub.exceptions.UnauthorizedOperationException;
 import com.example.medhub.mapper.LocationMapper;
 import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.LocationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +29,7 @@ public class LocationsService {
     private final LocationRepository locationRepository;
     private final DoctorRepository doctorRepository;
     private final LocationMapper locationMapper;
+    private final SecurityService securityService;
 
     public void saveLocation(LocationCreateRequestDto locationCreateRequestDto) {
         if (locationRepository.findLocationByLocationName(locationCreateRequestDto.getLocationName()).isPresent()){
@@ -54,5 +61,42 @@ public class LocationsService {
                 .map(LocationEntity::getCity)
                 .distinct()
                 .toList();
+    }
+
+    public LocationDto getById(Long id) {
+        return locationRepository.findById(id)
+                .map(locationMapper::toLocationDto)
+                .orElseThrow(() -> new EntityNotFoundException("Location not found: " + id));
+    }
+
+    @Transactional
+    public LocationDto updateLocation(Long id, LocationUpdateRequestDto dto) {
+        LocationEntity location = locationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Location not found: " + id));
+
+        User current = securityService.getCurrentUser();
+        boolean isAdmin = current instanceof Admin;
+        boolean isWorkerHere = current instanceof Worker worker
+                && worker.getLocation() != null
+                && worker.getLocation().getLocationId().equals(id);
+
+        if (!isAdmin && !isWorkerHere) {
+            throw new UnauthorizedOperationException("You are not authorized to edit this facility.");
+        }
+
+        if (dto.getDescription() != null) {
+            location.setDescription(dto.getDescription());
+        }
+        if (dto.getYearEstablished() != null) {
+            location.setYearEstablished(dto.getYearEstablishedValidated());
+        }
+        if (dto.getPhoneNumber() != null) {
+            location.setPhoneNumber(dto.getPhoneNumber());
+        }
+        if (dto.getEmail() != null) {
+            location.setEmail(dto.getEmail());
+        }
+
+        return locationMapper.toLocationDto(locationRepository.save(location));
     }
 }

@@ -1,18 +1,13 @@
 package com.example.medhub.controller;
 
-import com.example.medhub.dto.DoctorDto;
-import com.example.medhub.dto.LocationDto;
+import com.example.medhub.dto.response.DoctorDto;
+import com.example.medhub.dto.response.LocationDto;
 import com.example.medhub.dto.request.DoctorCreateRequestDto;
 import com.example.medhub.dto.request.DoctorSignupRequestDto;
-import com.example.medhub.dto.request.OperationType;
 import com.example.medhub.dto.request.UpdateDoctorLocationRequestDto;
-import com.example.medhub.entity.Admin;
-import com.example.medhub.entity.User;
 import com.example.medhub.enums.DoctorVerificationStatus;
-import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.service.DoctorCrudService;
 import com.example.medhub.service.DoctorSignupService;
-import com.example.medhub.service.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -38,13 +33,14 @@ import org.springframework.data.web.PageableDefault;
 
 import java.util.List;
 
+import org.springframework.lang.Nullable;
+
 @RestController
 @RequestMapping("/v1/doctors")
 @RequiredArgsConstructor
 public class DoctorsController {
     private final DoctorCrudService doctorCrudService;
     private final DoctorSignupService doctorSignupService;
-    private final SecurityService securityService;
 
     @PostMapping("/signup")
     @Operation(summary = "Doctor self-registration (VERIFIED after PWZ format + uniqueness checks)")
@@ -80,6 +76,31 @@ public class DoctorsController {
             @RequestParam(required = false) DoctorVerificationStatus status,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(doctorCrudService.getAllDoctors(pageable, status));
+    }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Search verified doctors by city, specialization, and/or name/surname")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Search results returned."),
+    })
+    public Page<DoctorDto> searchDoctors(
+            @RequestParam(required = false) @Nullable String city,
+            @RequestParam(required = false) @Nullable Long specializationId,
+            @RequestParam(required = false) @Nullable String q,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return doctorCrudService.searchDoctors(city, specializationId, q, pageable);
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Return a single doctor by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Doctor found."),
+            @ApiResponse(responseCode = "404", description = "Not Found.")
+    })
+    public DoctorDto getDoctorById(@PathVariable Long id) {
+        return doctorCrudService.getDoctorById(id);
     }
 
     @GetMapping("{id}/locations")
@@ -126,15 +147,7 @@ public class DoctorsController {
     })
     public ResponseEntity<?> updateDoctorLocation(@PathVariable Long id,
             @RequestBody UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {
-        User current = securityService.getCurrentUser();
-        if (updateDoctorLocationRequestDto.getOperationType() == OperationType.ADD) {
-            if (!(current instanceof Admin)) {
-                throw new MedHubServiceException("Only administrators can add a location directly; workers must send a facility request.");
-            }
-            doctorCrudService.addLocation(id, updateDoctorLocationRequestDto);
-        } else if (updateDoctorLocationRequestDto.getOperationType() == OperationType.REMOVE) {
-            doctorCrudService.removeLocation(id, updateDoctorLocationRequestDto);
-        }
+        doctorCrudService.updateDoctorLocation(id, updateDoctorLocationRequestDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

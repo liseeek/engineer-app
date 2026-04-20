@@ -39,6 +39,17 @@ spring:
           auth: ${MAIL_SMTP_AUTH:true}
           starttls:
             enable: ${MAIL_STARTTLS_ENABLE:true}
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY:}
+        chat:
+          options:
+            model: ${GEMINI_MODEL:gemini-2.0-flash}
+            # Improves structured output parsing for ChatClient.entity(...)
+            response-mime-type: application/json
+    model:
+      chat: google-genai
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
@@ -67,6 +78,8 @@ medhub:
     enabled: ${MEDHUB_DOCTOR_SELF_SIGNUP_ENABLED:false}
   appointments:
     max-upcoming-per-patient: ${MEDHUB_APPOINTMENTS_MAX_UPCOMING_PER_PATIENT:5}
+  ai:
+    enabled: ${MEDHUB_AI_ENABLED:true}
 database:
   admin:
     name: "Szymon"

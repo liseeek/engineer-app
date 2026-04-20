@@ -1,6 +1,6 @@
 package com.example.medhub.service;
 
-import com.example.medhub.dto.DoctorLocationRequestDto;
+import com.example.medhub.dto.response.DoctorLocationRequestDto;
 import com.example.medhub.dto.request.CreateDoctorLocationRequestDto;
 import com.example.medhub.dto.request.OperationType;
 import com.example.medhub.dto.request.UpdateDoctorLocationRequestDto;

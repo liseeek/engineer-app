@@ -63,11 +63,12 @@ public class JwtSecurityConfig {
 
                         .requestMatchers(HttpMethod.DELETE, "/v1/locations/{id}").hasAnyAuthority(ADMIN)
                         .requestMatchers(HttpMethod.POST, "/v1/locations").hasAnyAuthority(ADMIN)
-                        .requestMatchers(HttpMethod.GET, "/v1/locations/**").hasAnyAuthority(ADMIN, WORKER, PATIENT)
+                        .requestMatchers(HttpMethod.GET, "/v1/locations/**").hasAnyAuthority(ADMIN, WORKER, PATIENT, DOCTOR)
+                        .requestMatchers(HttpMethod.PATCH, "/v1/locations/{id}").hasAnyAuthority(ADMIN, WORKER)
                         .requestMatchers("/v1/locations/**").hasAnyAuthority(ADMIN, WORKER)
 
                         .requestMatchers(HttpMethod.POST, "/v1/doctors/signup").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/v1/doctors/**").hasAnyAuthority(ADMIN, WORKER, PATIENT)
+                        .requestMatchers(HttpMethod.GET, "/v1/doctors/**").hasAnyAuthority(ADMIN, WORKER, PATIENT, DOCTOR)
                         .requestMatchers("/v1/doctors/**").hasAnyAuthority(ADMIN, WORKER)
 
                         .requestMatchers("/v1/doctor/**").hasAnyAuthority(DOCTOR)
@@ -77,9 +78,13 @@ public class JwtSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/v1/availability/**").hasAnyAuthority(ADMIN, WORKER, PATIENT)
                         .requestMatchers("/v1/availability/**").hasAnyAuthority(ADMIN, WORKER)
 
+                        .requestMatchers(HttpMethod.POST, "/v1/symptom-checker").hasAnyAuthority(PATIENT)
+
                         .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}")
                         .hasAnyAuthority(PATIENT)
                         .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}/cancel")
+                        .hasAnyAuthority(PATIENT)
+                        .requestMatchers(HttpMethod.PATCH, "/v1/appointments/{id}/reschedule")
                         .hasAnyAuthority(PATIENT)
                         .requestMatchers("/v1/appointments/**").hasAnyAuthority(ADMIN, WORKER)
 

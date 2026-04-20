@@ -1,0 +1,23 @@
+services:
+  frontend:
+    build: !reset null
+    image: node:20-alpine
+    container_name: medhub-frontend-dev
+    working_dir: /app
+    command: sh -c "npm install --no-audit --no-fund && npm start"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - WDS_SOCKET_PORT=3000
+      - FAST_REFRESH=true
+      - BROWSER=none
+      - CI=false
+      - REACT_APP_API_URL=http://localhost:8080
+      - REACT_APP_DOCTOR_SIGNUP_ENABLED=${REACT_APP_DOCTOR_SIGNUP_ENABLED:-true}
+    volumes:
+      - ./frontend/med-hub:/app
+      - /app/node_modules
+    ports: !override
+      - "3000:3000"
+    stdin_open: true
+    tty: true

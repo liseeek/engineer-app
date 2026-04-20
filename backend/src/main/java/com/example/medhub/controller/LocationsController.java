@@ -1,7 +1,8 @@
 package com.example.medhub.controller;
 
-import com.example.medhub.dto.LocationDto;
+import com.example.medhub.dto.response.LocationDto;
 import com.example.medhub.dto.request.LocationCreateRequestDto;
+import com.example.medhub.dto.request.LocationUpdateRequestDto;
 import com.example.medhub.service.LocationsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -60,6 +62,29 @@ public class LocationsController {
     })
     public ResponseEntity<List<String>> getDistinctLocations() {
         return ResponseEntity.ok(locationsService.getDistinctLocations());
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Return location by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Location found."),
+            @ApiResponse(responseCode = "404", description = "Not Found.")
+    })
+    public ResponseEntity<LocationDto> getLocationById(@PathVariable Long id) {
+        return ResponseEntity.ok(locationsService.getById(id));
+    }
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Update location profile fields (description, yearEstablished, phone, email). WORKER of this location or ADMIN only.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Location updated."),
+            @ApiResponse(responseCode = "403", description = "Forbidden."),
+            @ApiResponse(responseCode = "404", description = "Not Found.")
+    })
+    public ResponseEntity<LocationDto> updateLocation(
+            @PathVariable Long id,
+            @RequestBody @Valid LocationUpdateRequestDto dto) {
+        return ResponseEntity.ok(locationsService.updateLocation(id, dto));
     }
 
     @DeleteMapping("/{id}")

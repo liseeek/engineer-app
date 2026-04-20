@@ -1,7 +1,7 @@
 package com.example.medhub;
 
 import com.example.medhub.dto.request.UserCreateRequestDto;
-import com.example.medhub.dto.request.WorkerCreateRequestDTO;
+import com.example.medhub.dto.request.WorkerCreateRequestDto;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.Patient;
 import com.example.medhub.entity.Worker;
@@ -95,7 +95,7 @@ class UniqueEmailValidationIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void shouldRejectWorkerRegistration_WhenEmailBelongsToUser() {
-        WorkerCreateRequestDTO workerDto = new WorkerCreateRequestDTO();
+        WorkerCreateRequestDto workerDto = new WorkerCreateRequestDto();
         workerDto.setName("Maria");
         workerDto.setSurname("Testowa");
         workerDto.setEmail("user@test.com");
@@ -104,10 +104,10 @@ class UniqueEmailValidationIntegrationTest extends AbstractIntegrationTest {
         workerDto.setPhoneNumber("777666555");
         workerDto.setLocationName("Test Hospital");
 
-        Set<ConstraintViolation<WorkerCreateRequestDTO>> violations = validator.validate(workerDto);
+        Set<ConstraintViolation<WorkerCreateRequestDto>> violations = validator.validate(workerDto);
 
         assertThat(violations).hasSize(1);
-        ConstraintViolation<WorkerCreateRequestDTO> violation = violations.iterator().next();
+        ConstraintViolation<WorkerCreateRequestDto> violation = violations.iterator().next();
         assertThat(violation.getMessage()).isEqualTo("Email already exists");
         assertThat(violation.getPropertyPath().toString()).isEqualTo("email");
     }

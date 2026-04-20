@@ -41,6 +41,12 @@ public class Doctor extends User {
     @Column(name = "verified_at")
     private LocalDateTime verifiedAt;
 
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AppointmentsEntity> appointments;
 

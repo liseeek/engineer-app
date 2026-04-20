@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema
-public class WorkerCreateRequestDTO extends UserCreateRequestDto {
+public class WorkerCreateRequestDto extends UserCreateRequestDto {
     @NotBlank
     @Size(max = 48)
     @Schema(example = "Max-Med")

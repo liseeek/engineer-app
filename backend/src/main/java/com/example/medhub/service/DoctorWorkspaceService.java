@@ -1,7 +1,7 @@
 package com.example.medhub.service;
 
-import com.example.medhub.dto.VisitNoteRequestDto;
-import com.example.medhub.dto.AppointmentsDto;
+import com.example.medhub.dto.request.VisitNoteRequestDto;
+import com.example.medhub.dto.response.AppointmentsDto;
 import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.entity.User;
 import com.example.medhub.entity.VisitNote;
@@ -26,8 +26,10 @@ public class DoctorWorkspaceService {
     private final VisitNoteRepository visitNoteRepository;
     private final AppointmentsMapper appointmentsMapper;
     private final SecurityService securityService;
+    private final AppointmentMaintenanceService appointmentMaintenanceService;
 
     public List<AppointmentsDto> getMySchedule() {
+        appointmentMaintenanceService.markPastAppointmentsCompleted();
         User currentUser = securityService.getCurrentUser();
 
         return appointmentsRepository.findAllByDoctorUserId(currentUser.getUserId())

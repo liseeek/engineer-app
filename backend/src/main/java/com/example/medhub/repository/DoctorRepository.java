@@ -4,12 +4,14 @@ import com.example.medhub.entity.Doctor;
 import com.example.medhub.enums.DoctorVerificationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface DoctorRepository extends BaseUserRepository<Doctor> {
+public interface DoctorRepository extends BaseUserRepository<Doctor>, JpaSpecificationExecutor<Doctor> {
     List<Doctor> findDistinctBySpecializations_SpecializationId(Long specializationId);
 
     Page<Doctor> findDistinctBySpecializations_SpecializationId(Long specializationId, Pageable pageable);

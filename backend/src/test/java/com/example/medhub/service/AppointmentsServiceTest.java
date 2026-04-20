@@ -1,9 +1,10 @@
 package com.example.medhub.service;
 
-import com.example.medhub.config.MedHubProperties;
+import com.example.medhub.configuration.MedHubProperties;
 import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.entity.Admin;
 import com.example.medhub.entity.AppointmentsEntity;
+import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.Patient;
 import com.example.medhub.entity.Worker;
@@ -21,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +43,9 @@ class AppointmentsServiceTest {
     @Mock
     private MedHubProperties medHubProperties;
 
+    @Mock
+    private AppointmentSlotService appointmentSlotService;
+
     @InjectMocks
     private AppointmentsService appointmentsService;
 
@@ -57,6 +62,8 @@ class AppointmentsServiceTest {
         testAppointment.setAppointmentId(1L);
         testAppointment.setAppointmentStatus(AppointmentStatus.ACTIVE);
         testAppointment.setPatient(null);
+        testAppointment.setDate(LocalDate.now().plusDays(1));
+        testAppointment.setTime(LocalTime.of(12, 0));
 
         MedHubProperties.Appointments appts = new MedHubProperties.Appointments();
         appts.setMaxUpcomingPerPatient(5);
@@ -67,7 +74,8 @@ class AppointmentsServiceTest {
     void addAppointmentToUser_success() {
         when(securityService.getCurrentPatient()).thenReturn(testUser);
         when(appointmentsRepository.countUpcomingForPatient(
-                eq(1L), any(LocalDate.class), eq(List.of(AppointmentStatus.ACTIVE, AppointmentStatus.RESCHEDULED))))
+                eq(1L), any(LocalDate.class), any(LocalTime.class),
+                eq(List.of(AppointmentStatus.ACTIVE.name(), AppointmentStatus.RESCHEDULED.name()))))
                 .thenReturn(0L);
         when(appointmentsRepository.findWithLockingById(1L)).thenReturn(Optional.of(testAppointment));
         when(appointmentsRepository.save(any(AppointmentsEntity.class))).thenReturn(testAppointment);
@@ -83,7 +91,8 @@ class AppointmentsServiceTest {
     void addAppointmentToUser_appointmentNotFound_throwsMedHubServiceException() {
         when(securityService.getCurrentPatient()).thenReturn(testUser);
         when(appointmentsRepository.countUpcomingForPatient(
-                eq(1L), any(LocalDate.class), eq(List.of(AppointmentStatus.ACTIVE, AppointmentStatus.RESCHEDULED))))
+                eq(1L), any(LocalDate.class), any(LocalTime.class),
+                eq(List.of(AppointmentStatus.ACTIVE.name(), AppointmentStatus.RESCHEDULED.name()))))
                 .thenReturn(0L);
         when(appointmentsRepository.findWithLockingById(1L)).thenReturn(Optional.empty());
 
@@ -96,7 +105,8 @@ class AppointmentsServiceTest {
         testAppointment.setPatient(new Patient());
         when(securityService.getCurrentPatient()).thenReturn(testUser);
         when(appointmentsRepository.countUpcomingForPatient(
-                eq(1L), any(LocalDate.class), eq(List.of(AppointmentStatus.ACTIVE, AppointmentStatus.RESCHEDULED))))
+                eq(1L), any(LocalDate.class), any(LocalTime.class),
+                eq(List.of(AppointmentStatus.ACTIVE.name(), AppointmentStatus.RESCHEDULED.name()))))
                 .thenReturn(0L);
         when(appointmentsRepository.findWithLockingById(1L)).thenReturn(Optional.of(testAppointment));
 
@@ -108,11 +118,42 @@ class AppointmentsServiceTest {
     void addAppointmentToUser_maxUpcomingReached_throwsMedHubServiceException() {
         when(securityService.getCurrentPatient()).thenReturn(testUser);
         when(appointmentsRepository.countUpcomingForPatient(
-                eq(1L), any(LocalDate.class), eq(List.of(AppointmentStatus.ACTIVE, AppointmentStatus.RESCHEDULED))))
+                eq(1L), any(LocalDate.class), any(LocalTime.class),
+                eq(List.of(AppointmentStatus.ACTIVE.name(), AppointmentStatus.RESCHEDULED.name()))))
                 .thenReturn(5L);
 
         assertThrows(MedHubServiceException.class, () -> appointmentsService.addAppointmentToUser(1L));
         verify(appointmentsRepository, never()).findWithLockingById(anyLong());
+        verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
+    }
+
+    @Test
+    void addAppointmentToUser_pastSlot_throwsMedHubServiceException() {
+        testAppointment.setDate(LocalDate.now().minusDays(1));
+        testAppointment.setTime(LocalTime.of(12, 0));
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
+        when(appointmentsRepository.countUpcomingForPatient(
+                eq(1L), any(LocalDate.class), any(LocalTime.class),
+                eq(List.of(AppointmentStatus.ACTIVE.name(), AppointmentStatus.RESCHEDULED.name()))))
+                .thenReturn(0L);
+        when(appointmentsRepository.findWithLockingById(1L)).thenReturn(Optional.of(testAppointment));
+
+        assertThrows(MedHubServiceException.class, () -> appointmentsService.addAppointmentToUser(1L));
+        verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
+    }
+
+    @Test
+    void addAppointmentToUser_todayPastTimeSlot_throwsMedHubServiceException() {
+        testAppointment.setDate(LocalDate.now());
+        testAppointment.setTime(LocalTime.now().minusMinutes(1));
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
+        when(appointmentsRepository.countUpcomingForPatient(
+                eq(1L), any(LocalDate.class), any(LocalTime.class),
+                eq(List.of(AppointmentStatus.ACTIVE.name(), AppointmentStatus.RESCHEDULED.name()))))
+                .thenReturn(0L);
+        when(appointmentsRepository.findWithLockingById(1L)).thenReturn(Optional.of(testAppointment));
+
+        assertThrows(MedHubServiceException.class, () -> appointmentsService.addAppointmentToUser(1L));
         verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
     }
 
@@ -179,14 +220,21 @@ class AppointmentsServiceTest {
     @Test
     void cancelAppointment_success() {
         testAppointment.setPatient(testUser);
+        Doctor doctor = new Doctor();
+        doctor.setUserId(11L);
+        LocationEntity location = new LocationEntity();
+        location.setLocationId(10L);
+        testAppointment.setDoctor(doctor);
+        testAppointment.setLocation(location);
         when(securityService.getCurrentPatient()).thenReturn(testUser);
         when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(testAppointment));
-        when(appointmentsRepository.save(any(AppointmentsEntity.class))).thenReturn(testAppointment);
+        when(appointmentsRepository.saveAndFlush(any(AppointmentsEntity.class))).thenReturn(testAppointment);
 
         appointmentsService.cancelAppointment(1L);
 
         assertEquals(AppointmentStatus.CANCELED, testAppointment.getAppointmentStatus());
-        verify(appointmentsRepository, times(1)).save(testAppointment);
+        verify(appointmentsRepository).saveAndFlush(testAppointment);
+        verify(appointmentSlotService).releaseSlotToPool(testAppointment);
     }
 
     @Test
@@ -199,6 +247,7 @@ class AppointmentsServiceTest {
 
         assertThrows(UnauthorizedOperationException.class, () -> appointmentsService.cancelAppointment(1L));
         verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
+        verify(appointmentsRepository, never()).saveAndFlush(any(AppointmentsEntity.class));
     }
 
     @Test
@@ -207,5 +256,149 @@ class AppointmentsServiceTest {
 
         assertThrows(EntityNotFoundException.class, () -> appointmentsService.cancelAppointment(1L));
         verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
+        verify(appointmentsRepository, never()).saveAndFlush(any(AppointmentsEntity.class));
+    }
+
+    @Test
+    void rescheduleAppointment_success() {
+        AppointmentsEntity oldAppointment = createAppointment(
+                1L, testUser, AppointmentStatus.ACTIVE, LocalDate.now().plusDays(1), 11L, 10L);
+        AppointmentsEntity newSlot = createAppointment(
+                2L, null, AppointmentStatus.ACTIVE, LocalDate.now().plusDays(2), 11L, 10L);
+
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(oldAppointment));
+        when(appointmentsRepository.findWithLockingById(2L)).thenReturn(Optional.of(newSlot));
+
+        appointmentsService.rescheduleAppointment(1L, 2L);
+
+        assertNull(oldAppointment.getPatient());
+        assertEquals(AppointmentStatus.ACTIVE, oldAppointment.getAppointmentStatus());
+        assertNull(oldAppointment.getRescheduleReason());
+
+        assertEquals(testUser.getUserId(), newSlot.getPatient().getUserId());
+        assertEquals(AppointmentStatus.RESCHEDULED, newSlot.getAppointmentStatus());
+        assertNull(newSlot.getRescheduleReason());
+
+        verify(appointmentsRepository).save(oldAppointment);
+        verify(appointmentsRepository).save(newSlot);
+        verify(appointmentSlotService).validateRescheduleEligible(oldAppointment);
+        verify(appointmentSlotService).validateNewSlot(newSlot, oldAppointment);
+    }
+
+    @Test
+    void rescheduleAppointment_notOwnAppointment_throwsUnauthorizedOperationException() {
+        Patient otherPatient = new Patient();
+        otherPatient.setUserId(99L);
+        AppointmentsEntity oldAppointment = createAppointment(
+                1L, otherPatient, AppointmentStatus.ACTIVE, LocalDate.now().plusDays(1), 11L, 10L);
+
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(oldAppointment));
+
+        assertThrows(UnauthorizedOperationException.class, () -> appointmentsService.rescheduleAppointment(1L, 2L));
+        verify(appointmentsRepository, never()).findWithLockingById(anyLong());
+        verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
+    }
+
+    @Test
+    void rescheduleAppointment_oldAppointmentCanceled_throwsMedHubServiceException() {
+        AppointmentsEntity oldAppointment = createAppointment(
+                1L, testUser, AppointmentStatus.CANCELED, LocalDate.now().plusDays(1), 11L, 10L);
+
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(oldAppointment));
+        doThrow(new MedHubServiceException("Only active appointments can be rescheduled."))
+                .when(appointmentSlotService).validateRescheduleEligible(oldAppointment);
+
+        assertThrows(MedHubServiceException.class, () -> appointmentsService.rescheduleAppointment(1L, 2L));
+        verify(appointmentsRepository, never()).findWithLockingById(anyLong());
+    }
+
+    @Test
+    void rescheduleAppointment_oldAppointmentInPast_throwsMedHubServiceException() {
+        AppointmentsEntity oldAppointment = createAppointment(
+                1L, testUser, AppointmentStatus.ACTIVE, LocalDate.now().minusDays(1), 11L, 10L);
+
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(oldAppointment));
+        doThrow(new MedHubServiceException("Past appointments cannot be rescheduled."))
+                .when(appointmentSlotService).validateRescheduleEligible(oldAppointment);
+
+        assertThrows(MedHubServiceException.class, () -> appointmentsService.rescheduleAppointment(1L, 2L));
+        verify(appointmentsRepository, never()).findWithLockingById(anyLong());
+    }
+
+    @Test
+    void rescheduleAppointment_newSlotAlreadyTaken_throwsMedHubServiceException() {
+        AppointmentsEntity oldAppointment = createAppointment(
+                1L, testUser, AppointmentStatus.ACTIVE, LocalDate.now().plusDays(1), 11L, 10L);
+        AppointmentsEntity newSlot = createAppointment(
+                2L, new Patient(), AppointmentStatus.ACTIVE, LocalDate.now().plusDays(2), 11L, 10L);
+
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(oldAppointment));
+        when(appointmentsRepository.findWithLockingById(2L)).thenReturn(Optional.of(newSlot));
+        doThrow(new MedHubServiceException("Selected slot is already assigned."))
+                .when(appointmentSlotService).validateNewSlot(newSlot, oldAppointment);
+
+        assertThrows(MedHubServiceException.class, () -> appointmentsService.rescheduleAppointment(1L, 2L));
+        verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
+    }
+
+    @Test
+    void rescheduleAppointment_differentDoctor_throwsMedHubServiceException() {
+        AppointmentsEntity oldAppointment = createAppointment(
+                1L, testUser, AppointmentStatus.ACTIVE, LocalDate.now().plusDays(1), 11L, 10L);
+        AppointmentsEntity newSlot = createAppointment(
+                2L, null, AppointmentStatus.ACTIVE, LocalDate.now().plusDays(2), 12L, 10L);
+
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(oldAppointment));
+        when(appointmentsRepository.findWithLockingById(2L)).thenReturn(Optional.of(newSlot));
+        doThrow(new MedHubServiceException("New slot must belong to the same doctor."))
+                .when(appointmentSlotService).validateNewSlot(newSlot, oldAppointment);
+
+        assertThrows(MedHubServiceException.class, () -> appointmentsService.rescheduleAppointment(1L, 2L));
+        verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
+    }
+
+    @Test
+    void rescheduleAppointment_differentLocation_throwsMedHubServiceException() {
+        AppointmentsEntity oldAppointment = createAppointment(
+                1L, testUser, AppointmentStatus.ACTIVE, LocalDate.now().plusDays(1), 11L, 10L);
+        AppointmentsEntity newSlot = createAppointment(
+                2L, null, AppointmentStatus.ACTIVE, LocalDate.now().plusDays(2), 11L, 99L);
+
+        when(securityService.getCurrentPatient()).thenReturn(testUser);
+        when(appointmentsRepository.findById(1L)).thenReturn(Optional.of(oldAppointment));
+        when(appointmentsRepository.findWithLockingById(2L)).thenReturn(Optional.of(newSlot));
+        doThrow(new MedHubServiceException("New slot must belong to the same location."))
+                .when(appointmentSlotService).validateNewSlot(newSlot, oldAppointment);
+
+        assertThrows(MedHubServiceException.class, () -> appointmentsService.rescheduleAppointment(1L, 2L));
+        verify(appointmentsRepository, never()).save(any(AppointmentsEntity.class));
+    }
+
+    private AppointmentsEntity createAppointment(
+            Long id,
+            Patient patient,
+            AppointmentStatus status,
+            LocalDate date,
+            Long doctorId,
+            Long locationId) {
+        Doctor doctor = new Doctor();
+        doctor.setUserId(doctorId);
+        LocationEntity location = new LocationEntity();
+        location.setLocationId(locationId);
+
+        AppointmentsEntity appointment = new AppointmentsEntity();
+        appointment.setAppointmentId(id);
+        appointment.setPatient(patient);
+        appointment.setAppointmentStatus(status);
+        appointment.setDate(date);
+        appointment.setDoctor(doctor);
+        appointment.setLocation(location);
+        return appointment;
     }
 }

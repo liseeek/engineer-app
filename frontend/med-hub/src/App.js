@@ -19,11 +19,15 @@ import RegisterDoctor from "./pages/default/registerDoctor/RegisterDoctor";
 import SendInvitation from "./pages/admin/sendInvitation/SendInvitation";
 import DoctorSchedule from "./pages/doctor/schedule/DoctorSchedule";
 import DoctorFacilityRequests from "./pages/doctor/facilityRequests/DoctorFacilityRequests";
+import DoctorOwnProfile from "./pages/doctor/profile/DoctorOwnProfile";
 import ManageUsers from "./pages/admin/manageUsers/ManageUsers";
+import DoctorProfile from "./pages/user/doctorProfile/DoctorProfile";
+import LocationProfile from "./pages/user/locationProfile/LocationProfile";
 import './global.css'
 import Unauthorized from "./helpers/unauthorized";
 import { ROLES } from './helpers/roles';
 import { AuthProvider } from './context/AuthContext';
+import Footer from "./components/Footer";
 
 
 function App() {
@@ -60,10 +64,16 @@ function App() {
             <Route element={<ProtectedRoute requiredRoles={[ROLES.DOCTOR]} />}>
               <Route path="/doctor/schedule" element={<DoctorSchedule />} />
               <Route path="/doctor/facility-requests" element={<DoctorFacilityRequests />} />
+              <Route path="/doctor/profile" element={<DoctorOwnProfile />} />
+            </Route>
+            <Route element={<ProtectedRoute requiredRoles={[ROLES.PATIENT, ROLES.WORKER, ROLES.ADMIN, ROLES.DOCTOR]} />}>
+              <Route path="/doctors/:id" element={<DoctorProfile />} />
+              <Route path="/locations/:id" element={<LocationProfile />} />
             </Route>
           </Route>
+          <Route path="*" element={<Unauthorized />} />
         </Routes>
-
+        <Footer />
       </div>
       </AuthProvider>
     </Router>

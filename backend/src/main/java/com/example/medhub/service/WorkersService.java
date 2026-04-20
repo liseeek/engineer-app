@@ -1,9 +1,9 @@
 package com.example.medhub.service;
 
-import com.example.medhub.dto.AppointmentsDto;
-import com.example.medhub.dto.DoctorDto;
-import com.example.medhub.dto.LocationDto;
-import com.example.medhub.dto.request.WorkerCreateRequestDTO;
+import com.example.medhub.dto.response.AppointmentsDto;
+import com.example.medhub.dto.response.DoctorDto;
+import com.example.medhub.dto.response.LocationDto;
+import com.example.medhub.dto.request.WorkerCreateRequestDto;
 import com.example.medhub.enums.Authority;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.Worker;
@@ -44,17 +44,18 @@ public class WorkersService {
     private final LocationMapper locationMapper;
     private final ApplicationEventPublisher eventPublisher;
     private final SecurityService securityService;
+    private final AppointmentMaintenanceService appointmentMaintenanceService;
 
     @Transactional
-    public void saveWorker(WorkerCreateRequestDTO workerCreateRequestDTO) {
+    public void saveWorker(WorkerCreateRequestDto workerCreateRequestDto) {
         Optional<LocationEntity> location = locationRepository
-                .findLocationByLocationName(workerCreateRequestDTO.getLocationName());
+                .findLocationByLocationName(workerCreateRequestDto.getLocationName());
 
         if (location.isEmpty()) {
             throw new MedHubServiceException("Location not found");
         } else {
-            var encryptedPassword = passwordEncoder.encode(workerCreateRequestDTO.getPassword());
-            Worker worker = workerMapper.toWorker(workerCreateRequestDTO, encryptedPassword);
+            var encryptedPassword = passwordEncoder.encode(workerCreateRequestDto.getPassword());
+            Worker worker = workerMapper.toWorker(workerCreateRequestDto, encryptedPassword);
             worker.setAuthority(Authority.ROLE_WORKER);
             worker.setLocation(location.get());
             Worker savedWorker = workerRepository.save(worker);
@@ -82,6 +83,7 @@ public class WorkersService {
 
     @Transactional(readOnly = true)
     public Page<AppointmentsDto> getAppointmentsForCurrentWorker(Pageable pageable) {
+        appointmentMaintenanceService.markPastAppointmentsCompleted();
         Worker worker = securityService.getCurrentWorker();
         return appointmentsRepository
                 .findAllByLocationAndPatientIsNotNullOrderByDateAscTimeAsc(worker.getLocation(), pageable)

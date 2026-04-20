@@ -40,6 +40,7 @@ const DoctorSchedule = () => {
                     visitDateTime: formattedDate,
                     visitStatus: appointment.appointmentStatus,
                     visitType: appointment.appointmentType,
+                    rescheduleReason: appointment.rescheduleReason || "",
                 };
             });
 
@@ -92,6 +93,7 @@ const DoctorSchedule = () => {
         },
         { field: "visitStatus", headerName: "Visit Status", width: 130, editable: false },
         { field: "visitType", headerName: "Visit Type", width: 90, editable: false },
+        { field: "rescheduleReason", headerName: "Reschedule Reason", width: 220, editable: false },
         {
             field: "addNote",
             headerName: "Add Note",

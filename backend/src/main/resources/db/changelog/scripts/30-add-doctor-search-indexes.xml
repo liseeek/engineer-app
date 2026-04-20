@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+    <changeSet author="lissz" id="30-add-doctor-search-indexes" dbms="postgresql">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="users"/>
+        </preConditions>
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_users_lower_surname ON users (LOWER(surname));
+        </sql>
+        <sql>
+            CREATE INDEX IF NOT EXISTS idx_users_lower_name ON users (LOWER(name));
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,7 +1,7 @@
 package com.example.medhub.service;
 
 import com.example.medhub.AbstractIntegrationTest;
-import com.example.medhub.dto.AppointmentsDto;
+import com.example.medhub.dto.response.AppointmentsDto;
 import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.enums.Authority;

@@ -1,7 +1,7 @@
 package com.example.medhub.service;
 
-import com.example.medhub.dto.DoctorDto;
-import com.example.medhub.dto.SpecializationDto;
+import com.example.medhub.dto.response.DoctorDto;
+import com.example.medhub.dto.response.SpecializationDto;
 import com.example.medhub.dto.request.DoctorCreateRequestDto;
 import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
@@ -12,6 +12,7 @@ import com.example.medhub.mapper.LocationMapper;
 import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.SpecializationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,10 +21,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -81,7 +85,7 @@ class DoctorCrudServiceTest {
         savedDoctor.setLocations(List.of(location));
 
         List<SpecializationDto> specDtos = List.of(new SpecializationDto(1L, "Cardiology"));
-        DoctorDto doctorDto = new DoctorDto(10L, "Jan", "Kowalski", null, specDtos);
+        DoctorDto doctorDto = new DoctorDto(10L, "Jan", "Kowalski", null, null, null, specDtos);
 
         when(locationRepository.findLocationByLocationName(any())).thenReturn(Optional.of(location));
         when(specializationRepository.findById(1L)).thenReturn(Optional.of(specialization));
@@ -114,11 +118,62 @@ class DoctorCrudServiceTest {
     }
 
     @Test
+    void getDoctorById_found_returnsDto() {
+        Doctor doctor = new Doctor();
+        doctor.setUserId(5L);
+        DoctorDto dto = new DoctorDto(5L, "Anna", "Nowak", null, null, null, List.of());
+
+        when(doctorRepository.findById(5L)).thenReturn(Optional.of(doctor));
+        when(doctorMapper.toDoctorDto(doctor)).thenReturn(dto);
+
+        DoctorDto result = doctorCrudService.getDoctorById(5L);
+
+        assertThat(result.doctorId()).isEqualTo(5L);
+    }
+
+    @Test
+    void getDoctorById_notFound_throwsEntityNotFoundException() {
+        when(doctorRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> doctorCrudService.getDoctorById(99L))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void searchDoctors_returnsPageOfDtos() {
+        Doctor doctor = new Doctor();
+        doctor.setUserId(1L);
+        DoctorDto dto = new DoctorDto(1L, "Greg", "House", null, null, null, List.of());
+        PageRequest pageable = PageRequest.of(0, 20);
+
+        when(doctorRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(doctor)));
+        when(doctorMapper.toDoctorDto(doctor)).thenReturn(dto);
+
+        var result = doctorCrudService.searchDoctors("Warsaw", 1L, "Hou", pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).surname()).isEqualTo("House");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void searchDoctors_noFilters_returnsAllVerified() {
+        when(doctorRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        var result = doctorCrudService.searchDoctors(null, null, null, PageRequest.of(0, 20));
+
+        assertThat(result.getContent()).isEmpty();
+    }
+
+    @Test
     void getAllDoctors_success() {
         Doctor doctor = new Doctor();
         doctor.setSurname("House");
 
-        DoctorDto doctorDto = new DoctorDto(1L, "Gregory", "House", null, List.of());
+        DoctorDto doctorDto = new DoctorDto(1L, "Gregory", "House", null, null, null, List.of());
 
         when(doctorRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(doctor)));
         when(doctorMapper.toDoctorDto(doctor)).thenReturn(doctorDto);

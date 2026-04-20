@@ -1,6 +1,6 @@
 package com.example.medhub.service;
 
-import com.example.medhub.dto.request.WorkerCreateRequestDTO;
+import com.example.medhub.dto.request.WorkerCreateRequestDto;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.Worker;
 import com.example.medhub.exceptions.MedHubServiceException;
@@ -49,6 +49,8 @@ class WorkersServiceTest {
     private ApplicationEventPublisher eventPublisher;
     @Mock
     private SecurityService securityService;
+    @Mock
+    private AppointmentMaintenanceService appointmentMaintenanceService;
 
     @InjectMocks
     private WorkersService workersService;
@@ -56,7 +58,7 @@ class WorkersServiceTest {
     @Test
     void saveWorker_ShouldSaveWorker_WhenLocationExists() {
         String locationName = "Gdańsk";
-        WorkerCreateRequestDTO worker = new WorkerCreateRequestDTO();
+        WorkerCreateRequestDto worker = new WorkerCreateRequestDto();
         worker.setLocationName(locationName);
         worker.setPassword("secretPassword");
         worker.setPasswordConfirmation("secretPassword");
@@ -88,7 +90,7 @@ class WorkersServiceTest {
     @Test
     void saveWorker_ShouldThrowException_WhenLocationNotFound() {
         String locationName = "Narnia";
-        WorkerCreateRequestDTO request = new WorkerCreateRequestDTO();
+        WorkerCreateRequestDto request = new WorkerCreateRequestDto();
         request.setLocationName(locationName);
 
         when(locationRepository.findLocationByLocationName(locationName)).thenReturn(Optional.empty());

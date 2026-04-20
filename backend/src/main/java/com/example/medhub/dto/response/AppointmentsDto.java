@@ -1,4 +1,4 @@
-package com.example.medhub.dto;
+package com.example.medhub.dto.response;
 
 import com.example.medhub.enums.AppointmentStatus;
 import com.example.medhub.enums.AppointmentType;
@@ -8,5 +8,5 @@ import java.time.LocalTime;
 
 public record AppointmentsDto(Long appointmentId, UserDto user, DoctorDto doctor, LocalDate date, LocalTime time,
                               LocationDto location, AppointmentStatus appointmentStatus,
-                              AppointmentType appointmentType) {
+                              AppointmentType appointmentType, String rescheduleReason) {
 }

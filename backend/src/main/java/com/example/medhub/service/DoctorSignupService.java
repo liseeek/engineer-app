@@ -5,7 +5,7 @@ import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.SpecializationEntity;
 import com.example.medhub.enums.Authority;
 import com.example.medhub.enums.DoctorVerificationStatus;
-import com.example.medhub.config.MedHubProperties;
+import com.example.medhub.configuration.MedHubProperties;
 import com.example.medhub.exceptions.UnauthorizedOperationException;
 import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.SpecializationRepository;

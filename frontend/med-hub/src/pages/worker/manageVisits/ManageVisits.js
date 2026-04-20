@@ -6,21 +6,49 @@ import { request, unwrapPage } from "../../../helpers/axiosHelper";
 import Box from '@mui/material/Box';
 import CancelIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { DataGrid, GridActionsCellItem, } from '@mui/x-data-grid';
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
 import { toast, ToastContainer } from "react-toastify";
+import RescheduleDialog from "../../../components/RescheduleDialog";
+import { toDateTimeKey } from "../../../helpers/dateTimeSort";
 
 const ManageVisits = () => {
     const [rows, setRows] = useState([]);
     const [openCancelDialog, setOpenCancelDialog] = useState(false);
     const [appointmentToCancel, setAppointmentToCancel] = useState(null);
     const [cancelReason, setCancelReason] = useState('');
+    const [openRescheduleDialog, setOpenRescheduleDialog] = useState(false);
+    const [appointmentToReschedule, setAppointmentToReschedule] = useState(null);
+
+    useEffect(() => {
+        // #region agent log
+        fetch('http://127.0.0.1:7659/ingest/b51b0a01-b793-442c-a3aa-1b3ff4899381',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d2a8b'},body:JSON.stringify({sessionId:'3d2a8b',runId:'run-worker-visits-1',hypothesisId:'H0',location:'ManageVisits.js:component:mounted',message:'ManageVisits component mounted',data:{},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        const handler = (event) => {
+            // #region agent log
+            fetch('http://127.0.0.1:7659/ingest/b51b0a01-b793-442c-a3aa-1b3ff4899381',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d2a8b'},body:JSON.stringify({sessionId:'3d2a8b',runId:'run-worker-visits-1',hypothesisId:'H4',location:'ManageVisits.js:window:error',message:'Runtime error on worker visits page',data:{message:event?.message,filename:event?.filename,lineno:event?.lineno,colno:event?.colno},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
+        };
+        window.addEventListener("error", handler);
+        return () => window.removeEventListener("error", handler);
+    }, []);
 
     const fetchAppointments = async () => {
         try {
+            // #region agent log
+            fetch('http://127.0.0.1:7659/ingest/b51b0a01-b793-442c-a3aa-1b3ff4899381',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d2a8b'},body:JSON.stringify({sessionId:'3d2a8b',runId:'run-worker-visits-1',hypothesisId:'H1',location:'ManageVisits.js:fetchAppointments:start',message:'Starting worker visits fetch',data:{url:'/v1/workers/currentWorker/appointments?size=200'},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
             const response = await request('get', "/v1/workers/currentWorker/appointments?size=200");
+            // #region agent log
+            fetch('http://127.0.0.1:7659/ingest/b51b0a01-b793-442c-a3aa-1b3ff4899381',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d2a8b'},body:JSON.stringify({sessionId:'3d2a8b',runId:'run-worker-visits-1',hypothesisId:'H1',location:'ManageVisits.js:fetchAppointments:response',message:'Received worker visits response',data:{status:response?.status,isArray:Array.isArray(response?.data),hasContentArray:Array.isArray(response?.data?.content),topLevelKeys:Object.keys(response?.data || {}).slice(0,10)},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
+            const rawItems = unwrapPage(response.data);
+            // #region agent log
+            fetch('http://127.0.0.1:7659/ingest/b51b0a01-b793-442c-a3aa-1b3ff4899381',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d2a8b'},body:JSON.stringify({sessionId:'3d2a8b',runId:'run-worker-visits-1',hypothesisId:'H1',location:'ManageVisits.js:fetchAppointments:unwrapped',message:'Unwrapped worker visits payload',data:{count:rawItems.length,sampleKeys:rawItems[0]?Object.keys(rawItems[0]):[]},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
 
-            const transformedData = unwrapPage(response.data).map((appointment) => {
+            const transformedData = rawItems.map((appointment) => {
                 const visitDateTime = new Date(`${appointment.date}T${appointment.time}`);
 
                 const formattedDate = new Intl.DateTimeFormat("en-GB", {
@@ -32,16 +60,27 @@ const ManageVisits = () => {
                 return {
                     id: appointment.appointmentId,
                     doctor: `${appointment.doctor.name} ${appointment.doctor.surname}`,
+                    doctorId: appointment.doctor.doctorId,
+                    locationId: appointment.location.locationId,
                     facility: appointment.location.locationName,
                     address: appointment.location.address,
                     visitDateTime: formattedDate,
+                    rawDate: appointment.date,
+                    rawTime: appointment.time,
+                    visitDateTimeTs: toDateTimeKey(appointment.date, appointment.time),
                     visitStatus: appointment.appointmentStatus,
                     visitType: appointment.appointmentType,
+                    rescheduleReason: appointment.rescheduleReason || "",
                 };
             });
-
             setRows(transformedData);
+            // #region agent log
+            fetch('http://127.0.0.1:7659/ingest/b51b0a01-b793-442c-a3aa-1b3ff4899381',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d2a8b'},body:JSON.stringify({sessionId:'3d2a8b',runId:'run-worker-visits-1',hypothesisId:'H5',location:'ManageVisits.js:fetchAppointments:setRows',message:'Rows prepared for worker DataGrid',data:{rowsCount:transformedData.length,firstRowKeys:transformedData[0]?Object.keys(transformedData[0]):[]},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
         } catch (error) {
+            // #region agent log
+            fetch('http://127.0.0.1:7659/ingest/b51b0a01-b793-442c-a3aa-1b3ff4899381',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d2a8b'},body:JSON.stringify({sessionId:'3d2a8b',runId:'run-worker-visits-1',hypothesisId:'H2',location:'ManageVisits.js:fetchAppointments:catch',message:'Worker visits fetch/mapping failed',data:{status:error?.response?.status,errorMessage:error?.message,responseData:error?.response?.data?JSON.stringify(error.response.data).slice(0,400):null},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion
             toast.error("Failed to fetch appointments. Please try again later.");
         }
     };
@@ -101,22 +140,50 @@ const ManageVisits = () => {
         }
     };
 
+    const canReschedule = (row) => {
+        const isAllowedStatus = row.visitStatus === "ACTIVE" || row.visitStatus === "RESCHEDULED";
+        const rowDate = new Date(`${row.rawDate}T${row.rawTime}`);
+        const now = new Date();
+        return isAllowedStatus && rowDate >= now;
+    };
+
+    const handleRescheduleClick = (row) => () => {
+        setAppointmentToReschedule(row);
+        setOpenRescheduleDialog(true);
+    };
+
+    const handleConfirmReschedule = async (newSlotId, reason) => {
+        await request('post', `/v1/facility/appointments/${appointmentToReschedule.id}/reschedule`, { newSlotId, reason });
+        toast.success("Appointment rescheduled successfully!");
+        await fetchAppointments();
+    };
+
     useEffect(() => {
         fetchAppointments();
     }, []);
+
+    useEffect(() => {
+        // #region agent log
+        fetch('http://127.0.0.1:7659/ingest/b51b0a01-b793-442c-a3aa-1b3ff4899381',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'3d2a8b'},body:JSON.stringify({sessionId:'3d2a8b',runId:'run-worker-visits-1',hypothesisId:'H5',location:'ManageVisits.js:rows:effect',message:'Worker rows state changed',data:{rowsCount:rows.length},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+    }, [rows]);
 
     const columns = [
         { field: "doctor", headerName: "Doctor", width: 180, editable: false },
         { field: "facility", headerName: "Facility", width: 180, editable: false },
         { field: "address", headerName: "Address", width: 180, editable: false },
         {
-            field: "visitDateTime",
+            field: "visitDateTimeTs",
             headerName: "Visit Date & Time",
             width: 150,
             editable: false,
+            valueGetter: (_value, row) => row?.visitDateTimeTs ?? Number.POSITIVE_INFINITY,
+            sortComparator: (value1, value2) => value1 - value2,
+            renderCell: (params) => params?.row?.visitDateTime ?? "",
         },
         { field: "visitStatus", headerName: "Visit Status", width: 130, editable: false },
         { field: "visitType", headerName: "Visit Type", width: 90, editable: false },
+        { field: "rescheduleReason", headerName: "Reschedule Reason", width: 220, editable: false },
         {
             field: "doneAction",
             headerName: "Complete",
@@ -144,6 +211,22 @@ const ManageVisits = () => {
                     className="textPrimary"
                     onClick={handleCancelClick(id)}
                     color="inherit"
+                />,
+            ],
+        },
+        {
+            field: "rescheduleAction",
+            headerName: "Reschedule",
+            width: 120,
+            type: "actions",
+            getActions: ({ row }) => [
+                <GridActionsCellItem
+                    icon={<SwapHorizIcon />}
+                    label="Reschedule"
+                    className="textPrimary"
+                    onClick={handleRescheduleClick(row)}
+                    color="inherit"
+                    disabled={!canReschedule(row)}
                 />,
             ],
         },
@@ -176,7 +259,16 @@ const ManageVisits = () => {
                                 },
                             }}
                         >
-                            <DataGrid rows={rows} columns={columns} editMode="row" />
+                            <DataGrid
+                                rows={rows}
+                                columns={columns}
+                                editMode="row"
+                                initialState={{
+                                    sorting: {
+                                        sortModel: [{ field: "visitDateTimeTs", sort: "asc" }],
+                                    },
+                                }}
+                            />
                         </Box>
                     </Box>
                 </div>
@@ -203,6 +295,19 @@ const ManageVisits = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <RescheduleDialog
+                open={openRescheduleDialog}
+                onClose={() => {
+                    setOpenRescheduleDialog(false);
+                    setAppointmentToReschedule(null);
+                }}
+                doctorId={appointmentToReschedule?.doctorId}
+                locationId={appointmentToReschedule?.locationId}
+                appointmentType={appointmentToReschedule?.visitType}
+                showReasonField
+                onConfirm={handleConfirmReschedule}
+            />
 
             <ToastContainer position="top-center" autoClose={4000} />
         </AuthenticatedLayout>

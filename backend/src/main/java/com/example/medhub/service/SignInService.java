@@ -3,7 +3,7 @@ package com.example.medhub.service;
 
 import com.example.medhub.configuration.security.jwt.JwtService;
 import com.example.medhub.dto.request.AuthenticationRequest;
-import com.example.medhub.dto.request.AuthenticationResponse;
+import com.example.medhub.dto.response.AuthenticationResponse;
 import com.example.medhub.entity.User;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

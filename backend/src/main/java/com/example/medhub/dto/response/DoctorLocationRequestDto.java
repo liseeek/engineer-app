@@ -1,4 +1,4 @@
-package com.example.medhub.dto;
+package com.example.medhub.dto.response;
 
 public record DoctorLocationRequestDto(
         Long id,

@@ -1,22 +1,28 @@
 package com.example.medhub.service;
 
-import com.example.medhub.dto.DoctorDto;
-import com.example.medhub.dto.LocationDto;
+import com.example.medhub.dto.response.DoctorDto;
+import com.example.medhub.dto.response.LocationDto;
 import com.example.medhub.dto.request.DoctorCreateRequestDto;
+import com.example.medhub.dto.request.OperationType;
 import com.example.medhub.dto.request.UpdateDoctorLocationRequestDto;
+import com.example.medhub.entity.Admin;
 import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.SpecializationEntity;
+import com.example.medhub.entity.User;
 import com.example.medhub.enums.DoctorVerificationStatus;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.mapper.DoctorMapper;
 import com.example.medhub.mapper.LocationMapper;
 import com.example.medhub.repository.DoctorRepository;
+import com.example.medhub.repository.DoctorSpecifications;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.SpecializationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +39,7 @@ public class DoctorCrudService {
     private final SpecializationRepository specializationRepository;
     private final DoctorMapper doctorMapper;
     private final LocationMapper locationMapper;
+    private final SecurityService securityService;
 
     @Transactional
     public DoctorDto saveDoctor(DoctorCreateRequestDto newDoctorDto) {
@@ -87,9 +94,37 @@ public class DoctorCrudService {
         }
     }
 
+    public DoctorDto getDoctorById(Long id) {
+        return doctorRepository.findById(id)
+                .map(doctorMapper::toDoctorDto)
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found: " + id));
+    }
+
+    public Page<DoctorDto> searchDoctors(String city, Long specializationId, String q, Pageable pageable) {
+        Specification<Doctor> spec = DoctorSpecifications.isVerified()
+                .and(DoctorSpecifications.hasCity(city))
+                .and(DoctorSpecifications.hasSpecialization(specializationId))
+                .and(DoctorSpecifications.nameOrSurnameContains(q));
+        return doctorRepository.findAll(spec, pageable).map(doctorMapper::toDoctorDto);
+    }
+
     public Page<DoctorDto> getDoctorsByCityAndSpecialization(String city, Long specializationId, Pageable pageable) {
         return doctorRepository.findByCityAndSpecialization(city, specializationId, pageable)
                 .map(doctorMapper::toDoctorDto);
+    }
+
+    public void updateDoctorLocation(Long id, UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {
+        User current = securityService.getCurrentUser();
+        if (updateDoctorLocationRequestDto.getOperationType() == OperationType.ADD) {
+            if (!(current instanceof Admin)) {
+                throw new MedHubServiceException("Only administrators can add a location directly; workers must send a facility request.");
+            }
+            addLocation(id, updateDoctorLocationRequestDto);
+            return;
+        }
+        if (updateDoctorLocationRequestDto.getOperationType() == OperationType.REMOVE) {
+            removeLocation(id, updateDoctorLocationRequestDto);
+        }
     }
 
     public void addLocation(Long id, UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+    <changeSet author="lissz" id="29-add-doctor-profile-fields">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="doctors"/>
+            <not>
+                <columnExists tableName="doctors" columnName="bio"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="doctors">
+            <column name="bio" type="TEXT"/>
+            <column name="avatar_url" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

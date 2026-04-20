@@ -53,3 +53,7 @@ html, body {
     height: 100%;
     background-color: #0090f8;
 }
+
+body {
+    padding-bottom: 32px;
+}

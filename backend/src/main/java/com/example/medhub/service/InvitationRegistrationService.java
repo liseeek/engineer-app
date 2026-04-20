@@ -1,8 +1,10 @@
 package com.example.medhub.service;
 
 import com.example.medhub.dto.request.InvitationRegistrationRequestDto;
+import com.example.medhub.dto.response.InvitationDetailsDto;
 import com.example.medhub.entity.Invitation;
 import com.example.medhub.enums.InvitationStatus;
+import com.example.medhub.mapper.InvitationMapper;
 import com.example.medhub.repository.InvitationRepository;
 import com.example.medhub.service.strategy.UserRegistrationStrategy;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,13 @@ import java.util.List;
 public class InvitationRegistrationService {
 
     private final InvitationRepository invitationRepository;
+    private final InvitationMapper invitationMapper;
     private final List<UserRegistrationStrategy> registrationStrategies;
+
+    @Transactional(readOnly = true)
+    public InvitationDetailsDto validateInvitation(String token) {
+        return invitationMapper.toInvitationDetails(validateToken(token));
+    }
 
     @Transactional
     public void registerUserWithInvitation(InvitationRegistrationRequestDto request) {

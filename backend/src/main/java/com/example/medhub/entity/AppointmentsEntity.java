@@ -62,6 +62,9 @@ public class AppointmentsEntity {
     @Enumerated(EnumType.STRING)
     private AppointmentType appointmentType;
 
+    @Column(name = "reschedule_reason", length = 500)
+    private String rescheduleReason;
+
     @Version
     private Long version;
 

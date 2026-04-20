@@ -66,6 +66,9 @@ services:
       # Demo/local stack: allow doctor self-signup. Set to false on a public VPS (see README).
       - MEDHUB_DOCTOR_SELF_SIGNUP_ENABLED=${MEDHUB_DOCTOR_SELF_SIGNUP_ENABLED:-true}
       - MEDHUB_APPOINTMENTS_MAX_UPCOMING_PER_PATIENT=${MEDHUB_APPOINTMENTS_MAX_UPCOMING_PER_PATIENT:-5}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.0-flash}
+      - MEDHUB_AI_ENABLED=${MEDHUB_AI_ENABLED:-true}
 
   frontend:
     build:

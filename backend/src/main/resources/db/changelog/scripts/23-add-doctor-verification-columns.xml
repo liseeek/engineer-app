@@ -5,6 +5,11 @@
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
 
     <changeSet id="23-add-doctor-verification" author="lissz">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="doctors" columnName="verification_status"/>
+            </not>
+        </preConditions>
         <addColumn tableName="doctors">
             <column name="verification_status" type="VARCHAR(255)" defaultValue="VERIFIED">
                 <constraints nullable="false"/>

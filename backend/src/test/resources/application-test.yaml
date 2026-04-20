@@ -4,6 +4,16 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  ai:
+    google:
+      genai:
+        api-key: test-key
+        chat:
+          options:
+            model: gemini-2.0-flash
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.google.genai.autoconfigure.GoogleGenAiAutoConfiguration
 
 database:
   admin:
@@ -27,3 +37,5 @@ medhub:
     enabled: true
   appointments:
     max-upcoming-per-patient: 5
+  ai:
+    enabled: false

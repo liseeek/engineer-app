@@ -1,16 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthenticatedLayout from '../../../layouts/AuthenticatedLayout';
+import GlobalSearchBar from '../../../components/GlobalSearchBar';
 import styles from './MainPage.module.css';
 import services from '../../../img/services.svg';
 import doctor from '../../../img/doctor.svg';
+import { getUserRole, request, unwrapPage } from '../../../helpers/axiosHelper';
+import { ROLES } from '../../../helpers/roles';
 
 function MainPage() {
     const navigate = useNavigate();
+    const role = getUserRole();
+    const canUseSearch = role === ROLES.PATIENT || role === ROLES.WORKER;
+    const [locations, setLocations] = useState([]);
+
+    useEffect(() => {
+        if (!canUseSearch) return;
+        let active = true;
+
+        const prefetchSearchData = async () => {
+            try {
+                const locationsResponse = await request('get', '/v1/locations?size=500');
+                if (!active) return;
+                setLocations(unwrapPage(locationsResponse?.data));
+            } catch {
+                if (!active) return;
+                setLocations([]);
+            }
+        };
+
+        prefetchSearchData();
+        return () => {
+            active = false;
+        };
+    }, [canUseSearch]);
+
     return (
-        <AuthenticatedLayout variant="main">
+        <AuthenticatedLayout
+            variant="main"
+            headerCenter={
+                canUseSearch ? <GlobalSearchBar locations={locations} /> : null
+            }
+        >
             <div className={styles.mainPageMessages}></div>
-            <div className={styles.mainPageContentContainer}>
+            <section className={styles.mainPageHero}>
                 <div className={styles.mainPageLeftSection}>
                     <div className={styles.mainPageHealth}>
                         <h1>
@@ -39,7 +72,7 @@ function MainPage() {
                 <div className={styles.mainPageRightSection}>
                     <img src={doctor} alt="Doctor" />
                 </div>
-            </div>
+            </section>
         </AuthenticatedLayout>
     );
 }

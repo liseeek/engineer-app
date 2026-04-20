@@ -37,3 +37,6 @@ out/
 ### VS Code ###
 .vscode/
 .env
+node_modules/
+frontend/med-hub/build/
+postgres-db-data/

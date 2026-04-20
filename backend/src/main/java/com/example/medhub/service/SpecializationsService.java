@@ -1,6 +1,6 @@
 package com.example.medhub.service;
 
-import com.example.medhub.dto.SpecializationDto;
+import com.example.medhub.dto.response.SpecializationDto;
 import com.example.medhub.dto.request.SpecializationCreateRequestDto;
 import com.example.medhub.entity.SpecializationEntity;
 import com.example.medhub.exceptions.MedHubServiceException;

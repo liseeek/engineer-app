@@ -45,6 +45,25 @@ class AvailabilityServiceTest {
     private AvailabilityService availabilityService;
 
     @Test
+    void getAvailability_ShouldPassTodayAndNowTimeAndReturnEmpty_WhenNoSlotsFound() {
+        ArgumentCaptor<LocalDate> todayCaptor = ArgumentCaptor.forClass(LocalDate.class);
+        ArgumentCaptor<LocalTime> nowCaptor = ArgumentCaptor.forClass(LocalTime.class);
+        when(appointmentsRepository.findAppointmentSlotRowsByFilters(
+                eq(1L), eq(10L), eq(AppointmentType.NFZ.name()),
+                any(LocalDate.class), any(LocalTime.class)))
+                .thenReturn(List.of());
+
+        var result = availabilityService.getAvailability("1", "10", AppointmentType.NFZ);
+
+        assertThat(result).isEmpty();
+        verify(appointmentsRepository).findAppointmentSlotRowsByFilters(
+                eq(1L), eq(10L), eq(AppointmentType.NFZ.name()),
+                todayCaptor.capture(), nowCaptor.capture());
+        assertThat(todayCaptor.getValue()).isEqualTo(LocalDate.now());
+        assertThat(nowCaptor.getValue()).isNotNull();
+    }
+
+    @Test
     void createAvailability_ShouldGenerateCorrectSlots_WhenWorkerIsAuthenticated() {
         Worker worker = new Worker();
         LocationEntity location = new LocationEntity();

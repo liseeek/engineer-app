@@ -1,6 +1,6 @@
 package com.example.medhub.controller;
 
-import com.example.medhub.dto.SpecializationDto;
+import com.example.medhub.dto.response.SpecializationDto;
 import com.example.medhub.dto.request.SpecializationCreateRequestDto;
 import com.example.medhub.service.SpecializationsService;
 import io.swagger.v3.oas.annotations.Operation;

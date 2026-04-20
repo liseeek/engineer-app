@@ -50,6 +50,12 @@ public class LocationEntity {
     @Column
     private String email;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "year_established")
+    private Integer yearEstablished;
+
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Worker> workers;
 

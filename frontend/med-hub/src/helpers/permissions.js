@@ -23,6 +23,7 @@ const permissions = {
     [ROLES.DOCTOR]: [
         { label: 'My Schedule', path: '/doctor/schedule', icon: 'fa-solid fa-calendar-days' },
         { label: 'Facility requests', path: '/doctor/facility-requests', icon: 'fa-solid fa-hospital' },
+        { label: 'My Profile', path: '/doctor/profile', icon: 'fa-solid fa-user-pen' },
     ],
 };
 

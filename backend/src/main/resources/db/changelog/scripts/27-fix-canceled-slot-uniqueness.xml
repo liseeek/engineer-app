@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+
+    <changeSet author="lissz" id="27-fix-canceled-slot-uniqueness">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="appointments"/>
+        </preConditions>
+
+        <sql>
+            ALTER TABLE appointments DROP CONSTRAINT IF EXISTS uq_doctors_appointments;
+        </sql>
+
+        <sql>
+            CREATE UNIQUE INDEX IF NOT EXISTS uq_doctors_appointments_active
+            ON appointments (doctor_id, appointment_date, appointment_time)
+            WHERE deleted = false AND appointment_status &lt;&gt; 'CANCELED';
+        </sql>
+    </changeSet>
+</databaseChangeLog>

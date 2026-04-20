@@ -1,4 +1,4 @@
-package com.example.medhub.dto;
+package com.example.medhub.dto.response;
 
 import com.example.medhub.enums.Authority;
 

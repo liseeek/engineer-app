@@ -1,10 +1,10 @@
 package com.example.medhub.controller;
 
-import com.example.medhub.dto.AppointmentsDto;
-import com.example.medhub.dto.DoctorDto;
-import com.example.medhub.dto.LocationDto;
+import com.example.medhub.dto.response.AppointmentsDto;
+import com.example.medhub.dto.response.DoctorDto;
+import com.example.medhub.dto.response.LocationDto;
 import com.example.medhub.dto.request.CreateDoctorLocationRequestDto;
-import com.example.medhub.dto.request.WorkerCreateRequestDTO;
+import com.example.medhub.dto.request.WorkerCreateRequestDto;
 import com.example.medhub.entity.Worker;
 import com.example.medhub.service.DoctorLocationRequestService;
 import com.example.medhub.service.SecurityService;
@@ -41,8 +41,8 @@ public class WorkersController {
             @ApiResponse(responseCode = "201", description = "New worker created successfully."),
             @ApiResponse(responseCode = "400", description = "Worker already exists.")
     })
-    public ResponseEntity<?> addWorker(@Valid @RequestBody WorkerCreateRequestDTO workerCreateRequestDTO) {
-        workersService.saveWorker(workerCreateRequestDTO);
+    public ResponseEntity<?> addWorker(@Valid @RequestBody WorkerCreateRequestDto workerCreateRequestDto) {
+        workersService.saveWorker(workerCreateRequestDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

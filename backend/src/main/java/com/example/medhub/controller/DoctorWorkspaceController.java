@@ -1,10 +1,13 @@
 package com.example.medhub.controller;
 
-import com.example.medhub.dto.AppointmentsDto;
-import com.example.medhub.dto.DoctorLocationRequestDto;
-import com.example.medhub.dto.VisitNoteRequestDto;
+import com.example.medhub.dto.response.AppointmentsDto;
+import com.example.medhub.dto.response.DoctorDto;
+import com.example.medhub.dto.response.DoctorLocationRequestDto;
+import com.example.medhub.dto.request.DoctorOwnProfileUpdateRequestDto;
+import com.example.medhub.dto.request.VisitNoteRequestDto;
 import com.example.medhub.entity.Doctor;
 import com.example.medhub.service.DoctorLocationRequestService;
+import com.example.medhub.service.DoctorOwnProfileService;
 import com.example.medhub.service.DoctorWorkspaceService;
 import com.example.medhub.service.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +36,28 @@ public class DoctorWorkspaceController {
     private final DoctorWorkspaceService doctorWorkspaceService;
     private final DoctorLocationRequestService doctorLocationRequestService;
     private final SecurityService securityService;
+    private final DoctorOwnProfileService doctorOwnProfileService;
+
+    @GetMapping("/me/profile")
+    @Operation(summary = "Get the current doctor's own profile")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile retrieved."),
+            @ApiResponse(responseCode = "403", description = "Forbidden.")
+    })
+    public ResponseEntity<DoctorDto> getOwnProfile() {
+        return ResponseEntity.ok(doctorOwnProfileService.getOwnProfile());
+    }
+
+    @PatchMapping("/me/profile")
+    @Operation(summary = "Update the current doctor's bio and/or avatar URL")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile updated."),
+            @ApiResponse(responseCode = "400", description = "Validation error."),
+            @ApiResponse(responseCode = "403", description = "Forbidden.")
+    })
+    public ResponseEntity<DoctorDto> updateOwnProfile(@Valid @RequestBody DoctorOwnProfileUpdateRequestDto dto) {
+        return ResponseEntity.ok(doctorOwnProfileService.updateOwnProfile(dto));
+    }
 
     @GetMapping("/appointments")
     @Operation(summary = "Get current doctor's schedule")

@@ -1,7 +1,7 @@
 package com.example.medhub.controller;
 
-import com.example.medhub.dto.AppointmentsDto;
-import com.example.medhub.dto.UserListItemDto;
+import com.example.medhub.dto.response.AppointmentsDto;
+import com.example.medhub.dto.response.UserListItemDto;
 import com.example.medhub.dto.request.UserCreateRequestDto;
 import com.example.medhub.service.UsersService;
 import io.swagger.v3.oas.annotations.Operation;

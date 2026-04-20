@@ -1,17 +1,18 @@
 package com.example.medhub.controller;
 
+import com.example.medhub.dto.request.RescheduleRequestDto;
 import com.example.medhub.service.AppointmentsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -32,26 +33,37 @@ public class AppointmentsController {
     }
 
     @PatchMapping("/{id}/cancel")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Cancel an appointment")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Appointment canceled successfully."),
+            @ApiResponse(responseCode = "204", description = "Appointment canceled successfully."),
             @ApiResponse(responseCode = "404", description = "Appointment not found.")
     })
-    public ResponseEntity<?> cancelAppointment(@PathVariable Long id) {
+    public ResponseEntity<Void> cancelAppointment(@PathVariable Long id) {
         appointmentsService.cancelAppointment(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/complete")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Mark an appointment as completed")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Appointment completed successfully."),
+            @ApiResponse(responseCode = "204", description = "Appointment completed successfully."),
             @ApiResponse(responseCode = "404", description = "Appointment not found.")
     })
-    public ResponseEntity<?> completeAppointment(@PathVariable Long id) {
+    public ResponseEntity<Void> completeAppointment(@PathVariable Long id) {
         appointmentsService.completeAppointment(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/reschedule")
+    @Operation(summary = "Reschedule an appointment to a different time slot")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Appointment rescheduled successfully."),
+            @ApiResponse(responseCode = "404", description = "Appointment not found.")
+    })
+    public ResponseEntity<Void> rescheduleAppointment(
+            @PathVariable Long id,
+            @Valid @RequestBody RescheduleRequestDto dto) {
+        appointmentsService.rescheduleAppointment(id, dto.newSlotId());
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,11 +1,12 @@
 package com.example.medhub.controller;
 
 import com.example.medhub.dto.request.AuthenticationRequest;
-import com.example.medhub.dto.request.AuthenticationResponse;
+import com.example.medhub.dto.response.AuthenticationResponse;
 import com.example.medhub.service.SignInService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,8 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", description = "Signed in successfully."),
             @ApiResponse(responseCode = "401", description = "Bad credentials.")
     })
-    public ResponseEntity<AuthenticationResponse> authenticateUser(@RequestBody AuthenticationRequest authenticationRequest) {
+    public ResponseEntity<AuthenticationResponse> authenticateUser(
+            @Valid @RequestBody AuthenticationRequest authenticationRequest) {
         return ResponseEntity.ok(signInService.signIn(authenticationRequest));
     }
 }

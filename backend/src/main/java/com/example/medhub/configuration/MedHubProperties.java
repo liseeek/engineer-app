@@ -1,4 +1,4 @@
-package com.example.medhub.config;
+package com.example.medhub.configuration;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +11,13 @@ public class MedHubProperties {
 
     private DoctorSelfSignup doctorSelfSignup = new DoctorSelfSignup();
     private Appointments appointments = new Appointments();
+    private Ai ai = new Ai();
+
+    @Getter
+    @Setter
+    public static class Ai {
+        private boolean enabled = true;
+    }
 
     @Getter
     @Setter
@@ -29,4 +36,5 @@ public class MedHubProperties {
          */
         private int maxUpcomingPerPatient = 5;
     }
+
 }

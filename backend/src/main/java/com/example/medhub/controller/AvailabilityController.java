@@ -1,12 +1,13 @@
 package com.example.medhub.controller;
 
-import com.example.medhub.dto.AppointmentsDto;
+import com.example.medhub.dto.response.AppointmentsDto;
 import com.example.medhub.dto.request.AvailabilityCreateRequestDto;
 import com.example.medhub.enums.AppointmentType;
 import com.example.medhub.service.AvailabilityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class AvailabilityController {
             @ApiResponse(responseCode = "201", description = "New availability created successfully."),
             @ApiResponse(responseCode = "400", description = "Bad request.")
     })
-    public ResponseEntity<?> addAvailability(@RequestBody AvailabilityCreateRequestDto availabilityCreateRequestDto) {
+    public ResponseEntity<?> addAvailability(@Valid @RequestBody AvailabilityCreateRequestDto availabilityCreateRequestDto) {
         availabilityService.createAvailability(availabilityCreateRequestDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

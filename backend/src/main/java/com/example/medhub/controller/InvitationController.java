@@ -1,7 +1,6 @@
 package com.example.medhub.controller;
 
 import com.example.medhub.dto.response.InvitationDetailsDto;
-import com.example.medhub.entity.Invitation;
 import com.example.medhub.service.InvitationRegistrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,15 +24,7 @@ public class InvitationController {
 
     @GetMapping("/{token}")
     public ResponseEntity<InvitationDetailsDto> validateInvitation(@PathVariable String token) {
-        Invitation invitation = invitationRegistrationService.validateToken(token);
-
-        return ResponseEntity.ok(InvitationDetailsDto.builder()
-                .email(invitation.getEmail())
-                .role(invitation.getRole())
-                .locationName(invitation.getLocation() != null ? invitation.getLocation().getLocationName() : null)
-                .specializationName(invitation.getSpecialization() != null ? invitation.getSpecialization().getSpecializationName() : null)
-                .pwz(invitation.getPwz())
-                .build());
+        return ResponseEntity.ok(invitationRegistrationService.validateInvitation(token));
     }
 
     @PostMapping("/register")

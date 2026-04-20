@@ -1,12 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import AuthenticatedLayout from "../../../layouts/AuthenticatedLayout";
 import styles from "../../../components/Adding.module.css";
 
 import { Autocomplete, Box, MenuItem, TextField } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import { request, unwrapPage } from "../../../helpers/axiosHelper";
+import { isFutureSlot, sortTimeAsc } from "../../../helpers/dateTimeSort";
+import WeekSlotPicker from "./WeekSlotPicker";
+import ConfirmBookingDialog from "./ConfirmBookingDialog";
 
 const Booking = () => {
+    const routerLocation = useLocation();
+    const navigate = useNavigate();
+
     const [booking, setBooking] = useState({
         city: "",
         specializationId: "",
@@ -16,13 +23,16 @@ const Booking = () => {
     });
 
     const [groupedAppointments, setGroupedAppointments] = useState({});
-    const [selectedDate, setSelectedDate] = useState("");
-    const [selectedTime, setSelectedTime] = useState("");
+    const [pendingAppointment, setPendingAppointment] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
 
     const [cities, setCities] = useState([]);
     const [specializations, setSpecializations] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [locations, setLocations] = useState([]);
+
+    // Holds prefill data arriving from the AI widget via router state.
+    const pendingPrefillRef = useRef(null);
 
     useEffect(() => {
         const fetchCities = async () => {
@@ -36,6 +46,57 @@ const Booking = () => {
         fetchCities();
     }, []);
 
+    // Separate ref to hold the prefill doctor id across async loading stages.
+    const pendingDoctorIdRef = useRef(null);
+
+    // Consume prefill data from AI widget or DoctorProfile page (passed via router state).
+    useEffect(() => {
+        const state = routerLocation.state;
+        if (!state?.prefillCity) return;
+
+        setBooking(prev => ({ ...prev, city: state.prefillCity }));
+        if (state.prefillSpecializationId) {
+            pendingPrefillRef.current = {
+                specializationId: state.prefillSpecializationId,
+                specializationName: state.prefillSpecializationName || '',
+                city: state.prefillCity,
+            };
+        }
+        if (state.prefillDoctorId) {
+            pendingDoctorIdRef.current = state.prefillDoctorId;
+        }
+        // Clear router state so F5 does not re-trigger the prefill.
+        navigate(routerLocation.pathname, { replace: true, state: null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Once specializations are loaded, apply the pending prefill specialization.
+    useEffect(() => {
+        const pending = pendingPrefillRef.current;
+        if (!pending) return;
+        if (specializations.length === 0) return;
+
+        const match = specializations.find(s => s.specializationId === pending.specializationId);
+        if (match) {
+            setBooking(prev => ({ ...prev, specializationId: match.specializationId }));
+        } else {
+            toast.warn(`No "${pending.specializationName}" available in ${pending.city}. Please select a specialization manually.`);
+        }
+        pendingPrefillRef.current = null;
+    }, [specializations]);
+
+    // Once doctors are loaded (after city+spec selected), apply the pending prefill doctor.
+    useEffect(() => {
+        const pendingDocId = pendingDoctorIdRef.current;
+        if (!pendingDocId || doctors.length === 0) return;
+
+        const match = doctors.find(d => d.doctorId === pendingDocId);
+        if (match) {
+            setBooking(prev => ({ ...prev, doctorId: match.doctorId }));
+        }
+        pendingDoctorIdRef.current = null;
+    }, [doctors]);
+
     const handleCityChange = (event, newValue) => {
         setBooking({ ...booking, city: newValue });
     };
@@ -44,7 +105,7 @@ const Booking = () => {
         const fetchSpecializations = async () => {
             if (booking.city) {
                 try {
-                    const response = await request('get', `/v1/specializations/by-city?city=${booking.city}`);
+                    const response = await request('get', `/v1/specializations/by-city?city=${encodeURIComponent(booking.city)}`);
                     setSpecializations(response.data);
                 } catch (error) {
                     toast.error("Failed to fetch specializations.");
@@ -110,51 +171,71 @@ const Booking = () => {
         setBooking({ ...booking, appointmentType: event.target.value });
     };
 
-    useEffect(() => {
-        const fetchAppointments = async () => {
-            if (booking.locationId && booking.doctorId && booking.appointmentType) {
-                try {
-                    const response = await request('get', `/v1/availability?locationId=${booking.locationId}&doctorId=${booking.doctorId}&appointmentType=${booking.appointmentType}`);
+    const fetchAppointments = useCallback(async () => {
+        if (!(booking.locationId && booking.doctorId && booking.appointmentType)) {
+            setGroupedAppointments({});
+            return;
+        }
 
-                    const grouped = response.data.reduce((acc, appointment) => {
-                        const date = appointment.date;
-                        if (!acc[date]) acc[date] = [];
-                        acc[date].push(appointment);
-                        return acc;
-                    }, {});
-                    setGroupedAppointments(grouped);
-                } catch (error) {
-                    toast.error("Failed to fetch appointments.");
-                }
-            }
-        };
-        fetchAppointments();
+        try {
+            const response = await request('get', `/v1/availability?locationId=${booking.locationId}&doctorId=${booking.doctorId}&appointmentType=${booking.appointmentType}`);
+            const now = new Date();
+            const grouped = response.data.reduce((acc, appointment) => {
+                if (!isFutureSlot(appointment.date, appointment.time, now)) return acc;
+                const date = appointment.date;
+                if (!acc[date]) acc[date] = [];
+                acc[date].push(appointment);
+                return acc;
+            }, {});
+
+            Object.keys(grouped).forEach((dateKey) => {
+                grouped[dateKey].sort((left, right) => sortTimeAsc(left.time, right.time));
+            });
+            setGroupedAppointments(grouped);
+        } catch (error) {
+            toast.error("Failed to fetch appointments.");
+        }
     }, [booking.locationId, booking.doctorId, booking.appointmentType]);
 
-    const handleDateChange = (event) => {
-        setSelectedDate(event.target.value);
-        setSelectedTime("");
+    useEffect(() => {
+        fetchAppointments();
+    }, [fetchAppointments]);
+
+    const slotsVisible = Boolean(
+        booking.locationId && booking.doctorId && booking.appointmentType
+    );
+
+    const bookingContext = useMemo(() => {
+        const doctor = doctors.find((doc) => doc.doctorId === booking.doctorId);
+        const location = locations.find((loc) => loc.locationId === booking.locationId);
+        return {
+            doctorName: doctor?.fullName || "",
+            locationName: location?.locationName || "",
+            appointmentType: booking.appointmentType,
+        };
+    }, [doctors, locations, booking.doctorId, booking.locationId, booking.appointmentType]);
+
+    const handleSlotSelect = (appointment) => {
+        setPendingAppointment(appointment);
     };
 
-    const handleTimeChange = (event) => {
-        setSelectedTime(event.target.value);
+    const handleConfirmClose = () => {
+        if (submitting) return;
+        setPendingAppointment(null);
     };
 
-    const handleAppointmentSelect = async (appointmentId) => {
+    const handleConfirmBooking = async () => {
+        if (!pendingAppointment) return;
+        setSubmitting(true);
         try {
-            await request('patch', `/v1/appointments/${appointmentId}`);
+            await request('patch', `/v1/appointments/${pendingAppointment.appointmentId}`);
             toast.success("Appointment booked successfully.");
+            setPendingAppointment(null);
+            await fetchAppointments();
         } catch (error) {
-            toast.error("Failed to book appointment.");
-        }
-    };
-
-    const handleBook = async () => {
-        const selectedAppointment = groupedAppointments[selectedDate]?.find(
-            (appointment) => appointment.time === selectedTime
-        );
-        if (selectedAppointment) {
-            await handleAppointmentSelect(selectedAppointment.appointmentId);
+            toast.error(error.response?.data?.message || "Failed to book appointment.");
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -164,7 +245,7 @@ const Booking = () => {
                     <Box
                         sx={{
                             width: "90%",
-                            maxWidth: "600px",
+                            maxWidth: "720px",
                             padding: "20px",
                             backgroundColor: "#fff",
                             borderRadius: "8px",
@@ -258,53 +339,24 @@ const Booking = () => {
                                 <MenuItem value="PRIVATE">PRIVATE</MenuItem>
                                 <MenuItem value="NFZ">NFZ</MenuItem>
                             </TextField>
-                            <TextField
-                                select
-                                label="Select Date"
-                                value={selectedDate}
-                                onChange={handleDateChange}
-                                fullWidth
-                                margin="normal"
-                                required
-                            >
-                                <MenuItem value="" disabled>
-                                    Select a date
-                                </MenuItem>
-                                {Object.keys(groupedAppointments).map((date) => (
-                                    <MenuItem key={date} value={date}>
-                                        {date}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
-                            {selectedDate && (
-                                <TextField
-                                    select
-                                    label="Select Time"
-                                    value={selectedTime}
-                                    onChange={handleTimeChange}
-                                    fullWidth
-                                    margin="normal"
-                                    required
-                                >
-                                    <MenuItem value="" disabled>
-                                        Select a time
-                                    </MenuItem>
-                                    {groupedAppointments[selectedDate]?.map((appointment) => (
-                                        <MenuItem key={appointment.time} value={appointment.time}>
-                                            {appointment.time}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            )}
-                            {selectedTime && (
-                                <button className={styles.addingButton} onClick={handleBook}>
-                                    Book
-                                </button>
+                            {slotsVisible && (
+                                <WeekSlotPicker
+                                    groupedAppointments={groupedAppointments}
+                                    onSelect={handleSlotSelect}
+                                />
                             )}
                         </form>
                         <ToastContainer position="top-center" autoClose={4000} />
                     </Box>
                 </div>
+                <ConfirmBookingDialog
+                    open={Boolean(pendingAppointment)}
+                    appointment={pendingAppointment}
+                    context={bookingContext}
+                    onConfirm={handleConfirmBooking}
+                    onClose={handleConfirmClose}
+                    isSubmitting={submitting}
+                />
         </AuthenticatedLayout>
     );
 };
