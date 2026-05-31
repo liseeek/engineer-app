@@ -18,7 +18,7 @@ git clone https://github.com/liseeek/engineer-app.git
 ```bash
 cp .env.example .env
 ```
-- Open `.env` and provide your secrets (JWT key, encryption key, etc.).
+- Open `.env` and provide your secrets (JWT key, encryption key, etc.). All configuration (backend + frontend build args) lives in the root `.env.example` — there is no separate frontend env file.
 
 **Testing invitation emails with Mailpit (optional, free):**  
 `docker compose` starts a **Mailpit** service. In `.env`, set:
@@ -33,18 +33,34 @@ docker-compose up --build -d
 
 ### 👤 Initial Admin Account
 Upon the first launch, the system automatically creates an administrative account:
-- **Default Email:** `szymon.lis@gmail.com`
+- **Default Email:** `admin@medhub.com`
 - **Password:** Value defined in your `ADMIN_PASSWORD` environment variable.
+
+### 🧪 Demo Accounts
+If the `local` profile is active, the following accounts are automatically created in the database. Their password is the value defined in your `DEMO_PASSWORD` environment variable (defaults to **`password123`** if not set):
+
+| Role | Email | Info |
+|------|-------|------|
+| **Doctor** | `john.doe@medhub.pl` | Cardiology (Warsaw, Krakow) |
+| **Doctor** | `anna.smith@medhub.pl` | Dermatology (Warsaw) |
+| **Doctor** | `michael.brown@medhub.pl` | Orthopedics (Krakow, Gdansk) |
+| **Doctor** | `sarah.johnson@medhub.pl` | Pediatrics (Gdansk) |
+| **Doctor** | `robert.wilson@medhub.pl` | Psychiatry (Zakopane) |
+| **Worker** | `emily.clark@medhub.pl` | City Health Clinic (Warsaw) |
+| **Patient** | `james.miller@medhub.pl` | Standard patient account |
+
 
 ## 🛡️ Security Features
 
 ### Portfolio / abuse-minded defaults
 
 - **Doctor self-registration** is controlled by `medhub.doctor-self-signup.enabled` (env: `MEDHUB_DOCTOR_SELF_SIGNUP_ENABLED`). In `application.yaml` it defaults to **`false`** so a publicly exposed API does not allow unlimited doctor account creation. **`docker-compose`** sets it to **`true`** so a local/demo stack works out of the box; for a public VPS set it to **`false`** in your environment.
-- **Patient booking spam:** each patient can have at most **`MEDHUB_APPOINTMENTS_MAX_UPCOMING_PER_PATIENT`** upcoming visits (today or later, statuses `ACTIVE` / `RESCHEDULED`). This is a simple guardrail; production apps add verification, rate limits, payments, etc. (documented here as the intended trade-off).
+- **Patient booking spam:** each patient can have at most **`MEDHUB_APPOINTMENTS_MAX_UPCOMING_PER_PATIENT`** upcoming visits (today or later, statuses `ACTIVE` / `RESCHEDULED`).
+- **Rate limiting:** sign-in and sign-up are limited to **5 requests per minute per IP** (Bucket4j + Redis). Requires the Redis service from `docker-compose`.
+- **JWT logout:** `POST /v1/logout` blacklists the current token server-side; the frontend calls this before clearing local storage.
 - **Frontend:** the login link to doctor registration is shown only when the UI is built with `REACT_APP_DOCTOR_SIGNUP_ENABLED=true` (default in `docker-compose` build args). Align this with the backend flag when you change either.
 - **Local Spring profile:** `application-local.yaml` enables doctor signup so you can run the backend with `--spring.profiles.active=local` without touching `.env`.
-- **Possible next iteration:** API rate limiting / CAPTCHA; admin-minted one-time tokens for doctor signup instead of a global boolean.
+- **Possible next iteration:** CAPTCHA; admin-minted one-time tokens for doctor signup instead of a global boolean.
 
 MedHub prioritizes data security and privacy through several enterprise-grade features:
 - **Data Encryption:** Sensitive patient data (PESEL) is encrypted using **AES-256 GCM** before storage.
@@ -93,8 +109,8 @@ cd backend
 - **View appointment history**
 - **Manage appointments efficiently**
 
-#### 🤖 AI Smart Assistant
-- **Symptom Checker** — a floating chat widget (visible to patients) powered by **Google Gemini** via **Spring AI**.
+#### 🤖 Symptom Checker
+- A floating chat widget (visible to patients) powered by **Google Gemini** via **Spring AI**.
 - Patients describe their age range, gender, and symptoms; the AI suggests up to 3 medical specializations from the clinic's real catalogue with confidence levels and short reasoning.
 - A medical disclaimer is always displayed; no diagnosis is ever made.
 - Requires a `GEMINI_API_KEY` in your `.env` (free tier at [Google AI Studio](https://aistudio.google.com/apikey)). Set `MEDHUB_AI_ENABLED=false` to disable gracefully.

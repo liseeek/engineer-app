@@ -9,7 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,8 +47,8 @@ public class SpecializationsController {
             @ApiResponse(responseCode = "200", description = "Locations found."),
             @ApiResponse(responseCode = "404", description = "Not Found.")
     })
-    public List<SpecializationDto> getSpecializations() {
-        return specializationsService.getSpecializations();
+    public List<SpecializationDto> getSpecializations(@RequestParam(required = false) String search) {
+        return specializationsService.getSpecializations(search);
     }
 
     @GetMapping("/by-city")
@@ -58,5 +60,17 @@ public class SpecializationsController {
     })
     public List<SpecializationDto> getSpecializationsByCity(@RequestParam String city) {
         return specializationsService.getSpecializationsByCity(city);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete specialization by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Deleted existing specialization."),
+            @ApiResponse(responseCode = "400", description = "Cannot delete because it is in use."),
+            @ApiResponse(responseCode = "404", description = "Not Found.")
+    })
+    public ResponseEntity<?> deleteSpecialization(@PathVariable Long id) {
+        specializationsService.deleteSpecialization(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

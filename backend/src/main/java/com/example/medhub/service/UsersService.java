@@ -51,6 +51,7 @@ public class UsersService {
         userRepository.save(patient);
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<AppointmentsDto> getAppointmentsForCurrentUser() {
         appointmentMaintenanceService.markPastAppointmentsCompleted();
         User user = securityService.getCurrentUser();
@@ -66,5 +67,13 @@ public class UsersService {
             throw new UsernameNotFoundException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void toggleUserStatus(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
+        user.setLocked(!user.isLocked());
+        userRepository.save(user);
     }
 }

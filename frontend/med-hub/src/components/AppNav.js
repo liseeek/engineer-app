@@ -9,9 +9,9 @@ const AppNav = () => {
     const { role, logout } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         if (window.confirm('Are you sure you want to log out?')) {
-            logout();
+            await logout();
             navigate('/');
         }
     };

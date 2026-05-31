@@ -19,9 +19,13 @@ public class InvitationRequestDto {
     @Email(message = "Invalid email format")
     private String email;
 
-    @Pattern(regexp = "WORKER", message = "Role must be WORKER")
+    @Pattern(regexp = "WORKER|DOCTOR", message = "Role must be WORKER or DOCTOR")
     private String role;
 
     @NotNull
     private Long locationId;
+
+    private String pwz;
+
+    private Long specializationId;
 }

@@ -2,14 +2,17 @@ package com.example.medhub.service;
 
 import com.example.medhub.configuration.MedHubProperties;
 import com.example.medhub.enums.AppointmentStatus;
+import com.example.medhub.dto.response.VisitNoteDto;
 import com.example.medhub.entity.Admin;
 import com.example.medhub.entity.AppointmentsEntity;
 import com.example.medhub.entity.Patient;
 import com.example.medhub.entity.User;
+import com.example.medhub.entity.VisitNote;
 import com.example.medhub.entity.Worker;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.exceptions.UnauthorizedOperationException;
 import com.example.medhub.repository.AppointmentsRepository;
+import com.example.medhub.repository.VisitNoteRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,38 @@ public class AppointmentsService {
     private final SecurityService securityService;
     private final MedHubProperties medHubProperties;
     private final AppointmentSlotService appointmentSlotService;
+    private final VisitNoteRepository visitNoteRepository;
+
+    @Transactional(readOnly = true)
+    public VisitNoteDto getVisitNoteForAppointment(Long appointmentId) {
+        User user = securityService.getCurrentUser();
+        AppointmentsEntity appointment = appointmentsRepository.findById(appointmentId)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+
+        if (user instanceof Patient patient) {
+            if (appointment.getPatient() == null || !appointment.getPatient().getUserId().equals(patient.getUserId())) {
+                throw new UnauthorizedOperationException("You can only view notes for your own appointments.");
+            }
+        } else if (user instanceof Worker worker) {
+            if (!worker.getLocation().getLocationId().equals(appointment.getLocation().getLocationId())) {
+                throw new UnauthorizedOperationException("Worker does not belong to the facility where the appointment is scheduled.");
+            }
+        } else if (!(user instanceof Admin) && !appointment.getDoctor().getUserId().equals(user.getUserId())) {
+            throw new UnauthorizedOperationException("You do not have permission to view this note.");
+        }
+
+        return visitNoteRepository.findByAppointment_AppointmentId(appointmentId)
+                .map(note -> new VisitNoteDto(
+                        note.getId(),
+                        appointmentId,
+                        note.getDoctor().getUserId(),
+                        note.getDiagnosis(),
+                        note.getPrescription(),
+                        note.getNotes(),
+                        note.getCreatedAt()
+                ))
+                .orElseThrow(() -> new EntityNotFoundException("Visit note not found for this appointment"));
+    }
 
     @Transactional
     public void addAppointmentToUser(Long appointmentId) {

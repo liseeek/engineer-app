@@ -28,6 +28,7 @@ public class DoctorWorkspaceService {
     private final SecurityService securityService;
     private final AppointmentMaintenanceService appointmentMaintenanceService;
 
+    @Transactional(readOnly = true)
     public List<AppointmentsDto> getMySchedule() {
         appointmentMaintenanceService.markPastAppointmentsCompleted();
         User currentUser = securityService.getCurrentUser();

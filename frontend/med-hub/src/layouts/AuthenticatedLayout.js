@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import AppNav from '../components/AppNav';
-import AiAssistantWidget from '../components/ai/AiAssistantWidget';
+import SymptomCheckerWidget from '../components/symptomChecker/SymptomCheckerWidget';
 import { getUserRole } from '../helpers/axiosHelper';
 import { ROLES } from '../helpers/roles';
 import formStyles from '../components/Adding.module.css';
@@ -33,7 +33,7 @@ function AuthenticatedLayout({ variant = 'form', headerCenter = null, headerRigh
                     </header>
                     <main className={mainStyles.mainPageMain}>{children}</main>
                 </div>
-                {isPatient && <AiAssistantWidget />}
+                {isPatient && <SymptomCheckerWidget />}
             </div>
         );
     }
@@ -50,7 +50,7 @@ function AuthenticatedLayout({ variant = 'form', headerCenter = null, headerRigh
                 <AppNav />
             </header>
             <main className={formStyles.addingMain}>{children}</main>
-            {isPatient && <AiAssistantWidget />}
+            {isPatient && <SymptomCheckerWidget />}
         </div>
     );
 }

@@ -22,6 +22,8 @@ database:
     email: "admin@example.com"
     phoneNumber: "123456789"
     password: "admin"
+  demo:
+    password: "test"
 
 jwt:
   secret:
@@ -32,7 +34,7 @@ medhub:
     encryption:
       key: "00000000000000000000000000000000"
     hashing:
-      salt: "test-salt"
+      salt: "test-salt-long-enough"
   doctor-self-signup:
     enabled: true
   appointments:

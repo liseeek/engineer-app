@@ -2,9 +2,9 @@ import { ROLES } from './roles';
 
 const permissions = {
     [ROLES.ADMIN]: [
-        { label: 'Add Worker', path: '/addWorker', icon: 'fa-regular fa-id-card' },
-        { label: 'Add Location', path: '/addLocation', icon: 'fa-solid fa-house-medical' },
-        { label: 'Delete Location', path: '/deleteLocation', icon: 'fa-solid fa-trash' },
+        { label: 'Verify Doctors', path: '/verify-doctors', icon: 'fa-solid fa-user-check' },
+        { label: 'Manage Specializations', path: '/manage-specializations', icon: 'fa-solid fa-stethoscope' },
+        { label: 'Manage Locations', path: '/manage-locations', icon: 'fa-solid fa-house-medical' },
         { label: 'Send Invitation', path: '/send-invitation', icon: 'fa-solid fa-envelope' },
         { label: 'Manage Users', path: '/manage-users', icon: 'fa-solid fa-users' },
     ],

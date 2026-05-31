@@ -42,7 +42,7 @@ class SecurityServiceTest {
     @Test
     void getCurrentUser_returnsUserFromRepository() {
         SecurityContextHolder.getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken("patient@medhub.com", "secret", List.of()));
+                .setAuthentication(new UsernamePasswordAuthenticationToken("patient@medhub.com", "Password123!", List.of()));
         User patient = new Patient();
         patient.setEmail("patient@medhub.com");
         when(userRepository.findByEmail("patient@medhub.com")).thenReturn(Optional.of(patient));
@@ -55,7 +55,7 @@ class SecurityServiceTest {
     @Test
     void getCurrentUser_throwsWhenUserNotFoundInRepository() {
         SecurityContextHolder.getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken("missing@medhub.com", "secret", List.of()));
+                .setAuthentication(new UsernamePasswordAuthenticationToken("missing@medhub.com", "Password123!", List.of()));
         when(userRepository.findByEmail("missing@medhub.com")).thenReturn(Optional.empty());
 
         MedHubServiceException exception = assertThrows(MedHubServiceException.class, securityService::getCurrentUser);
@@ -66,7 +66,7 @@ class SecurityServiceTest {
     @Test
     void getCurrentUser_throwsWhenAuthenticationIsAnonymous() {
         SecurityContextHolder.getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken("anonymousUser", "secret", List.of()));
+                .setAuthentication(new UsernamePasswordAuthenticationToken("anonymousUser", "Password123!", List.of()));
 
         MedHubServiceException exception = assertThrows(MedHubServiceException.class, securityService::getCurrentUser);
 
@@ -76,7 +76,7 @@ class SecurityServiceTest {
     @Test
     void getCurrentPatient_throwsWhenLoggedUserIsDifferentRole() {
         SecurityContextHolder.getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken("doctor@medhub.com", "secret", List.of()));
+                .setAuthentication(new UsernamePasswordAuthenticationToken("doctor@medhub.com", "Password123!", List.of()));
         User notPatient = new com.example.medhub.entity.Doctor();
         notPatient.setEmail("doctor@medhub.com");
         when(userRepository.findByEmail("doctor@medhub.com")).thenReturn(Optional.of(notPatient));

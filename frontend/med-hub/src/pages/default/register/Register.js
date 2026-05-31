@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Helmet } from "react-helmet";
 import { request } from '../../../helpers/axiosHelper';
 import logo from '../../../img/logo.svg';
@@ -273,6 +273,9 @@ const Register = () => {
                             />
                             <button className={styles.registerButton} type="submit">REGISTER</button>
                         </form>
+                        <Typography sx={{ mt: 2, textAlign: 'center' }}>
+                            <Link to="/">Back to login</Link>
+                        </Typography>
 
                         <ToastContainer position="top-center" autoClose={4000} />
                     </Box>

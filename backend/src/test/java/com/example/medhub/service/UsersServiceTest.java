@@ -58,13 +58,13 @@ class UsersServiceTest {
         request.setName("Jan");
         request.setSurname("Kowalski");
         request.setEmail("jan@medhub.com");
-        request.setPassword("StrongPass1!");
-        request.setPasswordConfirmation("StrongPass1!");
+        request.setPassword("Password123!");
+        request.setPasswordConfirmation("Password123!");
         request.setPhoneNumber("123456789");
         request.setPesel("98010112345");
 
         Patient mappedPatient = new Patient();
-        when(passwordEncoder.encode("StrongPass1!")).thenReturn("hashed-pass");
+        when(passwordEncoder.encode("Password123!")).thenReturn("hashed-pass");
         when(userMapper.toUser(request, "hashed-pass")).thenReturn(mappedPatient);
         when(cryptoService.hash("98010112345")).thenReturn("hashed-pesel");
 

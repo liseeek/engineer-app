@@ -7,6 +7,7 @@ import com.example.medhub.entity.User;
 import com.example.medhub.enums.InvitationStatus;
 import com.example.medhub.repository.InvitationRepository;
 import com.example.medhub.repository.LocationRepository;
+import com.example.medhub.repository.SpecializationRepository;
 import com.example.medhub.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class InvitationCreationService {
     private final InvitationRepository invitationRepository;
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
+    private final SpecializationRepository specializationRepository;
     private final EmailService emailService;
 
     @Transactional
@@ -34,8 +36,8 @@ public class InvitationCreationService {
             throw new IllegalArgumentException("User with this email already exists");
         }
 
-        if (!"WORKER".equalsIgnoreCase(request.getRole())) {
-            throw new IllegalArgumentException("Only WORKER invitations are supported");
+        if (!"WORKER".equalsIgnoreCase(request.getRole()) && !"DOCTOR".equalsIgnoreCase(request.getRole())) {
+            throw new IllegalArgumentException("Only WORKER and DOCTOR invitations are supported");
         }
 
         if (request.getLocationId() == null) {
@@ -44,17 +46,24 @@ public class InvitationCreationService {
         LocationEntity location = locationRepository.findById(request.getLocationId())
                 .orElseThrow(() -> new IllegalArgumentException("Location not found"));
 
-        Invitation invitation = Invitation.builder()
+        Invitation.InvitationBuilder invitationBuilder = Invitation.builder()
                 .email(request.getEmail())
-                .role("WORKER")
+                .role(request.getRole().toUpperCase())
                 .token(UUID.randomUUID().toString())
                 .expiresAt(LocalDateTime.now().plusHours(24))
                 .status(InvitationStatus.PENDING)
                 .createdBy(createdBy)
-                .location(location)
-                .specialization(null)
-                .pwz(null)
-                .build();
+                .location(location);
+
+        if ("DOCTOR".equalsIgnoreCase(request.getRole())) {
+            if (request.getSpecializationId() != null) {
+                invitationBuilder.specialization(specializationRepository.findById(request.getSpecializationId())
+                        .orElseThrow(() -> new IllegalArgumentException("Specialization not found")));
+            }
+            invitationBuilder.pwz(request.getPwz());
+        }
+
+        Invitation invitation = invitationBuilder.build();
 
         invitationRepository.save(invitation);
 

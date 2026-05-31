@@ -2,12 +2,12 @@ package com.example.medhub.service;
 
 import com.example.medhub.configuration.MedHubProperties;
 import com.example.medhub.dto.request.SymptomCheckRequestDto;
-import com.example.medhub.dto.response.AiRecommendation;
+import com.example.medhub.dto.response.SymptomCheckerRecommendation;
 import com.example.medhub.dto.response.SymptomCheckResponseDto;
 import com.example.medhub.entity.SpecializationEntity;
 import com.example.medhub.enums.AgeRange;
 import com.example.medhub.enums.Gender;
-import com.example.medhub.exceptions.AiServiceUnavailableException;
+import com.example.medhub.exceptions.SymptomCheckerUnavailableException;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.repository.SpecializationRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,11 +69,11 @@ class SymptomCheckerServiceTest {
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
 
-        AiRecommendation mockAiResponse = new AiRecommendation(List.of(
-                new AiRecommendation.Entry("Cardiology", "HIGH", "Chest pain suggests cardiac evaluation."),
-                new AiRecommendation.Entry("Neurology", "MEDIUM", "Dizziness may indicate neurological causes.")
+        SymptomCheckerRecommendation mockServiceResponse = new SymptomCheckerRecommendation(List.of(
+                new SymptomCheckerRecommendation.Entry("Cardiology", "HIGH", "Chest pain suggests cardiac evaluation."),
+                new SymptomCheckerRecommendation.Entry("Neurology", "MEDIUM", "Dizziness may indicate neurological causes.")
         ));
-        when(callResponseSpec.entity(AiRecommendation.class)).thenReturn(mockAiResponse);
+        when(callResponseSpec.entity(SymptomCheckerRecommendation.class)).thenReturn(mockServiceResponse);
 
         SymptomCheckRequestDto request = new SymptomCheckRequestDto(
                 AgeRange.AGE_31_50, Gender.MALE,
@@ -101,11 +101,11 @@ class SymptomCheckerServiceTest {
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
 
-        AiRecommendation mockAiResponse = new AiRecommendation(List.of(
-                new AiRecommendation.Entry("Cardiology", "HIGH", "Relevant."),
-                new AiRecommendation.Entry("Nonexistent Specialty", "LOW", "Not in our system.")
+        SymptomCheckerRecommendation mockServiceResponse = new SymptomCheckerRecommendation(List.of(
+                new SymptomCheckerRecommendation.Entry("Cardiology", "HIGH", "Relevant."),
+                new SymptomCheckerRecommendation.Entry("Nonexistent Specialty", "LOW", "Not in our system.")
         ));
-        when(callResponseSpec.entity(AiRecommendation.class)).thenReturn(mockAiResponse);
+        when(callResponseSpec.entity(SymptomCheckerRecommendation.class)).thenReturn(mockServiceResponse);
 
         SymptomCheckRequestDto request = new SymptomCheckRequestDto(
                 AgeRange.AGE_18_30, Gender.FEMALE, List.of("Chest pain"), null
@@ -118,7 +118,7 @@ class SymptomCheckerServiceTest {
     }
 
     @Test
-    void analyze_shouldThrowWhenAiDisabled() {
+    void analyze_shouldThrowWhenSymptomCheckerDisabled() {
         medHubProperties.getAi().setEnabled(false);
 
         SymptomCheckRequestDto request = new SymptomCheckRequestDto(
@@ -131,12 +131,12 @@ class SymptomCheckerServiceTest {
     }
 
     @Test
-    void analyze_shouldReturnEmptyListWhenAiReturnsNull() {
+    void analyze_shouldReturnEmptyListWhenServiceReturnsNull() {
         when(specializationRepository.findAll()).thenReturn(List.of());
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
-        when(callResponseSpec.entity(AiRecommendation.class)).thenReturn(null);
+        when(callResponseSpec.entity(SymptomCheckerRecommendation.class)).thenReturn(null);
 
         SymptomCheckRequestDto request = new SymptomCheckRequestDto(
                 AgeRange.OVER_70, Gender.MALE, List.of("Fatigue"), null
@@ -160,13 +160,13 @@ class SymptomCheckerServiceTest {
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
 
-        AiRecommendation mockAiResponse = new AiRecommendation(List.of(
-                new AiRecommendation.Entry("A", "HIGH", "r1"),
-                new AiRecommendation.Entry("B", "HIGH", "r2"),
-                new AiRecommendation.Entry("C", "MEDIUM", "r3"),
-                new AiRecommendation.Entry("D", "LOW", "r4")
+        SymptomCheckerRecommendation mockServiceResponse = new SymptomCheckerRecommendation(List.of(
+                new SymptomCheckerRecommendation.Entry("A", "HIGH", "r1"),
+                new SymptomCheckerRecommendation.Entry("B", "HIGH", "r2"),
+                new SymptomCheckerRecommendation.Entry("C", "MEDIUM", "r3"),
+                new SymptomCheckerRecommendation.Entry("D", "LOW", "r4")
         ));
-        when(callResponseSpec.entity(AiRecommendation.class)).thenReturn(mockAiResponse);
+        when(callResponseSpec.entity(SymptomCheckerRecommendation.class)).thenReturn(mockServiceResponse);
 
         SymptomCheckRequestDto request = new SymptomCheckRequestDto(
                 AgeRange.AGE_51_70, Gender.FEMALE, List.of("Everything hurts"), null
@@ -178,36 +178,36 @@ class SymptomCheckerServiceTest {
     }
 
     @Test
-    void analyze_shouldThrowAiUnavailableWhenGeminiQuotaExceeded() {
+    void analyze_shouldThrowServiceUnavailableWhenQuotaExceeded() {
         when(specializationRepository.findAll()).thenReturn(List.of());
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
-        when(callResponseSpec.entity(AiRecommendation.class)).thenThrow(
+        when(callResponseSpec.entity(SymptomCheckerRecommendation.class)).thenThrow(
                 new RuntimeException("upstream 429 RESOURCE_EXHAUSTED"));
 
         SymptomCheckRequestDto request = new SymptomCheckRequestDto(
                 AgeRange.AGE_31_50, Gender.MALE, List.of("Headache"), null);
 
         assertThatThrownBy(() -> service.analyze(request))
-                .isInstanceOf(AiServiceUnavailableException.class)
+                .isInstanceOf(SymptomCheckerUnavailableException.class)
                 .hasMessageContaining("quota");
     }
 
     @Test
-    void analyze_shouldThrowAiUnavailableWhenGeminiInvalidKey() {
+    void analyze_shouldThrowServiceUnavailableWhenInvalidKey() {
         when(specializationRepository.findAll()).thenReturn(List.of());
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
         when(requestSpec.call()).thenReturn(callResponseSpec);
-        when(callResponseSpec.entity(AiRecommendation.class)).thenThrow(
+        when(callResponseSpec.entity(SymptomCheckerRecommendation.class)).thenThrow(
                 new RuntimeException("API key not valid"));
 
         SymptomCheckRequestDto request = new SymptomCheckRequestDto(
                 AgeRange.AGE_31_50, Gender.MALE, List.of("Headache"), null);
 
         assertThatThrownBy(() -> service.analyze(request))
-                .isInstanceOf(AiServiceUnavailableException.class)
-                .hasMessageContaining("API");
+                .isInstanceOf(SymptomCheckerUnavailableException.class)
+                .hasMessageContaining("rejected");
     }
 }

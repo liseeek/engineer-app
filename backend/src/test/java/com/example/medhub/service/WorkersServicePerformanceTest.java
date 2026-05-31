@@ -68,7 +68,7 @@ class WorkersServicePerformanceTest extends AbstractIntegrationTest {
 
         Worker worker = new Worker();
         worker.setEmail("worker@test.com");
-        worker.setPassword(passwordEncoder.encode("pass"));
+        worker.setPassword(passwordEncoder.encode("Password123!"));
         worker.setName("Worker");
         worker.setSurname("One");
         worker.setPhoneNumber("111");
@@ -85,7 +85,7 @@ class WorkersServicePerformanceTest extends AbstractIntegrationTest {
         doctor.setSurname("Tor");
         doctor.setPwz("9999999");
         doctor.setEmail("doc@test.com");
-        doctor.setPassword("pass");
+        doctor.setPassword("Password123!");
         doctor.setPhoneNumber("999");
         doctor.setAuthority(Authority.ROLE_DOCTOR);
         doctor.setSpecializations(List.of(spec));
@@ -93,7 +93,7 @@ class WorkersServicePerformanceTest extends AbstractIntegrationTest {
 
         Patient user = new Patient();
         user.setEmail("patient@test.com");
-        user.setPassword("pass");
+        user.setPassword("Password123!");
         user.setName("Patient");
         user.setSurname("Zero");
         user.setPhoneNumber("222");

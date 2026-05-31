@@ -58,6 +58,9 @@ public abstract class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Authority authority;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean locked = false;
+
     public Authority getFirstAuthority() {
         return this.authority;
     }
@@ -79,7 +82,7 @@ public abstract class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !locked;
     }
 
     @Override

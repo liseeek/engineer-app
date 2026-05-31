@@ -114,7 +114,7 @@ class LocationsServiceTest {
         when(locationRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(loc1)));
         when(locationMapper.toLocationDto(loc1)).thenReturn(dto1);
 
-        var result = locationsService.getLocations(PageRequest.of(0, 50));
+        var result = locationsService.getLocations(null, PageRequest.of(0, 50));
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).locationName()).isEqualTo("Clinic A");

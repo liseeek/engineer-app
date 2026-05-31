@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { clearAuthStorage, getUserRole, setAuthHeader } from '../helpers/axiosHelper';
+import { clearAuthStorage, getAuthToken, getUserRole, request, setAuthHeader } from '../helpers/axiosHelper';
 
 const AuthContext = createContext(null);
 
@@ -11,9 +11,17 @@ export function AuthProvider({ children }) {
         setRole(authPayload.authority ?? getUserRole());
     }, []);
 
-    const logout = useCallback(() => {
-        clearAuthStorage();
-        setRole(null);
+    const logout = useCallback(async () => {
+        try {
+            if (getAuthToken()) {
+                await request('post', '/v1/logout');
+            }
+        } catch {
+            // ignore — clear local session regardless
+        } finally {
+            clearAuthStorage();
+            setRole(null);
+        }
     }, []);
 
     const refreshRole = useCallback(() => {

@@ -1,5 +1,6 @@
 package com.example.medhub.dto.request;
 
+import com.example.medhub.validation.ValidPassword;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -23,9 +24,11 @@ public class InvitationRegistrationRequestDto {
     private String surname;
 
     @NotBlank(message = "Password is required")
+    @ValidPassword
     private String password;
 
     @NotBlank(message = "Password confirmation is required")
+    @ValidPassword
     private String passwordConfirmation;
 
     @NotBlank(message = "Phone number is required")

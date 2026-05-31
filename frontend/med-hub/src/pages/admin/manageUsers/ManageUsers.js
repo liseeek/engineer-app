@@ -4,8 +4,10 @@ import styles from '../../../components/Adding.module.css';
 
 import { request } from "../../../helpers/axiosHelper";
 import Box from '@mui/material/Box';
-import { TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, Chip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import SearchIcon from '@mui/icons-material/Search';
 import { toast, ToastContainer } from "react-toastify";
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
@@ -31,6 +33,7 @@ const ManageUsers = () => {
             const response = await request('get', `/v1/users?${params.toString()}`);
             const data = response.data;
             const content = data.content ?? [];
+            // content handled
             setRows(
                 content.map((u) => ({
                     id: u.userId,
@@ -39,6 +42,7 @@ const ManageUsers = () => {
                     surname: u.surname ?? '',
                     email: u.email ?? '',
                     authority: u.authority ?? '',
+                    locked: u.locked ?? false,
                 }))
             );
             setRowCount(typeof data.totalElements === 'number' ? data.totalElements : content.length);
@@ -57,20 +61,32 @@ const ManageUsers = () => {
     };
 
     const handleDeleteClick = (id) => () => {
-        setUserToDelete(id);
+        const user = rows.find(r => r.id === id);
+        setUserToDelete(user);
         setOpenDeleteDialog(true);
     };
 
     const handleConfirmDelete = async () => {
+        if (!userToDelete) return;
         try {
-            await request('delete', `/v1/users/${userToDelete}`);
+            await request('delete', `/v1/users/${userToDelete.id}`);
             toast.success('User deleted successfully!');
             setOpenDeleteDialog(false);
             setUserToDelete(null);
             await fetchUsers();
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to delete user. Please try again later.');
+            toast.error(error.response?.data?.message || 'Failed to delete user.');
             setOpenDeleteDialog(false);
+        }
+    };
+
+    const handleToggleLock = (id) => async () => {
+        try {
+            await request('patch', `/v1/users/${id}/status`);
+            toast.success('User status updated successfully!');
+            await fetchUsers();
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to update user status.');
         }
     };
 
@@ -79,13 +95,33 @@ const ManageUsers = () => {
         { field: 'name', headerName: 'Name', width: 140, flex: 0.5 },
         { field: 'surname', headerName: 'Surname', width: 140, flex: 0.5 },
         { field: 'email', headerName: 'Email', minWidth: 220, flex: 1 },
-        { field: 'authority', headerName: 'Role', width: 160 },
+        { field: 'authority', headerName: 'Role', width: 140 },
+        {
+            field: 'locked',
+            headerName: 'Status',
+            width: 120,
+            renderCell: (params) => (
+                <Chip
+                    label={params.value ? "Locked" : "Active"}
+                    color={params.value ? "error" : "success"}
+                    size="small"
+                    variant="outlined"
+                />
+            )
+        },
         {
             field: 'actions',
             headerName: 'Actions',
             width: 100,
             type: 'actions',
-            getActions: ({ id }) => [
+            getActions: ({ id, row }) => [
+                <GridActionsCellItem
+                    key="toggle-lock"
+                    icon={row.locked ? <LockOpenIcon /> : <LockIcon />}
+                    label={row.locked ? "Unlock" : "Lock"}
+                    onClick={handleToggleLock(id)}
+                    color="inherit"
+                />,
                 <GridActionsCellItem
                     key="delete"
                     icon={<DeleteIcon />}
@@ -122,7 +158,17 @@ const ManageUsers = () => {
                             sx={{ minWidth: 280, flex: 1 }}
                             size="small"
                         />
-                        <Button variant="contained" startIcon={<SearchIcon />} onClick={handleSearchClick}>
+                        <Button 
+                            variant="contained" 
+                            startIcon={<SearchIcon />} 
+                            onClick={handleSearchClick}
+                            sx={{
+                                borderRadius: '10px',
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                px: 3
+                            }}
+                        >
                             Search
                         </Button>
                     </Box>
@@ -150,11 +196,16 @@ const ManageUsers = () => {
             <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
                 <DialogTitle>Confirm deletion</DialogTitle>
                 <DialogContent>
-                    Are you sure you want to delete user ID {userToDelete}? This cannot be undone.
+                    Are you sure you want to delete user <strong>{userToDelete?.name} {userToDelete?.surname}</strong> ({userToDelete?.email})? This action cannot be undone.
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
-                    <Button onClick={handleConfirmDelete} variant="contained" color="error">
+                <DialogActions sx={{ p: 2, gap: 1 }}>
+                    <Button onClick={() => setOpenDeleteDialog(false)} sx={{ borderRadius: '8px', textTransform: 'none' }}>Cancel</Button>
+                    <Button 
+                        onClick={handleConfirmDelete} 
+                        variant="contained" 
+                        color="error"
+                        sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 'bold' }}
+                    >
                         Delete
                     </Button>
                 </DialogActions>

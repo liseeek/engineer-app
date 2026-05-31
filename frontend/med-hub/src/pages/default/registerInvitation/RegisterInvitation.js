@@ -19,7 +19,6 @@ const RegisterInvitation = () => {
         surname: '',
         password: '',
         passwordConfirmation: '',
-        pesel: '',
         phoneNumber: '',
     });
     const [isPasswordFocused, setIsPasswordFocused] = useState(false);
@@ -79,15 +78,7 @@ const RegisterInvitation = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
-        if (name === 'pesel') {
-            const numericValue = value.replace(/\D/g, '');
-            if (numericValue.length <= 11) {
-                setUser({ ...user, [name]: numericValue });
-            }
-        } else {
-            setUser({ ...user, [name]: value });
-        }
+        setUser({ ...user, [name]: value });
     };
 
     const handleSubmit = async (e) => {
@@ -313,16 +304,6 @@ const RegisterInvitation = () => {
                                     )}
                                 </Box>
                             </Collapse>
-                            <TextField
-                                label="PESEL"
-                                name="pesel"
-                                type="text"
-                                fullWidth
-                                margin="normal"
-                                value={user.pesel}
-                                onChange={handleChange}
-                                required
-                            />
                             <TextField
                                 label="Phone Number"
                                 name="phoneNumber"

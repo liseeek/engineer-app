@@ -5,7 +5,7 @@ import com.example.medhub.entity.AppointmentsEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = { DoctorMapper.class })
+@Mapper(componentModel = "spring", uses = { DoctorMapper.class, LocationMapper.class })
 public interface AppointmentsMapper {
 
     @Mapping(source = "patient", target = "user")

@@ -27,10 +27,12 @@ public interface DoctorMapper {
     @Mapping(target = "verifiedAt", ignore = true)
     @Mapping(target = "bio", ignore = true)
     @Mapping(target = "avatarUrl", ignore = true)
+    @Mapping(target = "locked", ignore = true)
     Doctor toDoctor(DoctorCreateRequestDto createRequestDto);
 
     @Mapping(source = "userId", target = "doctorId")
     @Mapping(target = "specializations", expression = "java(mapSpecializationDtos(doctorEntity))")
+    @Mapping(source = "verificationStatus", target = "verificationStatus")
     DoctorDto toDoctorDto(Doctor doctorEntity);
 
     default List<SpecializationDto> mapSpecializationDtos(Doctor doctor) {

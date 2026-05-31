@@ -1,6 +1,7 @@
 package com.example.medhub.controller;
 
 import com.example.medhub.dto.request.RescheduleRequestDto;
+import com.example.medhub.dto.response.VisitNoteDto;
 import com.example.medhub.service.AppointmentsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -9,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +22,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/appointments")
 public class AppointmentsController {
     private final AppointmentsService appointmentsService;
+
+    @GetMapping("/{id}/note")
+    @Operation(summary = "Get visit note for a completed appointment")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Visit note fetched successfully."),
+            @ApiResponse(responseCode = "404", description = "Appointment or note not found.")
+    })
+    public ResponseEntity<VisitNoteDto> getVisitNote(@PathVariable Long id) {
+        return ResponseEntity.ok(appointmentsService.getVisitNoteForAppointment(id));
+    }
 
     @PatchMapping("{id}")
     @Operation(summary = "Make an appointment from availability")

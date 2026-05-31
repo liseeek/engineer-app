@@ -19,7 +19,14 @@ spring:
         format_sql: true
   liquibase:
     enabled: true
-    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
   jackson:
     visibility:
       field: none
@@ -84,6 +91,8 @@ database:
   admin:
     name: "Szymon"
     surname: "Lis"
-    email: "szymon.lis@gmail.com"
+    email: "admin@medhub.com"
     phoneNumber: "123456789"
     password: ${ADMIN_PASSWORD}
+  demo:
+    password: ${DEMO_PASSWORD}

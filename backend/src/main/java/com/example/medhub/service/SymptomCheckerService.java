@@ -2,11 +2,11 @@ package com.example.medhub.service;
 
 import com.example.medhub.configuration.MedHubProperties;
 import com.example.medhub.dto.request.SymptomCheckRequestDto;
-import com.example.medhub.dto.response.AiRecommendation;
+import com.example.medhub.dto.response.SymptomCheckerRecommendation;
 import com.example.medhub.dto.response.SpecializationRecommendation;
 import com.example.medhub.dto.response.SymptomCheckResponseDto;
 import com.example.medhub.entity.SpecializationEntity;
-import com.example.medhub.exceptions.AiServiceUnavailableException;
+import com.example.medhub.exceptions.SymptomCheckerUnavailableException;
 import com.example.medhub.exceptions.MedHubServiceException;
 import com.example.medhub.repository.SpecializationRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class SymptomCheckerService {
 
     public SymptomCheckResponseDto analyze(SymptomCheckRequestDto request) {
         if (!medHubProperties.getAi().isEnabled()) {
-            throw new MedHubServiceException("AI assistant is currently disabled.");
+            throw new MedHubServiceException("Symptom checker is currently disabled.");
         }
 
         List<SpecializationEntity> allSpecs = specializationRepository.findAll();
@@ -54,33 +54,33 @@ public class SymptomCheckerService {
 
         String userMessage = buildUserPrompt(request, specList);
 
-        AiRecommendation aiResponse = callGeminiForRecommendation(userMessage);
+        SymptomCheckerRecommendation serviceResponse = callExternalServiceForRecommendation(userMessage);
 
-        List<SpecializationRecommendation> recommendations = mapToRecommendations(aiResponse, specNameToId);
+        List<SpecializationRecommendation> recommendations = mapToRecommendations(serviceResponse, specNameToId);
 
         return new SymptomCheckResponseDto(recommendations, SymptomCheckResponseDto.DISCLAIMER_TEXT);
     }
 
-    private AiRecommendation callGeminiForRecommendation(String userMessage) {
+    private SymptomCheckerRecommendation callExternalServiceForRecommendation(String userMessage) {
         try {
             return chatClient.prompt()
                     .user(userMessage)
                     .call()
-                    .entity(AiRecommendation.class);
+                    .entity(SymptomCheckerRecommendation.class);
         } catch (Exception e) {
-            log.warn("Symptom checker: Gemini request or structured output failed", e);
+            log.warn("Symptom checker: service request or structured output failed", e);
             String detail = rootCauseMessage(e);
             String lower = detail != null ? detail.toLowerCase() : "";
             if (detail != null && (detail.contains("429") || lower.contains("quota") || lower.contains("resource_exhausted"))) {
-                throw new AiServiceUnavailableException(
-                        "AI quota exceeded or rate limited. Retry later or check your Gemini API plan.");
+                throw new SymptomCheckerUnavailableException(
+                        "Service quota exceeded or rate limited. Retry later or check your API plan.");
             }
             if (lower.contains("api key") || lower.contains("api_key") || lower.contains("permission_denied")) {
-                throw new AiServiceUnavailableException(
-                        "AI service rejected the request (invalid API key or API not enabled for this project).");
+                throw new SymptomCheckerUnavailableException(
+                        "Service rejected the request (invalid API key or API not enabled for this project).");
             }
-            throw new AiServiceUnavailableException(
-                    "AI analysis is temporarily unavailable. If this persists, verify GEMINI_API_KEY and model name.");
+            throw new SymptomCheckerUnavailableException(
+                    "Symptom analysis is temporarily unavailable. If this persists, verify key and model name.");
         }
     }
 
@@ -93,13 +93,13 @@ public class SymptomCheckerService {
     }
 
     private List<SpecializationRecommendation> mapToRecommendations(
-            AiRecommendation aiResponse, Map<String, Long> specNameToId) {
+            SymptomCheckerRecommendation response, Map<String, Long> specNameToId) {
 
-        if (aiResponse == null || aiResponse.recommendations() == null) {
+        if (response == null || response.recommendations() == null) {
             return List.of();
         }
 
-        return aiResponse.recommendations().stream()
+        return response.recommendations().stream()
                 .filter(entry -> specNameToId.containsKey(entry.specializationName().toLowerCase()))
                 .map(entry -> new SpecializationRecommendation(
                         specNameToId.get(entry.specializationName().toLowerCase()),
@@ -110,6 +110,7 @@ public class SymptomCheckerService {
                 .limit(3)
                 .toList();
     }
+
 
     private String buildUserPrompt(SymptomCheckRequestDto request, String availableSpecializations) {
         StringBuilder sb = new StringBuilder();

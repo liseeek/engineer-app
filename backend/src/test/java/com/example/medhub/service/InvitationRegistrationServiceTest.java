@@ -5,6 +5,7 @@ import com.example.medhub.dto.response.InvitationDetailsDto;
 import com.example.medhub.entity.Invitation;
 import com.example.medhub.enums.InvitationStatus;
 import com.example.medhub.mapper.InvitationMapper;
+import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.InvitationRepository;
 import com.example.medhub.service.strategy.UserRegistrationStrategy;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,8 @@ class InvitationRegistrationServiceTest {
     private InvitationMapper invitationMapper;
     @Mock
     private UserRegistrationStrategy workerStrategy;
+    @Mock
+    private DoctorRepository doctorRepository;
 
     @InjectMocks
     private InvitationRegistrationService invitationRegistrationService;
@@ -67,7 +70,7 @@ class InvitationRegistrationServiceTest {
     @Test
     void registerUserWithInvitation_throwsWhenPasswordsDoNotMatch() {
         Invitation invitation = pendingInvitation();
-        InvitationRegistrationRequestDto request = request("Password1!", "Password2!");
+        InvitationRegistrationRequestDto request = request("Password123!", "Password2!");
         when(invitationRepository.findByToken("token-1")).thenReturn(Optional.of(invitation));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -80,12 +83,12 @@ class InvitationRegistrationServiceTest {
     @Test
     void registerUserWithInvitation_throwsWhenNoStrategySupportsRole() {
         Invitation invitation = pendingInvitation();
-        InvitationRegistrationRequestDto request = request("Password1!", "Password1!");
+        InvitationRegistrationRequestDto request = request("Password123!", "Password123!");
         when(invitationRepository.findByToken("token-1")).thenReturn(Optional.of(invitation));
         when(workerStrategy.supports("WORKER")).thenReturn(false);
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> new InvitationRegistrationService(invitationRepository, invitationMapper, List.of(workerStrategy))
+                () -> new InvitationRegistrationService(invitationRepository, invitationMapper, List.of(workerStrategy), doctorRepository)
                         .registerUserWithInvitation(request));
 
         assertEquals("No strategy found for role: WORKER", exception.getMessage());
@@ -94,11 +97,12 @@ class InvitationRegistrationServiceTest {
     @Test
     void registerUserWithInvitation_setsAcceptedStatusWhenStrategyHandlesRole() {
         Invitation invitation = pendingInvitation();
-        InvitationRegistrationRequestDto request = request("Password1!", "Password1!");
+        InvitationRegistrationRequestDto request = request("Password123!", "Password123!");
         InvitationRegistrationService service = new InvitationRegistrationService(
                 invitationRepository,
                 invitationMapper,
-                List.of(workerStrategy));
+                List.of(workerStrategy),
+                doctorRepository);
         when(invitationRepository.findByToken("token-1")).thenReturn(Optional.of(invitation));
         when(workerStrategy.supports("WORKER")).thenReturn(true);
 

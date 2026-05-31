@@ -36,6 +36,7 @@ out/
 
 ### VS Code ###
 .vscode/
+.cursor/
 .env
 node_modules/
 frontend/med-hub/build/

@@ -24,7 +24,17 @@ const DoctorSchedule = () => {
             const response = await request('get', "/v1/doctor/appointments");
 
             const transformedData = response.data.map((appointment) => {
-                const visitDateTime = new Date(`${appointment.date}T${appointment.time}`);
+                // Handle both array [y,m,d] and string formats for date/time
+                const d = Array.isArray(appointment.date) 
+                    ? new Date(appointment.date[0], appointment.date[1] - 1, appointment.date[2])
+                    : new Date(appointment.date);
+                
+                const t = Array.isArray(appointment.time)
+                    ? { h: appointment.time[0], m: appointment.time[1] }
+                    : { h: parseInt(appointment.time.split(':')[0]), m: parseInt(appointment.time.split(':')[1]) };
+
+                const visitDateTime = new Date(d);
+                visitDateTime.setHours(t.h, t.m);
 
                 const formattedDate = new Intl.DateTimeFormat("en-GB", {
                     dateStyle: "short",
@@ -34,9 +44,9 @@ const DoctorSchedule = () => {
 
                 return {
                     id: appointment.appointmentId,
-                    patient: `${appointment.user.name} ${appointment.user.surname}`,
-                    facility: appointment.location.locationName,
-                    address: appointment.location.address,
+                    patient: appointment.user ? `${appointment.user.name} ${appointment.user.surname}` : "No Patient",
+                    facility: appointment.location ? appointment.location.locationName : "N/A",
+                    address: appointment.location ? appointment.location.address : "N/A",
                     visitDateTime: formattedDate,
                     visitStatus: appointment.appointmentStatus,
                     visitType: appointment.appointmentType,

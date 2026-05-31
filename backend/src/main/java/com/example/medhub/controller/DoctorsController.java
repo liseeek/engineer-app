@@ -43,7 +43,7 @@ public class DoctorsController {
     private final DoctorSignupService doctorSignupService;
 
     @PostMapping("/signup")
-    @Operation(summary = "Doctor self-registration (VERIFIED after PWZ format + uniqueness checks)")
+    @Operation(summary = "Doctor self-registration (PENDING until admin verification)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Doctor registered."),
             @ApiResponse(responseCode = "400", description = "Bad request.")
@@ -149,6 +149,18 @@ public class DoctorsController {
             @RequestBody UpdateDoctorLocationRequestDto updateDoctorLocationRequestDto) {
         doctorCrudService.updateDoctorLocation(id, updateDoctorLocationRequestDto);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/verify")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Verify or reject doctor (Admin only)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Doctor status updated."),
+            @ApiResponse(responseCode = "404", description = "Doctor not found.")
+    })
+    public ResponseEntity<Void> verifyDoctor(@PathVariable Long id, @RequestParam DoctorVerificationStatus status) {
+        doctorCrudService.verifyDoctor(id, status);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

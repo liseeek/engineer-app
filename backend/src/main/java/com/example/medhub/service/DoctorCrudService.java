@@ -81,7 +81,9 @@ public class DoctorCrudService {
     }
 
     public Page<DoctorDto> getDoctorsBySpecialization(Long specializationId, Pageable pageable) {
-        return doctorRepository.findDistinctBySpecializations_SpecializationId(specializationId, pageable)
+        Specification<Doctor> spec = DoctorSpecifications.isVerified()
+                .and(DoctorSpecifications.hasSpecialization(specializationId));
+        return doctorRepository.findAll(spec, pageable)
                 .map(doctorMapper::toDoctorDto);
     }
 
@@ -109,7 +111,10 @@ public class DoctorCrudService {
     }
 
     public Page<DoctorDto> getDoctorsByCityAndSpecialization(String city, Long specializationId, Pageable pageable) {
-        return doctorRepository.findByCityAndSpecialization(city, specializationId, pageable)
+        Specification<Doctor> spec = DoctorSpecifications.isVerified()
+                .and(DoctorSpecifications.hasCity(city))
+                .and(DoctorSpecifications.hasSpecialization(specializationId));
+        return doctorRepository.findAll(spec, pageable)
                 .map(doctorMapper::toDoctorDto);
     }
 
@@ -153,5 +158,12 @@ public class DoctorCrudService {
         } else {
             throw new MedHubServiceException("Doctor or Location not found");
         }
+    }
+    @Transactional
+    public void verifyDoctor(Long id, DoctorVerificationStatus status) {
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found: " + id));
+        doctor.setVerificationStatus(status);
+        doctorRepository.save(doctor);
     }
 }

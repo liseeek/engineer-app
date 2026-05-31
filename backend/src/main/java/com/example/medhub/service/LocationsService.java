@@ -16,6 +16,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,12 @@ public class LocationsService {
         }
     }
 
-    public Page<LocationDto> getLocations(Pageable pageable) {
+    @Cacheable(value = "locations", key = "#search + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
+    public Page<LocationDto> getLocations(String search, Pageable pageable) {
+        if (search != null && !search.isBlank()) {
+            return locationRepository.findByLocationNameContainingIgnoreCase(search, pageable)
+                    .map(locationMapper::toLocationDto);
+        }
         return locationRepository.findAll(pageable).map(locationMapper::toLocationDto);
     }
 

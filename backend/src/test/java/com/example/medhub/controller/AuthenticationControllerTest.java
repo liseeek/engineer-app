@@ -6,18 +6,24 @@ import com.example.medhub.dto.request.UserCreateRequestDto;
 import com.example.medhub.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {
+    "spring.cache.type=none"
+})
 class AuthenticationControllerTest extends AbstractIntegrationTest {
 
         @Autowired
@@ -29,16 +35,14 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
         @Autowired
         private UserRepository userRepository;
 
+        @BeforeEach
+        void setup() {
+                userRepository.deleteAll();
+        }
+
         @AfterEach
         void cleanup() {
-                userRepository.findByEmail("jan.kowalski@example.com")
-                                .ifPresent(user -> userRepository.deleteById(user.getUserId()));
-                userRepository.findByEmail("jan.weak@example.com")
-                                .ifPresent(user -> userRepository.deleteById(user.getUserId()));
-                userRepository.findByEmail("anna.nowak@example.com")
-                                .ifPresent(user -> userRepository.deleteById(user.getUserId()));
-                userRepository.findByEmail("piotr.zielinski@example.com")
-                                .ifPresent(user -> userRepository.deleteById(user.getUserId()));
+                userRepository.deleteAll();
         }
 
         @Test
@@ -47,8 +51,8 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
                                 "Jan",
                                 "Kowalski",
                                 "jan.kowalski@example.com",
-                                "StrongPass1!",
-                                "StrongPass1!",
+                                "Password123!",
+                                "Password123!",
                                 "123456789",
                                 null);
 
@@ -78,7 +82,7 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
         @Test
         void shouldFailRegistrationWithDuplicatePesel() throws Exception {
                 UserCreateRequestDto firstUser = new UserCreateRequestDto(
-                                "Jan", "Kowalski", "jan.unique@example.com", "StrongPass1!", "StrongPass1!",
+                                "Jan", "Kowalski", "jan.unique@example.com", "Password123!", "Password123!",
                                 "111222333", "99010112345");
                 mockMvc.perform(post("/v1/users/signup")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -86,7 +90,7 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
                                 .andExpect(status().isCreated());
 
                 UserCreateRequestDto secondUser = new UserCreateRequestDto(
-                                "Anna", "Nowak", "anna.unique@example.com", "StrongPass1!", "StrongPass1!", "444555666",
+                                "Anna", "Nowak", "anna.unique@example.com", "Password123!", "Password123!", "444555666",
                                 "99010112345");
 
                 mockMvc.perform(post("/v1/users/signup")
@@ -101,8 +105,8 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
                                 "Anna",
                                 "Nowak",
                                 "anna.nowak@example.com",
-                                "StrongPass1!",
-                                "StrongPass1!",
+                                "Password123!",
+                                "Password123!",
                                 "987654321",
                                 null);
 
@@ -113,7 +117,7 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
 
                 AuthenticationRequest loginRequest = new AuthenticationRequest(
                                 "anna.nowak@example.com",
-                                "StrongPass1!");
+                                "Password123!");
 
                 mockMvc.perform(post("/v1/signin")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -128,8 +132,8 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
                                 "Piotr",
                                 "Zielinski",
                                 "piotr.zielinski@example.com",
-                                "StrongPass1!",
-                                "StrongPass1!",
+                                "Password123!",
+                                "Password123!",
                                 "123123123",
                                 null);
 
@@ -146,5 +150,45 @@ class AuthenticationControllerTest extends AbstractIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(loginRequest)))
                                 .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        void shouldLogoutAndBlacklistToken() throws Exception {
+                UserCreateRequestDto registerRequest = new UserCreateRequestDto(
+                                "Ewa",
+                                "Kowalska",
+                                "ewa.kowalska@example.com",
+                                "Password123!",
+                                "Password123!",
+                                "555666777",
+                                null);
+
+                mockMvc.perform(post("/v1/users/signup")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(registerRequest)))
+                                .andExpect(status().isCreated());
+
+                AuthenticationRequest loginRequest = new AuthenticationRequest(
+                                "ewa.kowalska@example.com",
+                                "Password123!");
+
+                String jwtToken = mockMvc.perform(post("/v1/signin")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(loginRequest)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.jwtToken", notNullValue()))
+                                .andReturn()
+                                .getResponse()
+                                .getContentAsString();
+
+                String token = objectMapper.readTree(jwtToken).get("jwtToken").asText();
+
+                mockMvc.perform(post("/v1/logout")
+                                .header("Authorization", "Bearer " + token))
+                                .andExpect(status().isNoContent());
+
+                mockMvc.perform(get("/v1/doctors")
+                                .header("Authorization", "Bearer " + token))
+                                .andExpect(status().isForbidden());
         }
 }

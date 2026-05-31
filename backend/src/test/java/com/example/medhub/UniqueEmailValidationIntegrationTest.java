@@ -1,7 +1,6 @@
 package com.example.medhub;
 
 import com.example.medhub.dto.request.UserCreateRequestDto;
-import com.example.medhub.dto.request.WorkerCreateRequestDto;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.Patient;
 import com.example.medhub.entity.Worker;
@@ -44,13 +43,14 @@ class UniqueEmailValidationIntegrationTest extends AbstractIntegrationTest {
         userRepository.deleteAll();
         workerRepository.deleteAll();
 
-        testLocation = locationRepository.findLocationByLocationName("Test Hospital")
+        testLocation = locationRepository.findLocationByLocationName("Test Hospital Email Validation")
                 .orElseGet(() -> {
                     LocationEntity newLocation = new LocationEntity();
-                    newLocation.setLocationName("Test Hospital");
+                    newLocation.setLocationName("Test Hospital Email Validation");
                     newLocation.setAddress("123 Test St");
                     newLocation.setCity("Test City");
                     newLocation.setCountry("Test Country");
+                    newLocation.setPhoneNumber("123456789");
                     return locationRepository.save(newLocation);
                 });
 
@@ -81,8 +81,8 @@ class UniqueEmailValidationIntegrationTest extends AbstractIntegrationTest {
         userDto.setName("Piotr");
         userDto.setSurname("Testowy");
         userDto.setEmail("worker@test.com");
-        userDto.setPassword("Password1$");
-        userDto.setPasswordConfirmation("Password1$");
+        userDto.setPassword("Password123!");
+        userDto.setPasswordConfirmation("Password123!");
         userDto.setPhoneNumber("999888777");
 
         Set<ConstraintViolation<UserCreateRequestDto>> violations = validator.validate(userDto);
@@ -94,32 +94,13 @@ class UniqueEmailValidationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldRejectWorkerRegistration_WhenEmailBelongsToUser() {
-        WorkerCreateRequestDto workerDto = new WorkerCreateRequestDto();
-        workerDto.setName("Maria");
-        workerDto.setSurname("Testowa");
-        workerDto.setEmail("user@test.com");
-        workerDto.setPassword("Password1$");
-        workerDto.setPasswordConfirmation("Password1$");
-        workerDto.setPhoneNumber("777666555");
-        workerDto.setLocationName("Test Hospital");
-
-        Set<ConstraintViolation<WorkerCreateRequestDto>> violations = validator.validate(workerDto);
-
-        assertThat(violations).hasSize(1);
-        ConstraintViolation<WorkerCreateRequestDto> violation = violations.iterator().next();
-        assertThat(violation.getMessage()).isEqualTo("Email already exists");
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("email");
-    }
-
-    @Test
     void shouldAllowUserRegistration_WhenEmailIsUnique() {
         UserCreateRequestDto userDto = new UserCreateRequestDto();
         userDto.setName("Unique");
         userDto.setSurname("User");
         userDto.setEmail("unique@test.com");
-        userDto.setPassword("Password1$");
-        userDto.setPasswordConfirmation("Password1$");
+        userDto.setPassword("Password123!");
+        userDto.setPasswordConfirmation("Password123!");
         userDto.setPhoneNumber("123123123");
 
         Set<ConstraintViolation<UserCreateRequestDto>> violations = validator.validate(userDto);

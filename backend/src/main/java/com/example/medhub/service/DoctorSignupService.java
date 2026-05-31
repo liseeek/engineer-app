@@ -64,9 +64,9 @@ public class DoctorSignupService {
         doctor.setPwz(request.getPwz());
         doctor.setSpecializations(specializations);
         doctor.setAuthority(Authority.ROLE_DOCTOR);
-        doctor.setVerificationStatus(DoctorVerificationStatus.VERIFIED);
+        doctor.setVerificationStatus(DoctorVerificationStatus.PENDING);
 
         doctorRepository.save(doctor);
-        log.info("Doctor self-registered with VERIFIED status: email={}, pwz={}", request.getEmail(), request.getPwz());
+        log.info("Doctor self-registered with PENDING status: email={}, pwz={}", request.getEmail(), request.getPwz());
     }
 }

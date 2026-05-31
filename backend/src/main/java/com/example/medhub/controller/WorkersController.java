@@ -4,7 +4,6 @@ import com.example.medhub.dto.response.AppointmentsDto;
 import com.example.medhub.dto.response.DoctorDto;
 import com.example.medhub.dto.response.LocationDto;
 import com.example.medhub.dto.request.CreateDoctorLocationRequestDto;
-import com.example.medhub.dto.request.WorkerCreateRequestDto;
 import com.example.medhub.entity.Worker;
 import com.example.medhub.service.DoctorLocationRequestService;
 import com.example.medhub.service.SecurityService;
@@ -35,16 +34,7 @@ public class WorkersController {
     private final DoctorLocationRequestService doctorLocationRequestService;
     private final SecurityService securityService;
 
-    @PostMapping("/signup")
-    @Operation(summary = "Create new medical worker")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "New worker created successfully."),
-            @ApiResponse(responseCode = "400", description = "Worker already exists.")
-    })
-    public ResponseEntity<?> addWorker(@Valid @RequestBody WorkerCreateRequestDto workerCreateRequestDto) {
-        workersService.saveWorker(workerCreateRequestDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
+
 
     @GetMapping("/currentWorker/appointments")
     @Operation(summary = "Return all appointments for current worker")

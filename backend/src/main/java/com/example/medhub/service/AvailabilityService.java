@@ -78,7 +78,10 @@ public class AvailabilityService {
 
             DoctorDto doctorDto = new DoctorDto(
                     doctor.getUserId(), doctor.getName(), doctor.getSurname(),
-                    doctor.getBio(), doctor.getAvatarUrl(), List.of(), List.of());
+                    doctor.getEmail(), doctor.getPwz(),
+                    doctor.getBio(), doctor.getAvatarUrl(),
+                    doctor.getVerificationStatus() != null ? doctor.getVerificationStatus().name() : null,
+                    List.of(), List.of());
             LocationDto locationDto = locationMapper.toLocationDto(location);
 
             return new AppointmentsDto(appointmentId, null, doctorDto, date, time, locationDto, status, type, null);

@@ -5,6 +5,7 @@ import com.example.medhub.dto.response.InvitationDetailsDto;
 import com.example.medhub.entity.Invitation;
 import com.example.medhub.enums.InvitationStatus;
 import com.example.medhub.mapper.InvitationMapper;
+import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.InvitationRepository;
 import com.example.medhub.service.strategy.UserRegistrationStrategy;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class InvitationRegistrationService {
     private final InvitationRepository invitationRepository;
     private final InvitationMapper invitationMapper;
     private final List<UserRegistrationStrategy> registrationStrategies;
+    private final DoctorRepository doctorRepository;
 
     @Transactional(readOnly = true)
     public InvitationDetailsDto validateInvitation(String token) {
@@ -35,6 +37,16 @@ public class InvitationRegistrationService {
 
         if (!request.getPassword().equals(request.getPasswordConfirmation())) {
             throw new IllegalArgumentException("Passwords do not match");
+        }
+ 
+        if ("DOCTOR".equalsIgnoreCase(invitation.getRole())) {
+            String pwz = invitation.getPwz() != null ? invitation.getPwz() : request.getPwz();
+            if (pwz == null || pwz.isBlank()) {
+                throw new IllegalArgumentException("PWZ is required for doctor registration");
+            }
+            if (doctorRepository.existsByPwz(pwz)) {
+                throw new IllegalArgumentException("Doctor with this PWZ already exists");
+            }
         }
 
         UserRegistrationStrategy strategy = registrationStrategies.stream()

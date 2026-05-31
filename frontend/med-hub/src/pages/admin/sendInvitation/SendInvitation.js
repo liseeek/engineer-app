@@ -10,60 +10,62 @@ const SendInvitation = () => {
     const [invitation, setInvitation] = useState({
         email: '',
         locationId: '',
+        role: 'WORKER',
+        pwz: '',
+        specializationId: '',
     });
-
+ 
     const [locations, setLocations] = useState([]);
-
+    const [specializations, setSpecializations] = useState([]);
+ 
     useEffect(() => {
-        const fetchLocations = async () => {
+        const fetchData = async () => {
             try {
-                const response = await request('get', '/v1/locations?size=500');
-                if (response.status === 200) {
-                    setLocations(unwrapPage(response.data));
-                }
+                const [locRes, specRes] = await Promise.all([
+                    request('get', '/v1/locations?size=500'),
+                    request('get', '/v1/specializations')
+                ]);
+                if (locRes.status === 200) setLocations(unwrapPage(locRes.data));
+                if (specRes.status === 200) setSpecializations(specRes.data);
             } catch {
-                toast.error('Failed to fetch locations');
+                toast.error('Failed to fetch required data');
             }
         };
-        fetchLocations();
+        fetchData();
     }, []);
-
+ 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setInvitation({ ...invitation, [name]: value });
     };
-
+ 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+ 
         if (!invitation.email || !invitation.locationId) {
             toast.error('Please fill in the email and facility');
             return;
         }
-
+ 
         const payload = {
             email: invitation.email,
-            role: 'WORKER',
+            role: invitation.role,
             locationId: invitation.locationId,
+            pwz: invitation.role === 'DOCTOR' ? invitation.pwz : null,
+            specializationId: invitation.role === 'DOCTOR' ? invitation.specializationId : null,
         };
-
+ 
         try {
             const response = await request('post', '/v1/admin/invitations', payload);
             if (response.status === 200 || response.status === 202) {
                 toast.success('Invitation sent!');
-                setInvitation({ email: '', locationId: '' });
+                setInvitation({ ...invitation, email: '', pwz: '', specializationId: '' });
             }
         } catch (error) {
-            if (error.response) {
-                toast.error(error.response.data.message || 'Failed to send invitation');
-            } else if (error.request) {
-                toast.error('No response from server');
-            } else {
-                toast.error(`Error: ${error.message}`);
-            }
+            toast.error(error.response?.data?.message || 'Failed to send invitation');
         }
     };
-
+ 
     return (
         <AuthenticatedLayout>
             <div className={styles.addingContainer}>
@@ -78,8 +80,23 @@ const SendInvitation = () => {
                         margin: '0 auto',
                     }}
                 >
-                    <h1 className={styles.addingHeader}>Send Worker Invitation</h1>
+                    <h1 className={styles.addingHeader}>Send Invitation</h1>
                     <form onSubmit={handleSubmit}>
+                        <TextField
+                            select
+                            label="Role"
+                            name="role"
+                            fullWidth
+                            margin="normal"
+                            value={invitation.role}
+                            onChange={handleChange}
+                            SelectProps={{ native: true }}
+                            required
+                        >
+                            <option value="WORKER">Worker (Receptionist/Nurse)</option>
+                            <option value="DOCTOR">Doctor</option>
+                        </TextField>
+ 
                         <TextField
                             label="Email"
                             name="email"
@@ -90,6 +107,7 @@ const SendInvitation = () => {
                             onChange={handleChange}
                             required
                         />
+ 
                         <Autocomplete
                             options={locations}
                             getOptionLabel={(option) => option.locationName || ''}
@@ -101,10 +119,39 @@ const SendInvitation = () => {
                                 });
                             }}
                             renderInput={(params) => (
-                                <TextField {...params} label="Facility" fullWidth margin="normal" required />
+                                <TextField {...params} label="Target Facility" fullWidth margin="normal" required />
                             )}
                         />
-                        <button className={styles.addingButton} type="submit">
+ 
+                        {invitation.role === 'DOCTOR' && (
+                            <>
+                                <TextField
+                                    label="PWZ (Doctor License ID)"
+                                    name="pwz"
+                                    fullWidth
+                                    margin="normal"
+                                    value={invitation.pwz}
+                                    onChange={handleChange}
+                                    helperText="Exactly 7 digits (optional here, but required during registration if not provided)"
+                                />
+                                <Autocomplete
+                                    options={specializations}
+                                    getOptionLabel={(option) => option.specializationName || ''}
+                                    value={specializations.find((s) => s.specializationId === invitation.specializationId) || null}
+                                    onChange={(e, newValue) => {
+                                        setInvitation({
+                                            ...invitation,
+                                            specializationId: newValue ? newValue.specializationId : '',
+                                        });
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField {...params} label="Specialization (Primary)" fullWidth margin="normal" />
+                                    )}
+                                />
+                            </>
+                        )}
+ 
+                        <button className={styles.addingButton} type="submit" style={{ marginTop: '20px' }}>
                             SEND INVITATION
                         </button>
                     </form>

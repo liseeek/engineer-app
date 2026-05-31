@@ -85,7 +85,7 @@ class DoctorCrudServiceTest {
         savedDoctor.setLocations(List.of(location));
 
         List<SpecializationDto> specDtos = List.of(new SpecializationDto(1L, "Cardiology"));
-        DoctorDto doctorDto = new DoctorDto(10L, "Jan", "Kowalski", null, null, null, specDtos);
+        DoctorDto doctorDto = new DoctorDto(10L, "Jan", "Kowalski", null, null, null, null, null, List.of(), specDtos);
 
         when(locationRepository.findLocationByLocationName(any())).thenReturn(Optional.of(location));
         when(specializationRepository.findById(1L)).thenReturn(Optional.of(specialization));
@@ -121,7 +121,7 @@ class DoctorCrudServiceTest {
     void getDoctorById_found_returnsDto() {
         Doctor doctor = new Doctor();
         doctor.setUserId(5L);
-        DoctorDto dto = new DoctorDto(5L, "Anna", "Nowak", null, null, null, List.of());
+        DoctorDto dto = new DoctorDto(5L, "Anna", "Nowak", null, null, null, null, null, List.of(), List.of());
 
         when(doctorRepository.findById(5L)).thenReturn(Optional.of(doctor));
         when(doctorMapper.toDoctorDto(doctor)).thenReturn(dto);
@@ -144,7 +144,7 @@ class DoctorCrudServiceTest {
     void searchDoctors_returnsPageOfDtos() {
         Doctor doctor = new Doctor();
         doctor.setUserId(1L);
-        DoctorDto dto = new DoctorDto(1L, "Greg", "House", null, null, null, List.of());
+        DoctorDto dto = new DoctorDto(1L, "Greg", "House", null, null, null, null, null, List.of(), List.of());
         PageRequest pageable = PageRequest.of(0, 20);
 
         when(doctorRepository.findAll(any(Specification.class), any(Pageable.class)))
@@ -173,7 +173,7 @@ class DoctorCrudServiceTest {
         Doctor doctor = new Doctor();
         doctor.setSurname("House");
 
-        DoctorDto doctorDto = new DoctorDto(1L, "Gregory", "House", null, null, null, List.of());
+        DoctorDto doctorDto = new DoctorDto(1L, "Gregory", "House", null, null, null, null, null, List.of(), List.of());
 
         when(doctorRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(doctor)));
         when(doctorMapper.toDoctorDto(doctor)).thenReturn(doctorDto);

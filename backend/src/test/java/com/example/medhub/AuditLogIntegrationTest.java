@@ -74,7 +74,7 @@ class AuditLogIntegrationTest extends AbstractIntegrationTest {
         doctor.setEmail("doc@audit.com");
         doctor.setName("Doc");
         doctor.setSurname("Audit");
-        doctor.setPassword("pass");
+        doctor.setPassword("Password123!");
         doctor.setPhoneNumber("123");
         doctor.setAuthority(Authority.ROLE_DOCTOR);
         doctor.setPwz("7777777");
@@ -83,7 +83,7 @@ class AuditLogIntegrationTest extends AbstractIntegrationTest {
 
         var worker = new Worker();
         worker.setEmail("worker@test.com");
-        worker.setPassword("pass");
+        worker.setPassword("Password123!");
         worker.setName("Work");
         worker.setSurname("Audit");
         worker.setPhoneNumber("456");

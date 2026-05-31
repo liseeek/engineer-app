@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.validation.FieldError;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,9 +23,9 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(AiServiceUnavailableException.class)
-    public ResponseEntity<Object> handleAiServiceUnavailableException(AiServiceUnavailableException ex) {
-        log.warn("AI service unavailable: {}", ex.getMessage());
+    @ExceptionHandler(SymptomCheckerUnavailableException.class)
+    public ResponseEntity<Object> handleSymptomCheckerUnavailableException(SymptomCheckerUnavailableException ex) {
+        log.warn("Symptom checker unavailable: {}", ex.getMessage());
         return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 
@@ -44,6 +45,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex) {
         log.warn("Authentication failed: {}", ex.getMessage());
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+    }
+
+    @ExceptionHandler(AccountStatusException.class)
+    public ResponseEntity<Object> handleAccountStatusException(AccountStatusException ex) {
+        log.warn("Account status exception: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Account is locked or disabled");
     }
 
     @ExceptionHandler(UnauthorizedOperationException.class)

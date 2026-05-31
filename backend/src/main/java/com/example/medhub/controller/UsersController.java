@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -76,5 +77,16 @@ public class UsersController {
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         usersService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/status")
+    @Operation(summary = "Toggle user lock status (admin)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User status toggled successfully."),
+            @ApiResponse(responseCode = "404", description = "User not found.")
+    })
+    public ResponseEntity<?> toggleUserStatus(@PathVariable Long id) {
+        usersService.toggleUserStatus(id);
+        return ResponseEntity.ok().build();
     }
 }

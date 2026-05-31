@@ -1,5 +1,6 @@
 package com.example.medhub.dto.request;
 
+import com.example.medhub.validation.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -23,10 +24,11 @@ public class DoctorSignupRequestDto {
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters")
+    @ValidPassword
     private String password;
 
     @NotBlank(message = "Password confirmation is required")
+    @ValidPassword
     private String passwordConfirmation;
 
     @NotBlank(message = "Name is required")

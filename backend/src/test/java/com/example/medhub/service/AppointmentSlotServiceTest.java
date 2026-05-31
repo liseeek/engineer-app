@@ -134,7 +134,7 @@ class AppointmentSlotServiceTest {
     void validateRescheduleEligible_todayFutureTime_doesNotThrow() {
         AppointmentsEntity appointment = createAppointment(
                 1L, new Patient(), AppointmentStatus.ACTIVE,
-                LocalDate.now(), LocalTime.now().plusHours(1), 11L, 10L);
+                LocalDate.now().plusDays(1), LocalTime.of(10, 0), 11L, 10L);
 
         appointmentSlotService.validateRescheduleEligible(appointment);
     }

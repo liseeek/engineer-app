@@ -28,7 +28,7 @@ jest.mock("../../helpers/axiosHelper", () => ({
     setAuthHeader: jest.fn(),
 }));
 
-import AiAssistantWidget from "./AiAssistantWidget";
+import SymptomCheckerWidget from "./SymptomCheckerWidget";
 
 const CITIES = ["Warsaw", "Krakow", "Gdansk"];
 const RECOMMENDATIONS = [
@@ -38,21 +38,21 @@ const RECOMMENDATIONS = [
 const renderWidget = () =>
     render(
         <MemoryRouter>
-            <AiAssistantWidget />
+            <SymptomCheckerWidget />
         </MemoryRouter>
     );
 
 // Open the widget and wait for step 0 to be visible.
 const openWidget = async () => {
     await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: /AI Assistant/i }));
+        fireEvent.click(screen.getByRole("button", { name: /Symptom Checker/i }));
     });
     await waitFor(() =>
         expect(screen.getByText("Tell us about yourself so we can suggest the right specialist.")).toBeInTheDocument()
     );
 };
 
-describe("AiAssistantWidget", () => {
+describe("SymptomCheckerWidget", () => {
     beforeEach(() => {
         mockRequest.mockReset();
         mockNavigate.mockReset();

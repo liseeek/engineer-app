@@ -69,7 +69,7 @@ const DoctorOwnProfile = () => {
                 elevation={2}
                 sx={{ maxWidth: 640, mx: "auto", mt: 3, p: { xs: 2, sm: 4 }, borderRadius: 3 }}
             >
-                <Typography variant="h4" fontWeight={700} mb={3}>
+                <Typography variant="h4" fontWeight={700} mb={3} textAlign="center">
                     My profile
                 </Typography>
 

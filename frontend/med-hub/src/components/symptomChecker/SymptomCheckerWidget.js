@@ -30,7 +30,7 @@ const AGE_RANGES = [
 
 const CONFIDENCE_COLORS = { HIGH: 'success', MEDIUM: 'warning', LOW: 'default' };
 
-export default function AiAssistantWidget() {
+export default function SymptomCheckerWidget() {
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState(0);
@@ -128,7 +128,7 @@ export default function AiAssistantWidget() {
                             },
                         }),
                     }}
-                    aria-label="AI Assistant"
+                    aria-label="Symptom Checker"
                 >
                     <AutoAwesomeIcon />
                 </Fab>

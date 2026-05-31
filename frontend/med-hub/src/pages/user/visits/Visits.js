@@ -3,14 +3,21 @@ import { useNavigate } from "react-router-dom";
 import {
     Box,
     Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
     Paper,
     Stack,
     Tab,
     Tabs,
     Typography,
+    CircularProgress,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 import AuthenticatedLayout from "../../../layouts/AuthenticatedLayout";
 import AppointmentCard from "./AppointmentCard";
@@ -76,6 +83,10 @@ const Visits = () => {
     const [openRescheduleDialog, setOpenRescheduleDialog] = useState(false);
     const [appointmentToReschedule, setAppointmentToReschedule] = useState(null);
 
+    const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+    const [loadingNote, setLoadingNote] = useState(false);
+    const [currentNote, setCurrentNote] = useState(null);
+
     const fetchAppointments = async () => {
         try {
             const response = await request("get", "/v1/users/currentUser/appointments");
@@ -132,6 +143,21 @@ const Visits = () => {
         await request("patch", `/v1/appointments/${appointmentToReschedule.id}/reschedule`, { newSlotId });
         toast.success("Appointment rescheduled successfully!");
         await fetchAppointments();
+    };
+
+    const handleViewNoteClick = async (id) => {
+        setNoteDialogOpen(true);
+        setLoadingNote(true);
+        setCurrentNote(null);
+        try {
+            const response = await request("get", `/v1/appointments/${id}/note`);
+            setCurrentNote(response.data);
+        } catch (error) {
+            toast.error("Failed to fetch visit note. It might not be available yet.");
+            setNoteDialogOpen(false);
+        } finally {
+            setLoadingNote(false);
+        }
     };
 
     const buckets = useMemo(() => {
@@ -212,6 +238,7 @@ const Visits = () => {
                                     appointment={appointment}
                                     onCancel={handleCancelClick}
                                     onReschedule={handleRescheduleClick}
+                                    onViewNote={handleViewNoteClick}
                                 />
                             ))}
                         </Stack>
@@ -231,6 +258,51 @@ const Visits = () => {
                 showReasonField={false}
                 onConfirm={handleConfirmReschedule}
             />
+
+            <Dialog open={noteDialogOpen} onClose={() => setNoteDialogOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                        <DescriptionIcon color="primary" />
+                        <Typography variant="h6">Visit Note</Typography>
+                    </Stack>
+                </DialogTitle>
+                <DialogContent dividers>
+                    {loadingNote ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                            <CircularProgress />
+                        </Box>
+                    ) : currentNote ? (
+                        <Stack spacing={2}>
+                            <Box>
+                                <Typography variant="subtitle2" color="text.secondary">Diagnosis</Typography>
+                                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                                    {currentNote.diagnosis || "No diagnosis provided."}
+                                </Typography>
+                            </Box>
+                            <Divider />
+                            <Box>
+                                <Typography variant="subtitle2" color="text.secondary">Prescription</Typography>
+                                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                                    {currentNote.prescription || "No prescription provided."}
+                                </Typography>
+                            </Box>
+                            <Divider />
+                            <Box>
+                                <Typography variant="subtitle2" color="text.secondary">Additional Notes</Typography>
+                                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                                    {currentNote.notes || "No additional notes."}
+                                </Typography>
+                            </Box>
+                        </Stack>
+                    ) : (
+                        <Typography color="error">Note details could not be loaded.</Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setNoteDialogOpen(false)}>Close</Button>
+                </DialogActions>
+            </Dialog>
+
             <ToastContainer position="top-center" autoClose={4000} />
         </AuthenticatedLayout>
     );

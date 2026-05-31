@@ -32,6 +32,7 @@ public class AppointmentMaintenanceService {
         return updated;
     }
 
+    @Transactional
     @Scheduled(fixedDelayString = "PT5M", initialDelayString = "PT30S")
     public void scheduledMarkPastAppointmentsCompleted() {
         markPastAppointmentsCompleted();

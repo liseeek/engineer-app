@@ -2,6 +2,7 @@ package com.example.medhub.dto.request;
 
 import com.example.medhub.validation.UniqueEmail;
 import com.example.medhub.validation.UniquePesel;
+import com.example.medhub.validation.ValidPassword;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -36,14 +37,12 @@ public class UserCreateRequestDto {
     private String email;
 
     @NotBlank
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$")
-    @Size(max = 120)
+    @ValidPassword
     @Schema(example = "Password1$")
     private String password;
 
     @NotBlank
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$")
-    @Size(max = 120)
+    @ValidPassword
     @Schema(example = "Password1$")
     private String passwordConfirmation;
 

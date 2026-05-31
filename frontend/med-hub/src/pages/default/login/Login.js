@@ -31,7 +31,7 @@ const Login = () => {
 
                 switch (userRole) {
                     case ROLES.ADMIN:
-                        navigate('/addWorker');
+                        navigate('/verify-doctors');
                         break;
                     case ROLES.PATIENT:
                         navigate('/mainpage');
@@ -62,7 +62,7 @@ const Login = () => {
 
                 switch (userRole) {
                     case ROLES.ADMIN:
-                        navigate('/addWorker');
+                        navigate('/verify-doctors');
                         break;
                     case ROLES.PATIENT:
                         navigate('/mainpage');
@@ -138,8 +138,7 @@ const Login = () => {
                                 required
                             />
                             <button className={styles.loginButton} type="submit">LOGIN</button>
-                            <a className={styles.loginRegisterButton} href="/register">Don't have an account? Sign
-                                up</a>
+                            <Link className={styles.loginRegisterButton} to="/register">Don't have an account? Sign up</Link>
                             {doctorSignupEnabled && (
                                 <Link className={styles.loginRegisterButton} to="/register/doctor" style={{ display: 'block', marginTop: 8 }}>
                                     Are you a doctor? Sign up

@@ -89,7 +89,7 @@ class DoctorOpsIntegrationTest extends AbstractIntegrationTest {
 
         doctor = new Doctor();
         doctor.setEmail("doc@test.com");
-        doctor.setPassword("pass");
+        doctor.setPassword("Password123!");
         doctor.setName("Doc");
         doctor.setSurname("Tor");
         doctor.setPhoneNumber("111");
@@ -109,7 +109,7 @@ class DoctorOpsIntegrationTest extends AbstractIntegrationTest {
 
         worker = new Worker();
         worker.setEmail("worker@test.com");
-        worker.setPassword("pass");
+        worker.setPassword("Password123!");
         worker.setName("Work");
         worker.setSurname("Er");
         worker.setPhoneNumber("222");
@@ -119,7 +119,7 @@ class DoctorOpsIntegrationTest extends AbstractIntegrationTest {
 
         otherWorker = new Worker();
         otherWorker.setEmail("other@test.com");
-        otherWorker.setPassword("pass");
+        otherWorker.setPassword("Password123!");
         otherWorker.setName("Other");
         otherWorker.setSurname("Work");
         otherWorker.setPhoneNumber("333");

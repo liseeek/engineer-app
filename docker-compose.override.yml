@@ -13,7 +13,7 @@ services:
       - BROWSER=none
       - CI=false
       - REACT_APP_API_URL=http://localhost:8080
-      - REACT_APP_DOCTOR_SIGNUP_ENABLED=${REACT_APP_DOCTOR_SIGNUP_ENABLED:-true}
+      - REACT_APP_DOCTOR_SIGNUP_ENABLED=${REACT_APP_DOCTOR_SIGNUP_ENABLED}
     volumes:
       - ./frontend/med-hub:/app
       - /app/node_modules

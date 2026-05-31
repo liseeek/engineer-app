@@ -73,7 +73,7 @@ class AppointmentsConcurrencyTest extends AbstractIntegrationTest {
                     doc.setSurname("Doctor");
                     doc.setPwz("1234567");
                     doc.setEmail("doctor@test.com");
-                    doc.setPassword("pass");
+                    doc.setPassword("Password123!");
                     doc.setPhoneNumber("123456789");
                     doc.setAuthority(Authority.ROLE_DOCTOR);
                     // Avoid ManyToMany cascade PERSIST on spec loaded via findAll (can be detached here).
@@ -84,7 +84,7 @@ class AppointmentsConcurrencyTest extends AbstractIntegrationTest {
         testUser1.setName("Jan");
         testUser1.setSurname("Kowalski");
         testUser1.setEmail("user1@test.com");
-        testUser1.setPassword("password123");
+        testUser1.setPassword("Password123!");
         testUser1.setPhoneNumber("111222333");
         testUser1.setAuthority(Authority.ROLE_PATIENT);
         testUser1 = userRepository.save(testUser1);
@@ -93,7 +93,7 @@ class AppointmentsConcurrencyTest extends AbstractIntegrationTest {
         testUser2.setName("Anna");
         testUser2.setSurname("Nowak");
         testUser2.setEmail("user2@test.com");
-        testUser2.setPassword("password123");
+        testUser2.setPassword("Password123!");
         testUser2.setPhoneNumber("444555666");
         testUser2.setAuthority(Authority.ROLE_PATIENT);
         testUser2 = userRepository.save(testUser2);

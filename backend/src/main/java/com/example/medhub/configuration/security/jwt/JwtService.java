@@ -2,6 +2,8 @@ package com.example.medhub.configuration.security.jwt;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Date;
+
 public interface JwtService {
 
     String extractUserName(String token);
@@ -9,4 +11,6 @@ public interface JwtService {
     String generateToken(UserDetails userDetails);
 
     boolean isTokenValid(String token, UserDetails userDetails);
+
+    Date extractExpiration(String token);
 }

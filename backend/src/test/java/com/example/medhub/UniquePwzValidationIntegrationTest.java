@@ -1,10 +1,13 @@
 package com.example.medhub;
 
 import com.example.medhub.dto.request.DoctorCreateRequestDto;
+import com.example.medhub.entity.Doctor;
 import com.example.medhub.entity.LocationEntity;
 import com.example.medhub.entity.SpecializationEntity;
+import com.example.medhub.repository.DoctorRepository;
 import com.example.medhub.repository.LocationRepository;
 import com.example.medhub.repository.SpecializationRepository;
+import com.example.medhub.repository.UserRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +35,12 @@ class UniquePwzValidationIntegrationTest extends AbstractIntegrationTest {
     private SpecializationRepository specializationRepository;
 
     @Autowired
+    private DoctorRepository doctorRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private Validator validator;
 
     private LocationEntity location;
@@ -39,10 +48,38 @@ class UniquePwzValidationIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        location = locationRepository.findLocationByLocationName("City Health Clinic")
-                .orElseThrow(() -> new IllegalStateException("Expected seeded location City Health Clinic"));
-        specialization = specializationRepository.findSpecializationEntityBySpecializationName("Cardiology")
-                .orElseThrow(() -> new IllegalStateException("Expected seeded specialization Cardiology"));
+        userRepository.deleteAll();
+
+        location = locationRepository.findLocationByLocationName("Unique PWZ Test Clinic")
+                .orElseGet(() -> {
+                    LocationEntity loc = new LocationEntity();
+                    loc.setLocationName("Unique PWZ Test Clinic");
+                    loc.setCity("Warsaw");
+                    loc.setAddress("Test St 1");
+                    loc.setCountry("PL");
+                    loc.setPhoneNumber("123456789");
+                    return locationRepository.save(loc);
+                });
+
+        specialization = specializationRepository.findSpecializationEntityBySpecializationName("UniquePWZ Cardiology")
+                .orElseGet(() -> {
+                    SpecializationEntity spec = new SpecializationEntity();
+                    spec.setSpecializationName("UniquePWZ Cardiology");
+                    return specializationRepository.save(spec);
+                });
+        
+        // Seed a doctor for the "taken" PWZ test
+        if (!doctorRepository.existsByPwz(SEEDED_TAKEN_PWZ)) {
+            Doctor doc = new Doctor();
+            doc.setName("Seeded");
+            doc.setSurname("Doctor");
+            doc.setEmail("seeded-pwz@test.com");
+            doc.setPassword("Password123!");
+            doc.setPwz(SEEDED_TAKEN_PWZ);
+            doc.setPhoneNumber("000000000");
+            doc.setAuthority(com.example.medhub.enums.Authority.ROLE_DOCTOR);
+            doctorRepository.save(doc);
+        }
     }
 
     @Test

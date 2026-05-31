@@ -22,7 +22,7 @@ import static com.example.medhub.enums.Authority.ROLE_PATIENT;
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
         "medhub.security.encryption.key=12345678901234567890123456789012",
-        "medhub.security.hashing.salt=somesalt"
+        "medhub.security.hashing.salt=test-salt-long-enough"
 })
 class EncryptionIntegrationTest extends AbstractIntegrationTest {
 
@@ -111,7 +111,7 @@ class EncryptionIntegrationTest extends AbstractIntegrationTest {
     private Patient createBasePatient(String email, String pesel) {
         Patient patient = new Patient();
         patient.setEmail(email);
-        patient.setPassword("pass");
+        patient.setPassword("Password123!");
         patient.setName("John");
         patient.setSurname("Doe");
         patient.setPhoneNumber("111222333");

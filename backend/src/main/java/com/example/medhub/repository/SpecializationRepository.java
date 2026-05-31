@@ -23,4 +23,6 @@ public interface SpecializationRepository extends JpaRepository<SpecializationEn
             + "INNER JOIN locations l ON dl.location_id = l.location_id "
             + "WHERE l.city = :city", nativeQuery = true)
     List<SpecializationEntity> findDistinctByDoctors_Locations_City(@Param("city") String city);
+
+    List<SpecializationEntity> findBySpecializationNameContainingIgnoreCase(String specializationName);
 }

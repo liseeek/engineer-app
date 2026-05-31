@@ -7,10 +7,9 @@ import MainPage from './pages/user/mainpage/MainPage';
 import AddDoctor from './pages/worker/addDoctor/AddDoctor';
 import Booking from './pages/user/booking/Booking';
 import Visits from './pages/user/visits/Visits';
-import AddWorker from "./pages/admin/addWorker/AddWorker";
+
 import ManageVisits from "./pages/worker/manageVisits/ManageVisits";
-import AddLocation from "./pages/admin/addLocation/AddLocation";
-import DeleteLocation from "./pages/admin/deleteLocation/DeleteLocation";
+import ManageLocations from "./pages/admin/manageLocations/ManageLocations";
 import DeleteDoctor from "./pages/worker/deleteDoctor/DeleteDoctor";
 import UpdateDoctorLocation from "./pages/worker/updateDoctorLocation/UpdateDoctorLocation";
 import AddDoctorAvailability from "./pages/worker/addDoctorAvailability/AddDoctorAvailability";
@@ -23,6 +22,8 @@ import DoctorOwnProfile from "./pages/doctor/profile/DoctorOwnProfile";
 import ManageUsers from "./pages/admin/manageUsers/ManageUsers";
 import DoctorProfile from "./pages/user/doctorProfile/DoctorProfile";
 import LocationProfile from "./pages/user/locationProfile/LocationProfile";
+import VerifyDoctors from "./pages/admin/verifyDoctors/VerifyDoctors";
+import ManageSpecializations from "./pages/admin/manageSpecializations/ManageSpecializations";
 import './global.css'
 import Unauthorized from "./helpers/unauthorized";
 import { ROLES } from './helpers/roles';
@@ -44,11 +45,12 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/mainpage" element={<MainPage />} />
             <Route element={<ProtectedRoute requiredRoles={[ROLES.ADMIN]} />}>
-              <Route path="/addWorker" element={<AddWorker />} />
-              <Route path="/addLocation" element={<AddLocation />} />
-              <Route path="/deleteLocation" element={<DeleteLocation />} />
+
+              <Route path="/manage-locations" element={<ManageLocations />} />
               <Route path="/send-invitation" element={<SendInvitation />} />
               <Route path="/manage-users" element={<ManageUsers />} />
+              <Route path="/verify-doctors" element={<VerifyDoctors />} />
+              <Route path="/manage-specializations" element={<ManageSpecializations />} />
             </Route>
             <Route element={<ProtectedRoute requiredRoles={[ROLES.WORKER]} />}>
               <Route path="/addDoctor" element={<AddDoctor />} />

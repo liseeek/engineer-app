@@ -14,6 +14,7 @@ import CancelIcon from "@mui/icons-material/Close";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import DescriptionIcon from "@mui/icons-material/Description";
 import { formatTimeHm } from "../../../helpers/dateTimeSort";
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
@@ -46,11 +47,12 @@ function StatusChip({ status }) {
     );
 }
 
-export default function AppointmentCard({ appointment, onCancel, onReschedule }) {
+export default function AppointmentCard({ appointment, onCancel, onReschedule, onViewNote }) {
     const visitDate = new Date(`${appointment.rawDate}T${appointment.rawTime}`);
     const isFutureAssigned =
         (appointment.visitStatus === "ACTIVE" || appointment.visitStatus === "RESCHEDULED") &&
         appointment.visitDateTimeTs >= Date.now();
+    const isCompleted = appointment.visitStatus === "COMPLETED";
 
     const doctorFullName = `${appointment.doctor?.name || ""} ${appointment.doctor?.surname || ""}`.trim();
     const doctorSpecs =
@@ -109,25 +111,37 @@ export default function AppointmentCard({ appointment, onCancel, onReschedule })
                             <Chip size="small" variant="outlined" label={appointment.visitType || "Visit"} />
                         </Stack>
 
-                        {isFutureAssigned && (
-                            <Stack direction="row" spacing={1}>
+                        <Stack direction="row" spacing={1}>
+                            {isFutureAssigned && (
+                                <>
+                                    <Button
+                                        size="small"
+                                        startIcon={<SwapHorizIcon />}
+                                        onClick={() => onReschedule?.(appointment)}
+                                    >
+                                        Reschedule
+                                    </Button>
+                                    <Button
+                                        size="small"
+                                        color="error"
+                                        startIcon={<CancelIcon />}
+                                        onClick={() => onCancel?.(appointment.id)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </>
+                            )}
+                            {isCompleted && (
                                 <Button
                                     size="small"
-                                    startIcon={<SwapHorizIcon />}
-                                    onClick={() => onReschedule?.(appointment)}
+                                    variant="outlined"
+                                    startIcon={<DescriptionIcon />}
+                                    onClick={() => onViewNote?.(appointment.id)}
                                 >
-                                    Reschedule
+                                    View Note
                                 </Button>
-                                <Button
-                                    size="small"
-                                    color="error"
-                                    startIcon={<CancelIcon />}
-                                    onClick={() => onCancel?.(appointment.id)}
-                                >
-                                    Cancel
-                                </Button>
-                            </Stack>
-                        )}
+                            )}
+                        </Stack>
                     </Stack>
                 </Stack>
 
